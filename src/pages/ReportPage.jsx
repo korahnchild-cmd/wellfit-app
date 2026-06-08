@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, Share2, X } from 'lucide-react';
 import { generateReportHTML } from '../utils/generateReport';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 function getRiskLevel(value) {
   if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
@@ -74,6 +75,7 @@ export default function ReportPage() {
   const [shareLoading, setShareLoading] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+  const [storageUrl, setStorageUrl] = useState('');
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -131,14 +133,15 @@ export default function ReportPage() {
 
   // 공유 URL 생성
   const getShareUrl = () => {
+    if (storageUrl) return storageUrl;
     if (report.shareId) {
-      return `https://korahnchild-cmd.github.io/wellfit-app/report/${report.shareId}`;
+      return `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
     }
     return window.location.href;
   };
 
   // 리포트 보기
-  const handleViewReport = () => {
+  const handleViewReport = async () => {
     if (!userName.trim()) { alert('이름을 입력해주세요'); return; }
     const html = generateReportHTML({
       report, actualAge,
@@ -148,10 +151,21 @@ export default function ReportPage() {
       shareId: report.shareId,
     });
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    const localUrl = URL.createObjectURL(blob);
+    window.open(localUrl, '_blank');
     setReportGenerated(true);
     setShowInfoModal(false);
+
+    if (report.shareId) {
+      try {
+        const storageRef = ref(storage, `reports/${report.shareId}/report.html`);
+        await uploadBytes(storageRef, blob);
+        const downloadUrl = await getDownloadURL(storageRef);
+        setStorageUrl(downloadUrl);
+      } catch (e) {
+        console.warn('Storage upload failed:', e);
+      }
+    }
   };
 
   // 클립보드 복사 (clipboard API 미지원 환경 대응)
