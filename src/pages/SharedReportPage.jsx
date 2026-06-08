@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { generateReportHTML } from '../utils/generateReport';
 import { Shield, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 function getRiskLevel(value) {
@@ -93,11 +92,11 @@ export default function SharedReportPage() {
     );
   }
 
-  if (error) {
+  if (error || (!loading && !report)) {
     return (
       <div className="page-container flex flex-col items-center justify-center min-h-screen p-8 text-center">
         <div className="text-5xl mb-4">😢</div>
-        <h2 className="text-xl font-bold text-[#3D2B2B] mb-2">{error}</h2>
+        <h2 className="text-xl font-bold text-[#3D2B2B] mb-2">{error || '리포트를 불러올 수 없습니다.'}</h2>
       </div>
     );
   }
@@ -169,6 +168,27 @@ export default function SharedReportPage() {
             </div>
           )}
         </div>
+
+        {/* 이미지 분석 */}
+        {(report.faceAnalysis || report.nailAnalysis) && (
+          <div className="card">
+            <h3 className="section-title flex items-center gap-2 mb-4"><span>🔬</span>이미지 분석 결과</h3>
+            <div className="space-y-3">
+              {report.faceAnalysis && (
+                <div className="flex gap-3 p-3 bg-cream-dark rounded-2xl">
+                  <span className="text-2xl">🤳</span>
+                  <div><p className="text-xs font-bold text-mauve mb-1">얼굴 피부 분석</p><p className="text-xs text-[#5A4A4A] leading-relaxed">{report.faceAnalysis}</p></div>
+                </div>
+              )}
+              {report.nailAnalysis && (
+                <div className="flex gap-3 p-3 bg-cream-dark rounded-2xl">
+                  <span className="text-2xl">💅</span>
+                  <div><p className="text-xs font-bold text-mauve mb-1">손톱 상태 분석</p><p className="text-xs text-[#5A4A4A] leading-relaxed">{report.nailAnalysis}</p></div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 호르몬 */}
         {report.hormones && (

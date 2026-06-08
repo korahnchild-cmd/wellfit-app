@@ -132,7 +132,7 @@ export default function ReportPage() {
   // 공유 URL 생성
   const getShareUrl = () => {
     if (report.shareId) {
-      return `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
+      return `https://korahnchild-cmd.github.io/wellfit-app/report/${report.shareId}`;
     }
     return window.location.href;
   };
