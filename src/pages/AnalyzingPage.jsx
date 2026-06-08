@@ -115,6 +115,7 @@ export default function AnalyzingPage() {
             'Firestore'
           );
           shareId = docRef.id;
+          localStorage.setItem('lastShareId', shareId);
           console.log('Firestore 저장 완료:', shareId);
         } catch (e) {
           console.warn('Firestore save failed (타임아웃 포함):', e.message);

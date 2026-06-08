@@ -50,7 +50,6 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="user"
           className="hidden"
           onChange={(e) => handleFile(e.target.files[0])}
         />

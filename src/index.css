@@ -9,17 +9,19 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   html {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #FDFAF6;
   }
 
   body {
     background-color: #FDFAF6;
     color: #3D2B2B;
     overflow-x: hidden;
+    min-height: 100vh;
   }
 
   ::-webkit-scrollbar {
@@ -63,7 +65,9 @@
   }
 
   .page-container {
-    @apply min-h-screen bg-cream-gradient max-w-md mx-auto relative;
+    @apply min-h-screen bg-cream-gradient max-w-md mx-auto relative overflow-y-auto;
+    background-color: #FDFAF6;
+    -webkit-overflow-scrolling: touch;
   }
 
   .section-title {

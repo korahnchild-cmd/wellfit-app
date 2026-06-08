@@ -2,8 +2,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, Share2, X, Copy } from 'lucide-react';
+import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, Share2, X } from 'lucide-react';
 import { generateReportHTML } from '../utils/generateReport';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 function getRiskLevel(value) {
   if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
@@ -63,7 +65,8 @@ function getNutrientItems(nutrients, gender) {
 
 export default function ReportPage() {
   const navigate = useNavigate();
-  const { report, actualAge, gender, resetAll } = useApp();
+  const { report, setReport, actualAge, setActualAge, gender, setGender, resetAll } = useApp();
+  const [loading, setLoading] = useState(true);
   const [showFullPlan, setShowFullPlan] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [userName, setUserName] = useState('');
@@ -76,11 +79,48 @@ export default function ReportPage() {
     setTimeout(() => setToastMsg(''), 2500);
   };
 
+  // 컨텍스트에 report가 있으면 즉시 사용, 없으면 Firestore에서 복원
   useEffect(() => {
-    if (!report) { navigate('/'); return; }
-  }, [report, actualAge]);
+    if (report) {
+      setLoading(false);
+      return;
+    }
 
-  if (!report) return null;
+    const lastShareId = localStorage.getItem('lastShareId');
+    if (!lastShareId) {
+      navigate('/');
+      return;
+    }
+
+    getDoc(doc(db, 'reports', lastShareId))
+      .then((snap) => {
+        if (!snap.exists()) {
+          navigate('/');
+          return;
+        }
+        const data = snap.data();
+        const rd = data.reportData;
+        setReport({ ...rd, shareId: snap.id });
+        if (rd?.actualAge) setActualAge(String(rd.actualAge));
+        setGender(data.gender || rd?.gender || 'female');
+      })
+      .catch(() => navigate('/'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#FDFAF6' }}
+           className="flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-rose mx-auto mb-4" />
+          <p className="text-sm text-[#9A8080]">리포트 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!report) return <div style={{ minHeight: '100vh', backgroundColor: '#FDFAF6' }} />;
 
   const ageDiff = actualAge - report.healthAge;
   const visiblePlan = showFullPlan ? report.plan14days : report.plan14days?.slice(0, 7);
@@ -111,11 +151,27 @@ export default function ReportPage() {
     setShowInfoModal(false);
   };
 
+  // 클립보드 복사 (clipboard API 미지원 환경 대응)
+  const copyToClipboard = async (text) => {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+  };
+
   // 공유하기
   const handleShare = async () => {
+    const shareUrl = getShareUrl();
     setShareLoading(true);
     try {
-      const shareUrl = getShareUrl();
       if (navigator.share) {
         await navigator.share({
           title: '웰핏+ CHECK-UP 건강 분석 결과',
@@ -123,27 +179,28 @@ export default function ReportPage() {
           url: shareUrl,
         });
       } else {
-        await navigator.clipboard.writeText(shareUrl);
+        await copyToClipboard(shareUrl);
         showToast('링크가 복사되었습니다');
       }
     } catch (err) {
-      if (err.name !== 'AbortError') console.error('Share error:', err);
+      if (err.name === 'AbortError') return; // 사용자가 공유 취소
+      // navigator.share 실패 시 클립보드 복사로 폴백
+      try {
+        await copyToClipboard(shareUrl);
+        showToast('링크가 복사되었습니다');
+      } catch {
+        showToast('공유에 실패했습니다');
+      }
     } finally {
       setShareLoading(false);
     }
   };
 
-  // 링크 복사
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(getShareUrl());
-      showToast('링크가 복사되었습니다');
-    } catch (e) {
-      alert('링크: ' + getShareUrl());
-    }
+  const handleRestart = () => {
+    localStorage.removeItem('lastShareId');
+    resetAll();
+    navigate('/');
   };
-
-  const handleRestart = () => { resetAll(); navigate('/'); };
 
   const catColors = {
     '영양': 'bg-purple-50 text-purple-600', '수면': 'bg-blue-50 text-blue-600',
@@ -173,7 +230,7 @@ export default function ReportPage() {
         </div>
       </div>
 
-      <div className="bg-cream-gradient">
+      <div className="bg-cream-gradient" style={{ backgroundColor: '#FDFAF6' }}>
         <div className="p-4 space-y-4">
 
           {/* 건강 나이 */}
@@ -316,7 +373,7 @@ export default function ReportPage() {
           )}
 
           {/* 의료 고지 */}
-          <div className="flex items-start gap-3 p-4 bg-cream-darker/40 rounded-3xl border border-cream-deeper">
+          <div className="flex items-start gap-3 p-4 bg-cream-deeper/40 rounded-3xl border border-cream-deeper">
             <Shield size={16} className="text-rose-gold flex-shrink-0 mt-0.5" />
             <p className="text-xs text-[#9A8080] leading-relaxed">
               {report.disclaimer || '본 분석 결과는 AI 기반 라이프스타일 코칭 참고 자료이며, 의료 진단을 대체하지 않습니다.'}
