@@ -109,6 +109,8 @@ export default function AnalyzingPage() {
               surveyAnswers,
               gender: gender || 'female',
               isPublic: true,
+              userName: '',
+              userCity: '',
               timestamp: serverTimestamp(),
             }),
             5000,

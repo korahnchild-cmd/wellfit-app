@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, Share2, X } from 'lucide-react';
 import { generateReportHTML } from '../utils/generateReport';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 function getRiskLevel(value) {
   if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
@@ -72,6 +72,7 @@ export default function ReportPage() {
   const [userName, setUserName] = useState('');
   const [userCity, setUserCity] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
 
   const showToast = (msg) => {
@@ -148,6 +149,7 @@ export default function ReportPage() {
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
+    setReportGenerated(true);
     setShowInfoModal(false);
   };
 
@@ -172,6 +174,13 @@ export default function ReportPage() {
     const shareUrl = getShareUrl();
     setShareLoading(true);
     try {
+      if (report.shareId) {
+        try {
+          await updateDoc(doc(db, 'reports', report.shareId), { userName, userCity });
+        } catch (e) {
+          console.warn('Firestore update failed:', e);
+        }
+      }
       if (navigator.share) {
         await navigator.share({
           title: '웰핏+ CHECK-UP 건강 분석 결과',
@@ -289,11 +298,6 @@ export default function ReportPage() {
             </SectionCard>
           )}
 
-          {/* 공유하기 */}
-          <button onClick={handleShare} disabled={shareLoading} className="w-full btn-secondary flex items-center justify-center gap-2">
-            <Share2 size={17} />{shareLoading ? '공유 중...' : '공유하기'}
-          </button>
-
           {/* 호르몬 */}
           {report.hormones && hormoneItems.length > 0 && (
             <SectionCard title="호르몬 위험도" icon="⚗️">
@@ -370,6 +374,13 @@ export default function ReportPage() {
                 </button>
               )}
             </SectionCard>
+          )}
+
+          {/* 공유하기 - 리포트 생성 후 표시 */}
+          {reportGenerated && (
+            <button onClick={handleShare} disabled={shareLoading} className="w-full btn-secondary flex items-center justify-center gap-2">
+              <Share2 size={17} />{shareLoading ? '공유 중...' : '공유하기'}
+            </button>
           )}
 
           {/* 의료 고지 */}

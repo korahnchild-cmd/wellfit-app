@@ -57,6 +57,8 @@ export default function SharedReportPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showFullPlan, setShowFullPlan] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userCity, setUserCity] = useState('');
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -64,7 +66,10 @@ export default function SharedReportPage() {
         const docRef = doc(db, 'reports', reportId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setReport(docSnap.data().reportData);
+          const data = docSnap.data();
+          setReport(data.reportData);
+          setUserName(data.userName || '');
+          setUserCity(data.userCity || '');
         } else {
           setError('리포트를 찾을 수 없습니다.');
         }
@@ -93,7 +98,6 @@ export default function SharedReportPage() {
       <div className="page-container flex flex-col items-center justify-center min-h-screen p-8 text-center">
         <div className="text-5xl mb-4">😢</div>
         <h2 className="text-xl font-bold text-[#3D2B2B] mb-2">{error}</h2>
-        <button onClick={() => navigate('/')} className="btn-primary mt-4">홈으로 돌아가기</button>
       </div>
     );
   }
@@ -129,6 +133,11 @@ export default function SharedReportPage() {
             <span className="text-sm">{isMale ? '👨' : '👩'}</span>
             <span className="text-xs font-semibold">{actualAge}세 · {isMale ? '남성' : '여성'}</span>
           </div>
+          {userName && (
+            <div className="mt-1.5 inline-flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full ml-2">
+              <span className="text-xs font-semibold">{userName}{userCity ? ` · ${userCity}` : ''}</span>
+            </div>
+          )}
         </div>
       </div>
 
