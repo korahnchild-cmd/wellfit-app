@@ -190,10 +190,7 @@ export default function ReportPage() {
       console.log('[Storage 업로드 스킵] report.shareId 없음');
     }
 
-    // Storage URL이 하드코딩된 최종 HTML 생성 후 오픈
-    const finalHtml = generateReportHTML({ ...commonParams, shareUrl: finalShareUrl });
-    const finalBlob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
-    window.open(URL.createObjectURL(finalBlob), '_blank');
+    window.open(finalShareUrl, '_blank');
 
     setReportGenerated(true);
     setShowInfoModal(false);
