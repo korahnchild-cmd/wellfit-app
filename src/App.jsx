@@ -7,6 +7,7 @@ import SurveyPage from './pages/SurveyPage';
 import AnalyzingPage from './pages/AnalyzingPage';
 import ReportPage from './pages/ReportPage';
 import SharedReportPage from './pages/SharedReportPage';
+import GeneratedReportPage from './pages/GeneratedReportPage';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/analyzing" element={<AnalyzingPage />} />
           <Route path="/report" element={<ReportPage />} />
           <Route path="/shared/:shareId" element={<SharedReportPage />} />
+          <Route path="/report-view/:shareId" element={<GeneratedReportPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

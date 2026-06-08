@@ -132,7 +132,7 @@ export default function ReportPage() {
   const handleViewReport = () => {
     if (!userName.trim()) { alert('이름을 입력해주세요'); return; }
     if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
-    window.open(`https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`, '_blank');
+    window.open(`https://korahnchild-cmd.github.io/wellfit-app/report-view/${report.shareId}`, '_blank');
     setReportGenerated(true);
     setShowInfoModal(false);
   };
@@ -156,7 +156,7 @@ export default function ReportPage() {
   // 공유하기
   const handleShare = async () => {
     if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
-    const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
+    const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/report-view/${report.shareId}`;
     setShareLoading(true);
     try {
       if (report.shareId) {
