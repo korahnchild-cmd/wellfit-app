@@ -145,6 +145,7 @@ export default function ReportPage() {
       gender: isMale ? 'male' : 'female',
       userName,
       userCity,
+      shareId: report.shareId,
     });
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -374,13 +375,6 @@ export default function ReportPage() {
                 </button>
               )}
             </SectionCard>
-          )}
-
-          {/* 공유하기 - 리포트 생성 후 표시 */}
-          {reportGenerated && (
-            <button onClick={handleShare} disabled={shareLoading} className="w-full btn-secondary flex items-center justify-center gap-2">
-              <Share2 size={17} />{shareLoading ? '공유 중...' : '공유하기'}
-            </button>
           )}
 
           {/* 의료 고지 */}

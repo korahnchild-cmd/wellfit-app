@@ -62,7 +62,7 @@ function getCatTag(category) {
   return map[category] || 'tag-supp';
 }
 
-export function generateReportHTML({ report, actualAge, gender, userName, userCity }) {
+export function generateReportHTML({ report, actualAge, gender, userName, userCity, shareId }) {
   const isMale = gender === 'male';
   const genderLabel = isMale ? '남성' : '여성';
   const avatar = isMale ? '👨' : '🌸';
@@ -165,7 +165,7 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
   --border:#EDE4D8;--danger:#D4504A;--warn:#E8A038;--safe:#4CAF7D;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--cream);color:var(--text-1);-webkit-font-smoothing:antialiased}
+body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--cream);color:var(--text-1);-webkit-font-smoothing:antialiased;padding-bottom:80px}
 .cover{min-height:100vh;background:linear-gradient(145deg,#1A1210 0%,#2D1F18 50%,#1A1210 100%);display:flex;flex-direction:column;position:relative;overflow:hidden}
 .cover-glow-1{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,149,108,.15) 0%,transparent 70%);top:-100px;right:-100px}
 .cover-glow-2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(139,94,131,.12) 0%,transparent 70%);bottom:100px;left:-80px}
@@ -390,6 +390,52 @@ ${imageAnalysisHTML}
   </div>
 </div>
 
+
+<!-- 공유하기 버튼 -->
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:100;padding:14px 20px;background:linear-gradient(to top,rgba(26,18,16,1) 0%,rgba(26,18,16,.9) 100%);display:flex;justify-content:center">
+  <button onclick="doShare()" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#C8956C,#8B5E83);color:#fff;border:none;border-radius:14px;padding:14px 40px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.3px;box-shadow:0 4px 20px rgba(200,149,108,.4)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    공유하기
+  </button>
+</div>
+<div id="share-toast" style="display:none;position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:rgba(45,31,24,.92);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:200;white-space:nowrap"></div>
+<script>
+function doShare() {
+  var shareId = ${shareId ? `'${shareId}'` : 'null'};
+  var shareUrl = shareId
+    ? 'https://korahnchild-cmd.github.io/wellfit-app/shared/' + shareId
+    : window.location.href;
+  if (navigator.share) {
+    navigator.share({
+      title: '웰핏+ CHECK-UP 건강 분석 결과',
+      text: 'AI가 분석한 나의 건강 나이와 호르몬·영양 위험도 리포트를 확인해보세요!',
+      url: shareUrl
+    }).catch(function(e) {
+      if (e.name !== 'AbortError') { copyAndToast(shareUrl); }
+    });
+  } else {
+    copyAndToast(shareUrl);
+  }
+}
+function copyAndToast(url) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { showToast('링크가 복사되었습니다'); }).catch(function() { legacyCopy(url); });
+  } else {
+    legacyCopy(url);
+  }
+}
+function legacyCopy(url) {
+  var el = document.createElement('textarea');
+  el.value = url; el.style.position = 'fixed'; el.style.opacity = '0';
+  document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+  showToast('링크가 복사되었습니다');
+}
+function showToast(msg) {
+  var t = document.getElementById('share-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 2500);
+}
+</script>
 </body>
 </html>`;
 }
