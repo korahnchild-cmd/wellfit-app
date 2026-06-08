@@ -162,6 +162,11 @@ export default function SharedReportPage() {
               <div className="text-sm text-rose-gold">세</div>
             </div>
           </div>
+          {ageDiff < 0 && (
+            <div className="mt-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 text-center">
+              <p className="text-sm text-orange-700 font-medium leading-relaxed">지금 관리하면 충분히 되돌릴 수 있어요 💪</p>
+            </div>
+          )}
           {report.summary && (
             <div className="mt-4 p-4 bg-rose-gold/5 rounded-2xl border border-rose-gold/20">
               <p className="text-sm text-[#5A4A4A] leading-relaxed">{report.summary}</p>
@@ -246,16 +251,16 @@ export default function SharedReportPage() {
         {report.plan14days && (
           <div className="card">
             <h3 className="section-title flex items-center gap-2 mb-4"><span>📅</span>14일 맞춤 가이드</h3>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3">
               {visiblePlan?.map((item) => (
-                <div key={item.day} className="flex gap-3 items-start p-3 rounded-2xl bg-cream-dark">
+                <div key={item.day} className="flex gap-3 items-start p-3 rounded-2xl bg-cream-dark hover:bg-cream-deeper transition-colors">
                   <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-rose-gradient flex flex-col items-center justify-center shadow-rose">
                     <span className="text-white text-xs font-bold leading-none">D</span>
                     <span className="text-white text-sm font-black leading-none">{item.day}</span>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span>{item.emoji}</span>
+                      <span className="text-base">{item.emoji}</span>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${catColors[item.category] || 'bg-gray-100 text-gray-500'}`}>{item.category}</span>
                     </div>
                     <p className="text-sm text-[#3D2B2B] leading-relaxed">{item.tip}</p>
@@ -274,7 +279,7 @@ export default function SharedReportPage() {
         {/* 면책 고지 */}
         <div className="flex items-start gap-3 p-4 bg-cream-darker/40 rounded-3xl border border-cream-deeper">
           <Shield size={16} className="text-rose-gold flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-[#9A8080] leading-relaxed">본 분석 결과는 AI 기반 라이프스타일 코칭 참고 자료이며, 의료 진단을 대체하지 않습니다.</p>
+          <p className="text-xs text-[#9A8080] leading-relaxed">{report.disclaimer || '본 분석 결과는 AI 기반 라이프스타일 코칭 참고 자료이며, 의료 진단을 대체하지 않습니다.'}</p>
         </div>
 
         {/* 나도 받기 CTA */}

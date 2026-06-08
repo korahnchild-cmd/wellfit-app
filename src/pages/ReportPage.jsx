@@ -2,11 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, Share2, X } from 'lucide-react';
-import { generateReportHTML } from '../utils/generateReport';
-import { db, storage } from '../firebase';
+import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, X } from 'lucide-react';
+import { db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 function getRiskLevel(value) {
   if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
@@ -75,11 +73,6 @@ export default function ReportPage() {
   const [shareLoading, setShareLoading] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
-  const [storageUrl, setStorageUrl] = useState('');
-
-  useEffect(() => {
-    console.log('[storageUrl 상태 변경]', storageUrl || '(빈 문자열)');
-  }, [storageUrl]);
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -135,63 +128,11 @@ export default function ReportPage() {
   const hormoneItems = report.hormones ? getHormoneItems(report.hormones, isMale ? 'male' : 'female') : [];
   const nutrientItems = report.nutrients ? getNutrientItems(report.nutrients, isMale ? 'male' : 'female') : [];
 
-  // 공유 URL 생성
-  const getShareUrl = () => {
-    console.log('[getShareUrl 호출] storageUrl:', storageUrl || '(없음)', '| report.shareId:', report?.shareId || '(없음)');
-    if (storageUrl) {
-      console.log('[getShareUrl] → storageUrl 반환:', storageUrl);
-      return storageUrl;
-    }
-    if (report.shareId) {
-      const url = `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
-      console.log('[getShareUrl] → shareId 기반 URL 반환:', url);
-      return url;
-    }
-    console.log('[getShareUrl] → 기본 URL 반환 (shareId 없음)');
-    return 'https://korahnchild-cmd.github.io/wellfit-app/';
-  };
-
   // 리포트 보기
-  const handleViewReport = async () => {
+  const handleViewReport = () => {
     if (!userName.trim()) { alert('이름을 입력해주세요'); return; }
-
-    const commonParams = {
-      report, actualAge,
-      gender: isMale ? 'male' : 'female',
-      userName,
-      userCity,
-      shareId: report.shareId,
-    };
-
-    // Storage 업로드용 초기 shareUrl (shareId 기반 fallback)
-    let finalShareUrl = report.shareId
-      ? `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`
-      : '';
-
-    if (report.shareId) {
-      console.log('[Storage 업로드 시작] shareId:', report.shareId);
-      try {
-        const uploadBlob = new Blob(
-          [generateReportHTML({ ...commonParams, shareUrl: finalShareUrl })],
-          { type: 'text/html;charset=utf-8' }
-        );
-        const storageRef = ref(storage, `reports/${report.shareId}/report.html`);
-        await uploadBytes(storageRef, uploadBlob);
-        console.log('[Storage 업로드 완료] getDownloadURL 호출 중...');
-        const downloadUrl = await getDownloadURL(storageRef);
-        console.log('[Storage downloadUrl 획득]', downloadUrl);
-        finalShareUrl = downloadUrl;
-        setStorageUrl(downloadUrl);
-        console.log('[setStorageUrl 호출됨]', downloadUrl);
-      } catch (e) {
-        console.warn('[Storage 업로드 실패]', e);
-      }
-    } else {
-      console.log('[Storage 업로드 스킵] report.shareId 없음');
-    }
-
-    window.open(finalShareUrl, '_blank');
-
+    if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    window.open(`https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`, '_blank');
     setReportGenerated(true);
     setShowInfoModal(false);
   };
@@ -214,8 +155,8 @@ export default function ReportPage() {
 
   // 공유하기
   const handleShare = async () => {
-    const shareUrl = getShareUrl();
-    console.log('[공유하기] shareUrl:', shareUrl, '| storageUrl:', storageUrl, '| report.shareId:', report?.shareId);
+    if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
     setShareLoading(true);
     try {
       if (report.shareId) {
