@@ -232,6 +232,11 @@ export default function ReportPage() {
             </SectionCard>
           )}
 
+          {/* 공유하기 */}
+          <button onClick={handleShare} disabled={shareLoading} className="w-full btn-secondary flex items-center justify-center gap-2">
+            <Share2 size={17} />{shareLoading ? '공유 중...' : '공유하기'}
+          </button>
+
           {/* 호르몬 */}
           {report.hormones && hormoneItems.length > 0 && (
             <SectionCard title="호르몬 위험도" icon="⚗️">
@@ -322,23 +327,14 @@ export default function ReportPage() {
 
       {/* 하단 버튼 */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-6 pt-4 bg-cream-gradient border-t border-cream-deeper">
-        <div className="flex gap-2 mb-2">
+        <div className="flex gap-2">
           <button onClick={() => setShowInfoModal(true)} className="flex-1 btn-primary flex items-center justify-center gap-2">
             <FileText size={17} />리포트 보기
           </button>
-          <button onClick={handleShare} disabled={shareLoading} className="flex-1 btn-secondary flex items-center justify-center gap-2">
-            <Share2 size={17} />{shareLoading ? '공유 중...' : '공유하기'}
+          <button onClick={handleRestart} className="flex-1 btn-secondary flex items-center justify-center gap-2">
+            <RefreshCw size={17} />다시하기
           </button>
         </div>
-        {/* 링크 복사 */}
-        {report.shareId && (
-          <button onClick={handleCopyLink} className="w-full flex items-center justify-center gap-2 text-sm py-2 text-[#9A8080] hover:text-rose-gold transition-colors">
-            <Copy size={14} />리포트 링크 복사
-          </button>
-        )}
-        <button onClick={handleRestart} className="w-full flex items-center justify-center gap-2 text-sm text-[#B0A0A0] py-1">
-          <RefreshCw size={14} />다시하기
-        </button>
       </div>
 
       {/* 토스트 메시지 */}
