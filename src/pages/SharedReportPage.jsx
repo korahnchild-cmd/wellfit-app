@@ -50,7 +50,7 @@ function getNutrientItems(nutrients, gender) {
 }
 
 export default function SharedReportPage() {
-  const { reportId } = useParams();
+  const { shareId } = useParams();
   const navigate = useNavigate();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,26 +60,37 @@ export default function SharedReportPage() {
   const [userCity, setUserCity] = useState('');
 
   useEffect(() => {
+    const MAX_RETRIES = 3;
+    let retries = 0;
+
     const fetchReport = async () => {
       try {
-        const docRef = doc(db, 'reports', reportId);
-        const docSnap = await getDoc(docRef);
+        const docSnap = await getDoc(doc(db, 'reports', shareId));
         if (docSnap.exists()) {
           const data = docSnap.data();
           setReport(data.reportData);
           setUserName(data.userName || '');
           setUserCity(data.userCity || '');
+          setLoading(false);
+        } else if (retries < MAX_RETRIES) {
+          retries++;
+          setTimeout(fetchReport, 1500);
         } else {
           setError('리포트를 찾을 수 없습니다.');
+          setLoading(false);
         }
       } catch (e) {
-        setError('리포트를 불러오는 중 오류가 발생했습니다.');
-      } finally {
-        setLoading(false);
+        if (retries < MAX_RETRIES) {
+          retries++;
+          setTimeout(fetchReport, 1500);
+        } else {
+          setError('리포트를 불러오는 중 오류가 발생했습니다.');
+          setLoading(false);
+        }
       }
     };
     fetchReport();
-  }, [reportId]);
+  }, [shareId]);
 
   if (loading) {
     return (

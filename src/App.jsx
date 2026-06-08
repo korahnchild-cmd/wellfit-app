@@ -18,7 +18,7 @@ export default function App() {
           <Route path="/survey" element={<SurveyPage />} />
           <Route path="/analyzing" element={<AnalyzingPage />} />
           <Route path="/report" element={<ReportPage />} />
-          <Route path="/report/:reportId" element={<SharedReportPage />} />
+          <Route path="/shared/:shareId" element={<SharedReportPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
