@@ -65,7 +65,6 @@ export default function ReportPage() {
   const navigate = useNavigate();
   const { report, actualAge, gender, resetAll } = useApp();
   const [showFullPlan, setShowFullPlan] = useState(false);
-  const [ageDiff, setAgeDiff] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [userName, setUserName] = useState('');
   const [userCity, setUserCity] = useState('');
@@ -79,11 +78,11 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (!report) { navigate('/'); return; }
-    if (report.healthAge && actualAge) setAgeDiff(parseInt(actualAge) - report.healthAge);
   }, [report, actualAge]);
 
   if (!report) return null;
 
+  const ageDiff = actualAge - report.healthAge;
   const visiblePlan = showFullPlan ? report.plan14days : report.plan14days?.slice(0, 7);
   const isMale = (gender || report.gender) === 'male';
   const hormoneItems = report.hormones ? getHormoneItems(report.hormones, isMale ? 'male' : 'female') : [];
@@ -212,16 +211,6 @@ export default function ReportPage() {
               </div>
             )}
           </div>
-
-          {/* 공유하기 버튼 */}
-          <button
-            onClick={handleShare}
-            disabled={shareLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-white rounded-2xl border border-rose-gold/30 text-rose-gold font-semibold text-sm hover:bg-rose-gold/5 transition-colors shadow-sm active:scale-95"
-          >
-            <Share2 size={16} />
-            {shareLoading ? '공유 중...' : '친구에게 공유하기 🔗'}
-          </button>
 
           {/* 이미지 분석 */}
           {(report.faceAnalysis || report.nailAnalysis) && (
