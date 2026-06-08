@@ -1,5 +1,5 @@
 // src/pages/GeneratedReportPage.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -10,6 +10,23 @@ export default function GeneratedReportPage() {
   const [html, setHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState(false);
+
+  const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/report-view/${shareId}`;
+
+  const handleShare = useCallback(async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: '나의 웰핏 건강 리포트', url: shareUrl });
+      } catch {
+        // 사용자가 취소한 경우 등 무시
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+      setToast(true);
+      setTimeout(() => setToast(false), 2500);
+    }
+  }, [shareUrl]);
 
   useEffect(() => {
     const MAX_RETRIES = 3;
@@ -76,5 +93,53 @@ export default function GeneratedReportPage() {
     );
   }
 
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <div>
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+
+      {/* React 공유하기 버튼 */}
+      <div style={{ padding: '0 20px 40px', backgroundColor: '#FDFAF6' }}>
+        <button
+          onClick={handleShare}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '16px',
+            background: 'linear-gradient(135deg, #C9967A 0%, #B8835A 100%)',
+            color: '#fff',
+            fontSize: '16px',
+            fontWeight: '600',
+            letterSpacing: '0.5px',
+            border: 'none',
+            borderRadius: '14px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(184,131,90,0.35)',
+          }}
+        >
+          🔗 공유하기
+        </button>
+      </div>
+
+      {/* 클립보드 복사 토스트 */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: '60px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(61,43,43,0.88)',
+          color: '#fff',
+          padding: '12px 24px',
+          borderRadius: '24px',
+          fontSize: '14px',
+          fontWeight: '500',
+          whiteSpace: 'nowrap',
+          zIndex: 9999,
+          pointerEvents: 'none',
+        }}>
+          링크가 복사되었습니다
+        </div>
+      )}
+    </div>
+  );
 }
