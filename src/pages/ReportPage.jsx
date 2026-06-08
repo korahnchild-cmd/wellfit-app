@@ -129,9 +129,14 @@ export default function ReportPage() {
   const nutrientItems = report.nutrients ? getNutrientItems(report.nutrients, isMale ? 'male' : 'female') : [];
 
   // 리포트 보기
-  const handleViewReport = () => {
+  const handleViewReport = async () => {
     if (!userName.trim()) { alert('이름을 입력해주세요'); return; }
     if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    try {
+      await updateDoc(doc(db, 'reports', report.shareId), { userName, userCity });
+    } catch (e) {
+      console.warn('Firestore update failed:', e);
+    }
     window.open(`https://korahnchild-cmd.github.io/wellfit-app/report-view/${report.shareId}`, '_blank');
     setReportGenerated(true);
     setShowInfoModal(false);
