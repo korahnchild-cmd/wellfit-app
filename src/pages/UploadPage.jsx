@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Camera, Fingerprint, ChevronRight, ChevronLeft, Check, Upload, Info } from 'lucide-react';
 
-function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFile, hint }) {
+function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFile, hint, tips }) {
   const inputRef = useRef();
   const [dragging, setDragging] = useState(false);
 
@@ -81,6 +81,16 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
         <div className="flex items-start gap-2 mt-3 p-3 bg-cream-dark rounded-2xl">
           <Info size={13} className="text-rose-gold mt-0.5 flex-shrink-0" />
           <p className="text-xs text-[#7A6060] leading-relaxed">{hint}</p>
+        </div>
+      )}
+
+      {tips && tips.length > 0 && (
+        <div className="mt-2 space-y-1.5">
+          {tips.map((tip, i) => (
+            <div key={i} className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-2xl">
+              <p className="text-xs text-amber-800 leading-relaxed">{tip}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -203,6 +213,7 @@ export default function UploadPage() {
           preview={faceImage?.preview}
           onFile={setFaceImage}
           hint="밝은 곳에서 정면을 바라보고 찍어주세요. 화장이 없는 사진이 더 정확합니다."
+          tips={["📸 후면 카메라로 촬영하면 분석 정확도가 높아집니다"]}
         />
 
         {/* 손톱 업로드 */}
@@ -215,6 +226,10 @@ export default function UploadPage() {
           preview={nailImage?.preview}
           onFile={setNailImage}
           hint="손톱 여러 개가 보이도록 손을 펴서 찍어주세요. 네일 아트가 없는 사진을 권장합니다."
+          tips={[
+            "📸 후면 카메라로 촬영해주세요",
+            "✋ 세 손가락 이상 한 화면에 나오게 찍어주세요",
+          ]}
         />
 
         {/* 건너뛰기 안내 */}
