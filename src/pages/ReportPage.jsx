@@ -134,10 +134,8 @@ export default function ReportPage() {
   // 공유 URL 생성
   const getShareUrl = () => {
     if (storageUrl) return storageUrl;
-    if (report.shareId) {
-      return `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
-    }
-    return window.location.href;
+    if (report.shareId) return `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
+    return 'https://korahnchild-cmd.github.io/wellfit-app/';
   };
 
   // 리포트 보기
@@ -187,6 +185,7 @@ export default function ReportPage() {
   // 공유하기
   const handleShare = async () => {
     const shareUrl = getShareUrl();
+    console.log('[공유하기] shareUrl:', shareUrl, '| storageUrl:', storageUrl, '| report.shareId:', report?.shareId);
     setShareLoading(true);
     try {
       if (report.shareId) {
