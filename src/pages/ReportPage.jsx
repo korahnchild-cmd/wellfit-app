@@ -192,7 +192,7 @@ export default function ReportPage() {
               <div className="flex flex-col items-center">
                 <div className="text-lg font-bold text-[#C0B0B0] mb-2">VS</div>
                 <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff > 0 ? 'bg-green-100 text-green-600' : ageDiff < 0 ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
-                  {ageDiff > 0 ? `${ageDiff}세 젊음 ✨` : ageDiff < 0 ? `${Math.abs(ageDiff)}세 높음 ⚠️` : '동일'}
+                  {ageDiff > 0 ? `−${ageDiff}세 젊음 ✨` : ageDiff < 0 ? `+${Math.abs(ageDiff)}세 높음` : '동일'}
                 </div>
               </div>
               <div className="text-center">
@@ -201,12 +201,27 @@ export default function ReportPage() {
                 <div className="text-sm text-rose-gold">세</div>
               </div>
             </div>
+            {ageDiff < 0 && (
+              <div className="mt-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 text-center">
+                <p className="text-sm text-orange-700 font-medium leading-relaxed">지금 관리하면 충분히 되돌릴 수 있어요 💪</p>
+              </div>
+            )}
             {report.summary && (
               <div className="mt-4 p-4 bg-rose-gold/5 rounded-2xl border border-rose-gold/20">
                 <p className="text-sm text-[#5A4A4A] leading-relaxed">{report.summary}</p>
               </div>
             )}
           </div>
+
+          {/* 공유하기 버튼 */}
+          <button
+            onClick={handleShare}
+            disabled={shareLoading}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-white rounded-2xl border border-rose-gold/30 text-rose-gold font-semibold text-sm hover:bg-rose-gold/5 transition-colors shadow-sm active:scale-95"
+          >
+            <Share2 size={16} />
+            {shareLoading ? '공유 중...' : '친구에게 공유하기 🔗'}
+          </button>
 
           {/* 이미지 분석 */}
           {(report.faceAnalysis || report.nailAnalysis) && (
