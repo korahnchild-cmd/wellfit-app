@@ -62,7 +62,7 @@ function getCatTag(category) {
   return map[category] || 'tag-supp';
 }
 
-export function generateReportHTML({ report, actualAge, gender, userName, userCity, shareId }) {
+export function generateReportHTML({ report, actualAge, gender, userName, userCity, shareId, shareUrl }) {
   const isMale = gender === 'male';
   const genderLabel = isMale ? '남성' : '여성';
   const avatar = isMale ? '👨' : '🌸';
@@ -401,10 +401,8 @@ ${imageAnalysisHTML}
 <div id="share-toast" style="display:none;position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:rgba(45,31,24,.92);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:200;white-space:nowrap"></div>
 <script>
 function doShare() {
-  var shareId = ${shareId ? `'${shareId}'` : 'null'};
-  var shareUrl = shareId
-    ? 'https://korahnchild-cmd.github.io/wellfit-app/shared/' + shareId
-    : window.location.href;
+  var shareUrl = ${JSON.stringify(shareUrl || '')};
+  if (!shareUrl) shareUrl = window.location.href;
   if (navigator.share) {
     navigator.share({
       title: '웰핏+ CHECK-UP 건강 분석 결과',

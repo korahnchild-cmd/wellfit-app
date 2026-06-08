@@ -77,6 +77,10 @@ export default function ReportPage() {
   const [toastMsg, setToastMsg] = useState('');
   const [storageUrl, setStorageUrl] = useState('');
 
+  useEffect(() => {
+    console.log('[storageUrl 상태 변경]', storageUrl || '(빈 문자열)');
+  }, [storageUrl]);
+
   const showToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(''), 2500);
@@ -133,37 +137,66 @@ export default function ReportPage() {
 
   // 공유 URL 생성
   const getShareUrl = () => {
-    if (storageUrl) return storageUrl;
-    if (report.shareId) return `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
+    console.log('[getShareUrl 호출] storageUrl:', storageUrl || '(없음)', '| report.shareId:', report?.shareId || '(없음)');
+    if (storageUrl) {
+      console.log('[getShareUrl] → storageUrl 반환:', storageUrl);
+      return storageUrl;
+    }
+    if (report.shareId) {
+      const url = `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`;
+      console.log('[getShareUrl] → shareId 기반 URL 반환:', url);
+      return url;
+    }
+    console.log('[getShareUrl] → 기본 URL 반환 (shareId 없음)');
     return 'https://korahnchild-cmd.github.io/wellfit-app/';
   };
 
   // 리포트 보기
   const handleViewReport = async () => {
     if (!userName.trim()) { alert('이름을 입력해주세요'); return; }
-    const html = generateReportHTML({
+
+    const commonParams = {
       report, actualAge,
       gender: isMale ? 'male' : 'female',
       userName,
       userCity,
       shareId: report.shareId,
-    });
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const localUrl = URL.createObjectURL(blob);
-    window.open(localUrl, '_blank');
-    setReportGenerated(true);
-    setShowInfoModal(false);
+    };
+
+    // Storage 업로드용 초기 shareUrl (shareId 기반 fallback)
+    let finalShareUrl = report.shareId
+      ? `https://korahnchild-cmd.github.io/wellfit-app/shared/${report.shareId}`
+      : '';
 
     if (report.shareId) {
+      console.log('[Storage 업로드 시작] shareId:', report.shareId);
       try {
+        const uploadBlob = new Blob(
+          [generateReportHTML({ ...commonParams, shareUrl: finalShareUrl })],
+          { type: 'text/html;charset=utf-8' }
+        );
         const storageRef = ref(storage, `reports/${report.shareId}/report.html`);
-        await uploadBytes(storageRef, blob);
+        await uploadBytes(storageRef, uploadBlob);
+        console.log('[Storage 업로드 완료] getDownloadURL 호출 중...');
         const downloadUrl = await getDownloadURL(storageRef);
+        console.log('[Storage downloadUrl 획득]', downloadUrl);
+        finalShareUrl = downloadUrl;
         setStorageUrl(downloadUrl);
+        console.log('[setStorageUrl 호출됨]', downloadUrl);
       } catch (e) {
-        console.warn('Storage upload failed:', e);
+        console.warn('[Storage 업로드 실패]', e);
       }
+    } else {
+      console.log('[Storage 업로드 스킵] report.shareId 없음');
     }
+
+    // Storage URL이 하드코딩된 최종 HTML 생성 후 오픈
+    const finalHtml = generateReportHTML({ ...commonParams, shareUrl: finalShareUrl });
+    const finalBlob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+    window.open(URL.createObjectURL(finalBlob), '_blank');
+
+    setReportGenerated(true);
+    setShowInfoModal(false);
   };
 
   // 클립보드 복사 (clipboard API 미지원 환경 대응)
