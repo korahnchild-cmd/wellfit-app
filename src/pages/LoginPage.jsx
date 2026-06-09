@@ -66,6 +66,12 @@ export default function LoginPage() {
           </div>
 
           <div className="card-glass p-6 space-y-4">
+            <div className="bg-purple-50 rounded-xl p-3 text-center">
+              <p className="text-sm font-bold text-[#8B5E83]">
+                로그인하면 기록 저장 + 레퍼럴 혜택을 받을 수 있어요
+              </p>
+            </div>
+
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
@@ -79,10 +85,6 @@ export default function LoginPage() {
               </svg>
               {loading ? '로그인 중...' : 'Google로 시작하기'}
             </button>
-
-            <p className="text-xs text-[#9A8080] text-center">
-              로그인하면 <span className="text-rose-gold font-semibold">기록 저장 + 레퍼럴 혜택</span>을 받을 수 있어요
-            </p>
 
             {error && (
               <div className="bg-red-50 text-red-500 text-sm rounded-xl px-4 py-3 border border-red-100 text-center">
