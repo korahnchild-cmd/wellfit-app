@@ -110,7 +110,7 @@ export default function LoginPage() {
             )}
 
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/upload')}
               className="w-full text-xs text-[#B0A0A0] hover:text-[#9A8080] transition-colors text-center py-1"
             >
               로그인 없이 시작하기
