@@ -33,7 +33,12 @@ export default function LoginPage() {
   // URL ?ref=코드 를 localStorage에 저장 (비로그인 시작 시에도 유지)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const ref = params.get('ref');
+    let ref = params.get('ref');
+    // 404 → index.html 리다이렉트 경유 시 q=ref=ABC123 형태로 인코딩됨
+    if (!ref && params.has('q')) {
+      const qParams = new URLSearchParams(params.get('q'));
+      ref = qParams.get('ref');
+    }
     if (ref) {
       localStorage.setItem('referralCode', ref);
       localStorage.setItem('referralCodeExpiry', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
