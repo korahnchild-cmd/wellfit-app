@@ -73,6 +73,7 @@ export default function ReportPage() {
   const [shareLoading, setShareLoading] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+  const [activeTab, setActiveTab] = useState('paid');
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -369,40 +370,78 @@ export default function ReportPage() {
           {/* 유료 전환 유도 섹션 - 비로그인 또는 무료체험 사용자에게만 표시 */}
           {(!user || user.isGuest || user.subscriptionStatus !== 'paid') && (
             <div className="card overflow-hidden border-rose-gold/30 bg-gradient-to-br from-white via-rose-50/30 to-purple-50/20">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-lg">🔒</span>
-                <h3 className="text-base font-black text-[#3D2B2B]">구독하면 더 많은 게 가능해요</h3>
+              {/* 탭 헤더 */}
+              <div className="flex rounded-2xl p-1 mb-4" style={{ backgroundColor: '#F3EDF7' }}>
+                <button
+                  onClick={() => setActiveTab('free')}
+                  className="flex-1 py-2 text-sm font-bold rounded-xl transition-all"
+                  style={
+                    activeTab === 'free'
+                      ? { background: 'linear-gradient(135deg, #C8956C 0%, #8B5E83 100%)', color: '#fff' }
+                      : { color: '#8B5E83', opacity: 0.65 }
+                  }
+                >
+                  무료 체험
+                </button>
+                <button
+                  onClick={() => setActiveTab('paid')}
+                  className="flex-1 py-2 text-sm font-bold rounded-xl transition-all"
+                  style={
+                    activeTab === 'paid'
+                      ? { background: 'linear-gradient(135deg, #C8956C 0%, #8B5E83 100%)', color: '#fff' }
+                      : { color: '#8B5E83', opacity: 0.65 }
+                  }
+                >
+                  유료 구독
+                </button>
               </div>
-              <div className="space-y-3 mb-5">
-                <div className="flex items-start gap-3 p-3 bg-blue-50/60 rounded-2xl">
-                  <span className="text-xl flex-shrink-0">📈</span>
-                  <div>
-                    <p className="text-sm font-bold text-[#3D2B2B]">월별 변화 그래프</p>
-                    <p className="text-xs text-[#7A6060] mt-0.5">건강 나이·호르몬·영양 추이를 매달 시각화</p>
-                  </div>
+
+              {/* 무료 체험 탭 */}
+              {activeTab === 'free' && (
+                <div className="space-y-1.5 mb-5">
+                  {[
+                    { ok: true,  text: '1회 AI 분석' },
+                    { ok: true,  text: '본문리포트 확인 (건강나이/호르몬/영양/14일플랜)' },
+                    { ok: true,  text: '생성된 리포트 공유' },
+                    { ok: true,  text: '14일 이용' },
+                    { ok: false, text: '월별 변화 그래프' },
+                    { ok: false, text: '건강나이 챌린지' },
+                    { ok: false, text: '3개월 예상 피부 미리보기' },
+                    { ok: false, text: '앰배서더 수익' },
+                  ].map((item, i) => (
+                    <div key={i} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl ${item.ok ? 'bg-white/60' : ''}`} style={!item.ok ? { opacity: 0.45 } : {}}>
+                      <span className="text-sm flex-shrink-0">{item.ok ? '✅' : '❌'}</span>
+                      <span className={`text-sm ${item.ok ? 'font-medium text-[#3D2B2B]' : 'text-[#9A8080] line-through'}`}>{item.text}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-start gap-3 p-3 bg-amber-50/60 rounded-2xl">
-                  <span className="text-xl flex-shrink-0">🏆</span>
-                  <div>
-                    <p className="text-sm font-bold text-[#3D2B2B]">건강나이 챌린지 −3세 목표 + 인증서</p>
-                    <p className="text-xs text-[#7A6060] mt-0.5">달성 시 공식 인증서 발급 및 커뮤니티 공유</p>
+              )}
+
+              {/* 유료 구독 탭 */}
+              {activeTab === 'paid' && (
+                <>
+                  <div className="flex items-center justify-center gap-1 mb-3">
+                    <span className="text-xl font-black" style={{ color: '#C8956C' }}>월 59,800원</span>
                   </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-pink-50/60 rounded-2xl">
-                  <span className="text-xl flex-shrink-0">✨</span>
-                  <div>
-                    <p className="text-sm font-bold text-[#3D2B2B]">3개월 예상 피부 미리보기</p>
-                    <p className="text-xs text-[#7A6060] mt-0.5">AI가 예측하는 관리 후 피부 변화 시뮬레이션</p>
+                  <div className="space-y-1.5 mb-5">
+                    {[
+                      '월 4회 정기 분석 (주 1회 관리)',
+                      '월별 변화 그래프',
+                      '건강나이 챌린지 (-3세 목표 + 인증서)',
+                      '3개월 예상 피부 미리보기',
+                      '앰배서더 수익 (단 2명 추천 = 구독료 0원)',
+                      '무료 체험 모든 기능 포함',
+                    ].map((text, i) => (
+                      <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/60">
+                        <span className="text-sm flex-shrink-0">✅</span>
+                        <span className="text-sm font-medium text-[#3D2B2B]">{text}</span>
+                      </div>
+                    ))}
                   </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-green-50/60 rounded-2xl">
-                  <span className="text-xl flex-shrink-0">💰</span>
-                  <div>
-                    <p className="text-sm font-bold text-[#3D2B2B]">단 2명 추천 = 구독료 0원</p>
-                    <p className="text-xs text-[#7A6060] mt-0.5">친구 2명이 가입하면 다음 달 구독이 무료</p>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
+
+              {/* CTA 버튼 */}
               {(!user || user.isGuest) ? (
                 <>
                   <button
