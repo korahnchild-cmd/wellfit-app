@@ -80,11 +80,22 @@ export default function LoginPage() {
               {loading ? '로그인 중...' : 'Google로 시작하기'}
             </button>
 
+            <p className="text-xs text-[#9A8080] text-center">
+              로그인하면 <span className="text-rose-gold font-semibold">기록 저장 + 레퍼럴 혜택</span>을 받을 수 있어요
+            </p>
+
             {error && (
               <div className="bg-red-50 text-red-500 text-sm rounded-xl px-4 py-3 border border-red-100 text-center">
                 {error}
               </div>
             )}
+
+            <button
+              onClick={() => navigate('/')}
+              className="w-full text-xs text-[#B0A0A0] hover:text-[#9A8080] transition-colors text-center py-1"
+            >
+              로그인 없이 시작하기
+            </button>
 
             <button
               onClick={() => navigate('/')}
