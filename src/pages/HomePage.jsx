@@ -11,7 +11,7 @@ import { X, Mail, Lock, Eye, EyeOff, Sparkles, Heart, Shield } from 'lucide-reac
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { setUser } = useApp();
+  const { user, setUser } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -20,7 +20,13 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleStart = () => setShowModal(true);
+  const handleStart = () => {
+    if (user) {
+      navigate('/upload');
+    } else {
+      navigate('/login');
+    }
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();

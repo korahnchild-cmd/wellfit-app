@@ -1,5 +1,8 @@
 // src/context/AppContext.jsx
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 const AppContext = createContext(null);
 export const SURVEY_QUESTIONS = [
   // 수면 (3문항)
@@ -29,6 +32,28 @@ export const SURVEY_QUESTIONS = [
 const initialSurvey = Object.fromEntries(SURVEY_QUESTIONS.map((q) => [q.id, 0]));
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+        const firestoreData = snap.exists() ? snap.data() : {};
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          subscriptionStatus: firestoreData.subscriptionStatus || 'free_trial',
+          trialStartDate: firestoreData.trialStartDate || null,
+          analysisCount: firestoreData.analysisCount || 0,
+        });
+      } else {
+        setUser((prev) => (prev?.isGuest ? prev : null));
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [faceImage, setFaceImage] = useState(null);
   const [nailImage, setNailImage] = useState(null);
   const [surveyAnswers, setSurveyAnswers] = useState(initialSurvey);

@@ -8,6 +8,7 @@ import AnalyzingPage from './pages/AnalyzingPage';
 import ReportPage from './pages/ReportPage';
 import SharedReportPage from './pages/SharedReportPage';
 import GeneratedReportPage from './pages/GeneratedReportPage';
+import LoginPage from './pages/LoginPage';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
       <BrowserRouter basename="/wellfit-app">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/survey" element={<SurveyPage />} />
           <Route path="/analyzing" element={<AnalyzingPage />} />
