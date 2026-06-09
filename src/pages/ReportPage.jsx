@@ -367,7 +367,7 @@ export default function ReportPage() {
           )}
 
           {/* 유료 전환 유도 섹션 - 비로그인 또는 무료체험 사용자에게만 표시 */}
-          {(!user || user.subscriptionStatus !== 'paid') && (
+          {(!user || user.isGuest || user.subscriptionStatus !== 'paid') && (
             <div className="card overflow-hidden border-rose-gold/30 bg-gradient-to-br from-white via-rose-50/30 to-purple-50/20">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">🔒</span>
@@ -403,14 +403,26 @@ export default function ReportPage() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => navigate('/login')}
-                className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-rose transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)' }}
-              >
-                14일 무료 체험 시작하기
-              </button>
-              <p className="text-xs text-center text-[#B0A0A0] mt-2">신용카드 없이 시작 · 언제든 해지 가능</p>
+              {(!user || user.isGuest) ? (
+                <>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-rose transition-all active:scale-95"
+                    style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)' }}
+                  >
+                    14일 무료 체험 시작하기
+                  </button>
+                  <p className="text-xs text-center text-[#B0A0A0] mt-2">신용카드 없이 시작 · 언제든 해지 가능</p>
+                </>
+              ) : (
+                <button
+                  onClick={() => navigate('/subscribe')}
+                  className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-rose transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)' }}
+                >
+                  유료 구독하기 · 월 59,800원
+                </button>
+              )}
             </div>
           )}
 
