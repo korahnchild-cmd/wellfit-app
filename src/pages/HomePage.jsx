@@ -149,6 +149,17 @@ export default function HomePage() {
             본 서비스는 의료 진단이 아닌 라이프스타일 코칭 참고 자료입니다
           </p>
         </div>
+
+        {user && !user.isGuest && (
+          <div className="mt-3 flex justify-center animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <button
+              onClick={() => navigate('/mypage')}
+              className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors"
+            >
+              마이페이지
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 로그인 모달 */}

@@ -430,6 +430,7 @@ export default function ReportPage() {
                       '건강나이 챌린지 (-3세 목표 + 인증서)',
                       '3개월 예상 피부 미리보기',
                       '앰배서더 수익 (단 2명 추천 = 구독료 0원)',
+                      '🔔 매주 맞춤 건강 푸시 알림 — "1주차 실천체크·2주차 중간점검·3주차 분석알림·4주차 월마무리, 내 건강 상태에 맞춘 맞춤 알림"',
                       '무료 체험 모든 기능 포함',
                     ].map((text, i) => (
                       <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/60">

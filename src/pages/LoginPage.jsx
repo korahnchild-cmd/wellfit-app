@@ -6,6 +6,25 @@ import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firest
 import { auth, db } from '../firebase';
 import { Shield } from 'lucide-react';
 
+// 만료 검사 포함 읽기
+function getReferralCode() {
+  const code = localStorage.getItem('referralCode');
+  if (!code) return null;
+  const expiry = localStorage.getItem('referralCodeExpiry');
+  if (expiry && Date.now() > Number(expiry)) {
+    localStorage.removeItem('referralCode');
+    localStorage.removeItem('referralCodeExpiry');
+    return null;
+  }
+  return code;
+}
+
+// referralCode + 만료키 함께 삭제
+function clearReferralCode() {
+  localStorage.removeItem('referralCode');
+  localStorage.removeItem('referralCodeExpiry');
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -17,6 +36,7 @@ export default function LoginPage() {
     const ref = params.get('ref');
     if (ref) {
       localStorage.setItem('referralCode', ref);
+      localStorage.setItem('referralCodeExpiry', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
     }
   }, []);
 
@@ -30,7 +50,7 @@ export default function LoginPage() {
 
       const userRef = doc(db, 'users', firebaseUser.uid);
       const snap = await getDoc(userRef);
-      const refCode = localStorage.getItem('referralCode');
+      const refCode = getReferralCode();
 
       if (!snap.exists()) {
         await setDoc(userRef, {
@@ -43,14 +63,14 @@ export default function LoginPage() {
           analysisCount: 0,
           ...(refCode && { referredBy: refCode }),
         });
-        if (refCode) localStorage.removeItem('referralCode');
+        if (refCode) clearReferralCode();
       } else {
         const existingData = snap.data();
         const updateData = { lastLoginAt: serverTimestamp() };
         // 기존 referredBy가 없는 경우에만 저장
         if (refCode && !existingData.referredBy) {
           updateData.referredBy = refCode;
-          localStorage.removeItem('referralCode');
+          clearReferralCode();
         }
         await updateDoc(userRef, updateData);
       }

@@ -9,6 +9,7 @@ import ReportPage from './pages/ReportPage';
 import SharedReportPage from './pages/SharedReportPage';
 import GeneratedReportPage from './pages/GeneratedReportPage';
 import LoginPage from './pages/LoginPage';
+import MyPage from './pages/MyPage';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/report" element={<ReportPage />} />
           <Route path="/shared/:shareId" element={<SharedReportPage />} />
           <Route path="/report-view/:shareId" element={<GeneratedReportPage />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
