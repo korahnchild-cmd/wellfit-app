@@ -64,7 +64,7 @@ function getNutrientItems(nutrients, gender) {
 
 export default function ReportPage() {
   const navigate = useNavigate();
-  const { report, setReport, actualAge, setActualAge, gender, setGender, resetAll } = useApp();
+  const { user, report, setReport, actualAge, setActualAge, gender, setGender, resetAll } = useApp();
   const [loading, setLoading] = useState(true);
   const [showFullPlan, setShowFullPlan] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -364,6 +364,54 @@ export default function ReportPage() {
                 </button>
               )}
             </SectionCard>
+          )}
+
+          {/* 유료 전환 유도 섹션 - 비로그인 또는 무료체험 사용자에게만 표시 */}
+          {(!user || user.subscriptionStatus !== 'paid') && (
+            <div className="card overflow-hidden border-rose-gold/30 bg-gradient-to-br from-white via-rose-50/30 to-purple-50/20">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-lg">🔒</span>
+                <h3 className="text-base font-black text-[#3D2B2B]">구독하면 더 많은 게 가능해요</h3>
+              </div>
+              <div className="space-y-3 mb-5">
+                <div className="flex items-start gap-3 p-3 bg-blue-50/60 rounded-2xl">
+                  <span className="text-xl flex-shrink-0">📈</span>
+                  <div>
+                    <p className="text-sm font-bold text-[#3D2B2B]">월별 변화 그래프</p>
+                    <p className="text-xs text-[#7A6060] mt-0.5">건강 나이·호르몬·영양 추이를 매달 시각화</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-amber-50/60 rounded-2xl">
+                  <span className="text-xl flex-shrink-0">🏆</span>
+                  <div>
+                    <p className="text-sm font-bold text-[#3D2B2B]">건강나이 챌린지 −3세 목표 + 인증서</p>
+                    <p className="text-xs text-[#7A6060] mt-0.5">달성 시 공식 인증서 발급 및 커뮤니티 공유</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-pink-50/60 rounded-2xl">
+                  <span className="text-xl flex-shrink-0">✨</span>
+                  <div>
+                    <p className="text-sm font-bold text-[#3D2B2B]">3개월 예상 피부 미리보기</p>
+                    <p className="text-xs text-[#7A6060] mt-0.5">AI가 예측하는 관리 후 피부 변화 시뮬레이션</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-green-50/60 rounded-2xl">
+                  <span className="text-xl flex-shrink-0">💰</span>
+                  <div>
+                    <p className="text-sm font-bold text-[#3D2B2B]">단 2명 추천 = 구독료 0원</p>
+                    <p className="text-xs text-[#7A6060] mt-0.5">친구 2명이 가입하면 다음 달 구독이 무료</p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/login')}
+                className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-rose transition-all active:scale-95"
+                style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)' }}
+              >
+                14일 무료 체험 시작하기
+              </button>
+              <p className="text-xs text-center text-[#B0A0A0] mt-2">신용카드 없이 시작 · 언제든 해지 가능</p>
+            </div>
           )}
 
           {/* 의료 고지 */}

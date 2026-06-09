@@ -1,5 +1,5 @@
 // src/pages/LoginPage.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -11,6 +11,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // URL ?ref=코드 를 localStorage에 저장 (비로그인 시작 시에도 유지)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('referralCode', ref);
+    }
+  }, []);
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
@@ -21,6 +30,7 @@ export default function LoginPage() {
 
       const userRef = doc(db, 'users', firebaseUser.uid);
       const snap = await getDoc(userRef);
+      const refCode = localStorage.getItem('referralCode');
 
       if (!snap.exists()) {
         await setDoc(userRef, {
@@ -31,11 +41,18 @@ export default function LoginPage() {
           subscriptionStatus: 'free_trial',
           trialStartDate: serverTimestamp(),
           analysisCount: 0,
+          ...(refCode && { referredBy: refCode }),
         });
+        if (refCode) localStorage.removeItem('referralCode');
       } else {
-        await updateDoc(userRef, {
-          lastLoginAt: serverTimestamp(),
-        });
+        const existingData = snap.data();
+        const updateData = { lastLoginAt: serverTimestamp() };
+        // 기존 referredBy가 없는 경우에만 저장
+        if (refCode && !existingData.referredBy) {
+          updateData.referredBy = refCode;
+          localStorage.removeItem('referralCode');
+        }
+        await updateDoc(userRef, updateData);
       }
 
       navigate('/');
