@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useApp } from '../context/AppContext';
+import { Link } from 'react-router-dom';
 import { X, Mail, Lock, Eye, EyeOff, Sparkles, Heart, Shield } from 'lucide-react';
 
 export default function HomePage() {
@@ -171,6 +172,17 @@ export default function HomePage() {
           <p className="text-xs text-[#B0A0A0] text-center">
             본 서비스는 의료 진단이 아닌 라이프스타일 코칭 참고 자료입니다
           </p>
+        </div>
+
+        {/* 푸터 링크 */}
+        <div className="mt-4 flex items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+          <Link to="/privacy" className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors underline underline-offset-2">
+            개인정보처리방침
+          </Link>
+          <span className="text-xs text-[#D0C0C0]">·</span>
+          <Link to="/terms" className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors underline underline-offset-2">
+            이용약관
+          </Link>
         </div>
 
       </div>
