@@ -17,11 +17,13 @@ function getHormoneRows(hormones, gender) {
     return [
       { name: '테스토스테론 저하 위험도', sub: '남성 호르몬 (기준 ng/dL)', value: hormones.testosterone ?? 0, comment: hormones.testosteroneComment ?? '' },
       ...shared,
+      { name: '성장호르몬 저하 위험도', sub: '성장호르몬 (기준 ng/mL)', value: hormones.growthHormone ?? 0, comment: hormones.growthHormoneComment ?? '' },
     ];
   }
   return [
     { name: '에스트로겐 저하 위험도', sub: '여성 호르몬 (기준 pg/mL)', value: hormones.estrogen ?? 0, comment: hormones.estrogenComment ?? '' },
     ...shared,
+    { name: '프로게스테론 부족 위험도', sub: '황체호르몬 (기준 ng/mL)', value: hormones.progesterone ?? 0, comment: hormones.progesteroneComment ?? '' },
   ];
 }
 
@@ -34,6 +36,7 @@ function getNutrientRows(nutrients) {
     { icon: '💪', name: '마그네슘', value: nutrients.magnesium ?? 0, comment: nutrients.magnesiumComment ?? '' },
     { icon: '🐟', name: '오메가-3', value: nutrients.omega3 ?? 0, comment: nutrients.omega3Comment ?? '' },
     { icon: '🥛', name: '칼슘', value: nutrients.calcium ?? 0, comment: nutrients.calciumComment ?? '' },
+    { icon: '🍊', name: '비타민 C', value: nutrients.vitaminC ?? 0, comment: nutrients.vitaminCComment ?? '' },
   ];
 }
 

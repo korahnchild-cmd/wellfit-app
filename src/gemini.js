@@ -31,11 +31,13 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     "insulin": <인슐린 저항성 위험도 0-100>,
     "thyroid": <갑상선 호르몬 불균형 위험도 0-100>,
     "dhea": <DHEA 저하 위험도 0-100>,
+    "growthHormone": <성장호르몬 저하 위험도 0-100>,
     "testosteroneComment": "<짧은 조언>",
     "cortisolComment": "<짧은 조언>",
     "insulinComment": "<짧은 조언>",
     "thyroidComment": "<짧은 조언>",
-    "dheaComment": "<짧은 조언>"
+    "dheaComment": "<짧은 조언>",
+    "growthHormoneComment": "<짧은 조언>"
   }`
       : `"hormones": {
     "estrogen": <에스트로겐 부족 위험도 0-100>,
@@ -43,11 +45,13 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     "insulin": <인슐린 저항성 위험도 0-100>,
     "thyroid": <갑상선 호르몬 불균형 위험도 0-100>,
     "dhea": <DHEA 저하 위험도 0-100>,
+    "progesterone": <프로게스테론 부족 위험도 0-100>,
     "estrogenComment": "<짧은 조언>",
     "cortisolComment": "<짧은 조언>",
     "insulinComment": "<짧은 조언>",
     "thyroidComment": "<짧은 조언>",
-    "dheaComment": "<짧은 조언>"
+    "dheaComment": "<짧은 조언>",
+    "progesteroneComment": "<짧은 조언>"
   }`;
 
     const nutrientPrompt = `"nutrients": {
@@ -58,13 +62,15 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     "magnesium": <마그네슘 결핍 위험도 0-100>,
     "omega3": <오메가3 결핍 위험도 0-100>,
     "calcium": <칼슘 결핍 위험도 0-100>,
+    "vitaminC": <비타민C 결핍 위험도 0-100>,
     "vitaminDComment": "<짧은 조언>",
     "vitaminB12Comment": "<짧은 조언>",
     "ironComment": "<짧은 조언>",
     "zincComment": "<짧은 조언>",
     "magnesiumComment": "<짧은 조언>",
     "omega3Comment": "<짧은 조언>",
-    "calciumComment": "<짧은 조언>"
+    "calciumComment": "<짧은 조언>",
+    "vitaminCComment": "<짧은 조언>"
   }`;
 
     const promptText = `
