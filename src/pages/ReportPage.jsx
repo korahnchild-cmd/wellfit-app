@@ -37,28 +37,34 @@ function SectionCard({ title, icon, children, className = '' }) {
 function getHormoneItems(hormones, gender) {
   if (gender === 'male') {
     return [
-      { name: '테스토스테론 (남성 호르몬)', value: hormones.testosterone, comment: hormones.testosteroneComment, gradient: 'from-blue-400 to-indigo-500' },
-      { name: '코르티솔 (스트레스 호르몬)', value: hormones.cortisol, comment: hormones.cortisolComment, gradient: 'from-orange-400 to-red-400' },
+      { name: '테스토스테론', value: hormones.testosterone, comment: hormones.testosteroneComment, gradient: 'from-blue-400 to-indigo-500' },
+      { name: '코르티솔', value: hormones.cortisol, comment: hormones.cortisolComment, gradient: 'from-orange-400 to-red-400' },
+      { name: '인슐린', value: hormones.insulin, comment: hormones.insulinComment, gradient: 'from-purple-400 to-violet-500' },
+      { name: '갑상선', value: hormones.thyroid, comment: hormones.thyroidComment, gradient: 'from-teal-400 to-cyan-500' },
+      { name: 'DHEA', value: hormones.dhea, comment: hormones.dheaComment, gradient: 'from-amber-400 to-yellow-500' },
+      { name: '성장호르몬', value: hormones.growthHormone, comment: hormones.growthHormoneComment, gradient: 'from-green-400 to-emerald-500' },
     ];
   }
   return [
-    { name: '코르티솔 (스트레스 호르몬)', value: hormones.cortisol, comment: hormones.cortisolComment, gradient: 'from-orange-400 to-red-400' },
-    { name: '에스트로겐 (여성 호르몬)', value: hormones.estrogen, comment: hormones.estrogenComment, gradient: 'from-mauve to-rose-gold' },
+    { name: '에스트로겐', value: hormones.estrogen, comment: hormones.estrogenComment, gradient: 'from-mauve to-rose-gold' },
+    { name: '코르티솔', value: hormones.cortisol, comment: hormones.cortisolComment, gradient: 'from-orange-400 to-red-400' },
+    { name: '인슐린', value: hormones.insulin, comment: hormones.insulinComment, gradient: 'from-purple-400 to-violet-500' },
+    { name: '갑상선', value: hormones.thyroid, comment: hormones.thyroidComment, gradient: 'from-teal-400 to-cyan-500' },
+    { name: 'DHEA', value: hormones.dhea, comment: hormones.dheaComment, gradient: 'from-amber-400 to-yellow-500' },
+    { name: '프로게스테론', value: hormones.progesterone, comment: hormones.progesteroneComment, gradient: 'from-pink-400 to-rose-400' },
   ];
 }
 
-function getNutrientItems(nutrients, gender) {
-  if (gender === 'male') {
-    return [
-      { name: '비타민 D', emoji: '☀️', value: nutrients.vitaminD, comment: nutrients.vitaminDComment, gradient: 'from-yellow-400 to-orange-400' },
-      { name: '아연 (Zinc)', emoji: '🌿', value: nutrients.zinc, comment: nutrients.zincComment, gradient: 'from-green-400 to-teal-400' },
-      { name: '마그네슘', emoji: '💪', value: nutrients.magnesium, comment: nutrients.magnesiumComment, gradient: 'from-blue-400 to-cyan-400' },
-    ];
-  }
+function getNutrientItems(nutrients) {
   return [
     { name: '비타민 D', emoji: '☀️', value: nutrients.vitaminD, comment: nutrients.vitaminDComment, gradient: 'from-yellow-400 to-orange-400' },
-    { name: '철분 (Iron)', emoji: '🩸', value: nutrients.iron, comment: nutrients.ironComment, gradient: 'from-red-400 to-rose-gold' },
-    { name: '아연 (Zinc)', emoji: '🌿', value: nutrients.zinc, comment: nutrients.zincComment, gradient: 'from-green-400 to-teal-400' },
+    { name: '비타민 B12', emoji: '💊', value: nutrients.vitaminB12, comment: nutrients.vitaminB12Comment, gradient: 'from-red-400 to-orange-300' },
+    { name: '철분', emoji: '🩸', value: nutrients.iron, comment: nutrients.ironComment, gradient: 'from-red-400 to-rose-gold' },
+    { name: '아연', emoji: '🌿', value: nutrients.zinc, comment: nutrients.zincComment, gradient: 'from-green-400 to-teal-400' },
+    { name: '마그네슘', emoji: '💪', value: nutrients.magnesium, comment: nutrients.magnesiumComment, gradient: 'from-blue-400 to-cyan-400' },
+    { name: '오메가3', emoji: '🐟', value: nutrients.omega3, comment: nutrients.omega3Comment, gradient: 'from-blue-500 to-indigo-400' },
+    { name: '칼슘', emoji: '🦴', value: nutrients.calcium, comment: nutrients.calciumComment, gradient: 'from-slate-400 to-gray-500' },
+    { name: '비타민 C', emoji: '🍊', value: nutrients.vitaminC, comment: nutrients.vitaminCComment, gradient: 'from-orange-400 to-amber-300' },
   ];
 }
 
@@ -127,7 +133,7 @@ export default function ReportPage() {
   const visiblePlan = showFullPlan ? report.plan14days : report.plan14days?.slice(0, 7);
   const isMale = (gender || report.gender) === 'male';
   const hormoneItems = report.hormones ? getHormoneItems(report.hormones, isMale ? 'male' : 'female') : [];
-  const nutrientItems = report.nutrients ? getNutrientItems(report.nutrients, isMale ? 'male' : 'female') : [];
+  const nutrientItems = report.nutrients ? getNutrientItems(report.nutrients) : [];
 
   // 리포트 보기
   const handleViewReport = async () => {
