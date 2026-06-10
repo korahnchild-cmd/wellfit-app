@@ -76,8 +76,19 @@ ${nailImage ? '【 손톱 이미지 분석 포함 】' : ''}
   "summary": "<전체 건강 상태 요약 2-3문장, 따뜻하고 희망적인 톤>",
   ${hormonePrompt},
   ${nutrientPrompt},
-  "faceAnalysis": "<얼굴 이미지에서 관찰된 피부 상태 설명, 이미지 없으면 null>",
-  "nailAnalysis": "<손톱 이미지에서 관찰된 상태 설명, 이미지 없으면 null>",
+  "faceAnalysis": ${faceImage ? `{
+    "moisture": "<피부 수분도 분석>",
+    "tone": "<피부 톤 균일도 분석>",
+    "darkCircle": "<눈 밑 다크서클 분석>",
+    "pore": "<모공 상태 분석>",
+    "wrinkle": "<주름 분포 분석>"
+  }` : 'null'},
+  "nailAnalysis": ${nailImage ? `{
+    "color": "<손톱 색상/강도 분석>",
+    "cuticle": "<큐티클 상태 분석>",
+    "ridge": "<세로줄 분석>",
+    "lunula": "<반달(루눌라) 크기 분석>"
+  }` : 'null'},
   "plan14days": [
     { "day": 1, "category": "영양", "tip": "<구체적인 실천 가이드>", "emoji": "🥗" },
     { "day": 2, "category": "수면", "tip": "<구체적인 실천 가이드>", "emoji": "😴" },

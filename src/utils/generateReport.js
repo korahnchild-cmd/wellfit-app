@@ -643,7 +643,34 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
       <div class="plan-tag ${getCatTag(item.category)}">${item.category}</div>
     </div>`).join('');
 
-  const imageAnalysisHTML = (report.faceAnalysis || report.nailAnalysis) ? `
+  const hasFaceAnalysis = report.faceAnalysis && typeof report.faceAnalysis === 'object';
+  const hasNailAnalysis = report.nailAnalysis && typeof report.nailAnalysis === 'object';
+  const faceFields = hasFaceAnalysis ? [
+    { icon: '💧', label: '수분도', value: report.faceAnalysis.moisture },
+    { icon: '✨', label: '피부 톤 균일도', value: report.faceAnalysis.tone },
+    { icon: '👁️', label: '다크서클', value: report.faceAnalysis.darkCircle },
+    { icon: '🔬', label: '모공 상태', value: report.faceAnalysis.pore },
+    { icon: '📊', label: '주름 분포', value: report.faceAnalysis.wrinkle },
+  ] : [];
+  const nailFields = hasNailAnalysis ? [
+    { icon: '🎨', label: '색상/강도', value: report.nailAnalysis.color },
+    { icon: '🌿', label: '큐티클 상태', value: report.nailAnalysis.cuticle },
+    { icon: '〰️', label: '세로줄', value: report.nailAnalysis.ridge },
+    { icon: '🌙', label: '반달(루눌라)', value: report.nailAnalysis.lunula },
+  ] : [];
+  const faceCardsHTML = faceFields.filter(f => f.value).map(f => `
+      <div class="ia-card">
+        <div class="ia-card-icon">${f.icon}</div>
+        <div class="ia-card-label">${f.label}</div>
+        <div class="ia-card-content">${f.value}</div>
+      </div>`).join('');
+  const nailCardsHTML = nailFields.filter(f => f.value).map(f => `
+      <div class="ia-card">
+        <div class="ia-card-icon">${f.icon}</div>
+        <div class="ia-card-label">${f.label}</div>
+        <div class="ia-card-content">${f.value}</div>
+      </div>`).join('');
+  const imageAnalysisHTML = (hasFaceAnalysis || hasNailAnalysis) ? `
   <div class="page">
     <div class="page-header">
       <div class="ph-logo">웰핏<span>+</span> CHECK-UP</div>
@@ -652,8 +679,16 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
     <div class="section-eyebrow">02 &nbsp; 이미지 분석 결과</div>
     <h2 class="section-title">AI 이미지 분석 결과</h2>
     <p class="section-desc">얼굴 피부 상태와 손톱 상태를 AI가 분석한 결과입니다.</p>
-    ${report.faceAnalysis ? `<div class="ai-block" style="margin-bottom:16px;"><div class="ai-block-header"><span>🤳 얼굴 피부 분석</span></div><p>${report.faceAnalysis}</p></div>` : ''}
-    ${report.nailAnalysis ? `<div class="ai-block"><div class="ai-block-header"><span>💅 손톱 상태 분석</span></div><p>${report.nailAnalysis}</p></div>` : ''}
+    ${hasFaceAnalysis ? `
+    <div class="img-analysis-section">
+      <div class="ia-section-header"><span>🤳</span><span>얼굴 피부 분석</span></div>
+      <div class="ia-cards">${faceCardsHTML}</div>
+    </div>` : ''}
+    ${hasNailAnalysis ? `
+    <div class="img-analysis-section">
+      <div class="ia-section-header"><span>💅</span><span>손톱 상태 분석</span></div>
+      <div class="ia-cards">${nailCardsHTML}</div>
+    </div>` : ''}
   </div>` : '';
 
   return `<!DOCTYPE html>
@@ -897,6 +932,15 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .cf-icon{font-size:36px}
 .cf-text{font-size:14px;color:var(--text-2);line-height:1.8}
 .cf-text strong{color:var(--text-1)}
+
+/* ===== IMAGE ANALYSIS CARDS ===== */
+.img-analysis-section{margin-bottom:24px}
+.ia-section-header{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--rose);letter-spacing:.5px;background:var(--rose-ultra);border:1px solid #E8D5C0;border-left:4px solid var(--rose);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:14px}
+.ia-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ia-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+.ia-card-icon{font-size:20px;margin-bottom:8px}
+.ia-card-label{font-size:11px;font-weight:700;color:var(--rose);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
+.ia-card-content{font-size:13px;color:var(--text-2);line-height:1.7}
 
 @media(max-width:600px){
   .cover-body{padding:32px 24px}
