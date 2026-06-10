@@ -205,7 +205,7 @@ export default function ReportPage() {
   const handleRestart = () => {
     localStorage.removeItem('lastShareId');
     resetAll();
-    navigate('/');
+    navigate('/upload');
   };
 
   const catColors = {
@@ -531,6 +531,11 @@ export default function ReportPage() {
           </button>
           <button onClick={handleRestart} className="flex-1 btn-secondary flex items-center justify-center gap-2">
             <RefreshCw size={17} />다시하기
+          </button>
+        </div>
+        <div className="flex justify-center mt-2">
+          <button onClick={() => navigate('/')} className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors">
+            홈으로
           </button>
         </div>
       </div>

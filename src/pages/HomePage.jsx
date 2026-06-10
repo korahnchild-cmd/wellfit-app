@@ -147,7 +147,7 @@ export default function HomePage() {
             className="btn-primary w-full text-lg shadow-rose animate-slide-up"
             style={{ animationDelay: '0.5s' }}
           >
-            ✨ 무료로 시작하기
+            ✨ 시작하기
           </button>
 
           <p className="text-xs text-[#9A8080] mt-4 animate-slide-up" style={{ animationDelay: '0.6s' }}>
