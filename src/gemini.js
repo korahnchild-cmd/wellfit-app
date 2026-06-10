@@ -27,33 +27,44 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     const hormonePrompt = isMale
       ? `"hormones": {
     "testosterone": <테스토스테론 저하 위험도 0-100>,
-    "cortisol": <코르티솔 위험도 0-100>,
-    "testosteroneComment": "<테스토스테론 관련 짧은 조언>",
-    "cortisolComment": "<코르티솔 관련 짧은 조언>"
+    "cortisol": <코르티솔 과다 위험도 0-100>,
+    "insulin": <인슐린 저항성 위험도 0-100>,
+    "thyroid": <갑상선 호르몬 불균형 위험도 0-100>,
+    "dhea": <DHEA 저하 위험도 0-100>,
+    "testosteroneComment": "<짧은 조언>",
+    "cortisolComment": "<짧은 조언>",
+    "insulinComment": "<짧은 조언>",
+    "thyroidComment": "<짧은 조언>",
+    "dheaComment": "<짧은 조언>"
   }`
       : `"hormones": {
-    "cortisol": <코르티솔 위험도 0-100>,
     "estrogen": <에스트로겐 부족 위험도 0-100>,
-    "cortisolComment": "<코르티솔 관련 짧은 조언>",
-    "estrogenComment": "<에스트로겐 관련 짧은 조언>"
+    "cortisol": <코르티솔 과다 위험도 0-100>,
+    "insulin": <인슐린 저항성 위험도 0-100>,
+    "thyroid": <갑상선 호르몬 불균형 위험도 0-100>,
+    "dhea": <DHEA 저하 위험도 0-100>,
+    "estrogenComment": "<짧은 조언>",
+    "cortisolComment": "<짧은 조언>",
+    "insulinComment": "<짧은 조언>",
+    "thyroidComment": "<짧은 조언>",
+    "dheaComment": "<짧은 조언>"
   }`;
 
-    const nutrientPrompt = isMale
-      ? `"nutrients": {
+    const nutrientPrompt = `"nutrients": {
     "vitaminD": <비타민D 결핍 위험도 0-100>,
-    "zinc": <아연 결핍 위험도 0-100>,
-    "magnesium": <마그네슘 결핍 위험도 0-100>,
-    "vitaminDComment": "<비타민D 관련 짧은 조언>",
-    "zincComment": "<아연 관련 짧은 조언>",
-    "magnesiumComment": "<마그네슘 관련 짧은 조언>"
-  }`
-      : `"nutrients": {
-    "vitaminD": <비타민D 결핍 위험도 0-100>,
+    "vitaminB12": <비타민B12 결핍 위험도 0-100>,
     "iron": <철분 결핍 위험도 0-100>,
     "zinc": <아연 결핍 위험도 0-100>,
-    "vitaminDComment": "<비타민D 관련 짧은 조언>",
-    "ironComment": "<철분 관련 짧은 조언>",
-    "zincComment": "<아연 관련 짧은 조언>"
+    "magnesium": <마그네슘 결핍 위험도 0-100>,
+    "omega3": <오메가3 결핍 위험도 0-100>,
+    "calcium": <칼슘 결핍 위험도 0-100>,
+    "vitaminDComment": "<짧은 조언>",
+    "vitaminB12Comment": "<짧은 조언>",
+    "ironComment": "<짧은 조언>",
+    "zincComment": "<짧은 조언>",
+    "magnesiumComment": "<짧은 조언>",
+    "omega3Comment": "<짧은 조언>",
+    "calciumComment": "<짧은 조언>"
   }`;
 
     const promptText = `

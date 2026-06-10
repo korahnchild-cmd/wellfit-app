@@ -7,30 +7,33 @@ function getRiskColor(value) {
 }
 
 function getHormoneRows(hormones, gender) {
+  const shared = [
+    { name: '코르티솔 과다 위험도', sub: '스트레스 호르몬 (기준 μg/dL)', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
+    { name: '인슐린 저항성 위험도', sub: '혈당 조절 호르몬', value: hormones.insulin ?? 0, comment: hormones.insulinComment ?? '' },
+    { name: '갑상선 호르몬 불균형', sub: '갑상선 (기준 TSH μIU/mL)', value: hormones.thyroid ?? 0, comment: hormones.thyroidComment ?? '' },
+    { name: 'DHEA 저하 위험도', sub: '부신 호르몬 전구체 (기준 μg/dL)', value: hormones.dhea ?? 0, comment: hormones.dheaComment ?? '' },
+  ];
   if (gender === 'male') {
     return [
       { name: '테스토스테론 저하 위험도', sub: '남성 호르몬 (기준 ng/dL)', value: hormones.testosterone ?? 0, comment: hormones.testosteroneComment ?? '' },
-      { name: '코르티솔 과다 위험도', sub: '스트레스 호르몬 (기준 μg/dL)', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
+      ...shared,
     ];
   }
   return [
     { name: '에스트로겐 저하 위험도', sub: '여성 호르몬 (기준 pg/mL)', value: hormones.estrogen ?? 0, comment: hormones.estrogenComment ?? '' },
-    { name: '코르티솔 과다 위험도', sub: '스트레스 호르몬 (기준 μg/dL)', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
+    ...shared,
   ];
 }
 
-function getNutrientRows(nutrients, gender) {
-  if (gender === 'male') {
-    return [
-      { icon: '☀️', name: '비타민 D', value: nutrients.vitaminD ?? 0, comment: nutrients.vitaminDComment ?? '' },
-      { icon: '🌿', name: '아연 (Zinc)', value: nutrients.zinc ?? 0, comment: nutrients.zincComment ?? '' },
-      { icon: '💪', name: '마그네슘', value: nutrients.magnesium ?? 0, comment: nutrients.magnesiumComment ?? '' },
-    ];
-  }
+function getNutrientRows(nutrients) {
   return [
     { icon: '☀️', name: '비타민 D', value: nutrients.vitaminD ?? 0, comment: nutrients.vitaminDComment ?? '' },
+    { icon: '🔴', name: '비타민 B12', value: nutrients.vitaminB12 ?? 0, comment: nutrients.vitaminB12Comment ?? '' },
     { icon: '🩸', name: '철분 (Iron)', value: nutrients.iron ?? 0, comment: nutrients.ironComment ?? '' },
     { icon: '🌿', name: '아연 (Zinc)', value: nutrients.zinc ?? 0, comment: nutrients.zincComment ?? '' },
+    { icon: '💪', name: '마그네슘', value: nutrients.magnesium ?? 0, comment: nutrients.magnesiumComment ?? '' },
+    { icon: '🐟', name: '오메가-3', value: nutrients.omega3 ?? 0, comment: nutrients.omega3Comment ?? '' },
+    { icon: '🥛', name: '칼슘', value: nutrients.calcium ?? 0, comment: nutrients.calciumComment ?? '' },
   ];
 }
 
@@ -44,7 +47,7 @@ function getLifestyleScores(report, actualAge) {
   const nutrients = report.nutrients || {};
   const cortisol = hormones.cortisol ?? 35;
   const ageDiff = parseInt(actualAge) - (report.healthAge ?? parseInt(actualAge));
-  const avgNutrient = Math.round(([nutrients.vitaminD ?? 30, nutrients.iron ?? 30, nutrients.zinc ?? 30, nutrients.magnesium ?? 30].reduce((a, b) => a + b, 0)) / 4);
+  const avgNutrient = Math.round(([nutrients.vitaminD ?? 30, nutrients.vitaminB12 ?? 30, nutrients.iron ?? 30, nutrients.zinc ?? 30, nutrients.magnesium ?? 30, nutrients.omega3 ?? 30, nutrients.calcium ?? 30].reduce((a, b) => a + b, 0)) / 7);
   const sleepScore = Math.min(90, Math.max(15, Math.round(cortisol * 0.65 + (ageDiff < 0 ? 15 : 5))));
   const dietScore = Math.min(90, Math.max(15, avgNutrient));
   const exerciseScore = Math.min(85, Math.max(15, ageDiff < 0 ? 55 + Math.abs(ageDiff) * 2 : 25 + ageDiff * 3));
@@ -53,16 +56,15 @@ function getLifestyleScores(report, actualAge) {
 }
 
 function getTopSupplements(report, gender) {
-  const isMale = gender === 'male';
   const nutrients = report.nutrients || {};
-  const hormones = report.hormones || {};
   const all = [
     { name: '비타민 D3', value: nutrients.vitaminD ?? 0, icon: '☀️', dose: '2,000~4,000 IU', timing: '식후 30분 (지용성)', caution: '고용량 장기복용 시 혈중 농도 체크 권장', benefit: '면역력·뼈 건강·기분 개선' },
-    isMale
-      ? { name: '아연 (Zinc)', value: nutrients.zinc ?? 0, icon: '🌿', dose: '15~25mg', timing: '저녁 식사 후', caution: '구리 흡수 저해 — 장기복용 시 구리 병용', benefit: '테스토스테론 합성·면역·항산화' }
-      : { name: '철분 (Iron)', value: nutrients.iron ?? 0, icon: '🩸', dose: '18~27mg', timing: '공복 또는 비타민C 음료와 함께', caution: '변비 유발 가능 — 변비 시 용량 분할', benefit: '에너지·빈혈 예방·피부 혈색' },
+    { name: '비타민 B12', value: nutrients.vitaminB12 ?? 0, icon: '🔴', dose: '1,000~2,000μg', timing: '아침 식후', caution: '신장 질환 시 의사 상담', benefit: '신경계 건강·에너지 생성·빈혈 예방' },
+    { name: '철분 (Iron)', value: nutrients.iron ?? 0, icon: '🩸', dose: '18~27mg', timing: '공복 또는 비타민C 음료와 함께', caution: '변비 유발 가능 — 변비 시 용량 분할', benefit: '에너지·빈혈 예방·피부 혈색' },
+    { name: '아연 (Zinc)', value: nutrients.zinc ?? 0, icon: '🌿', dose: '15~25mg', timing: '저녁 식사 후', caution: '구리 흡수 저해 — 장기복용 시 구리 병용', benefit: '테스토스테론 합성·면역·항산화' },
     { name: '마그네슘', value: nutrients.magnesium ?? 0, icon: '💪', dose: '200~400mg', timing: '취침 30분 전', caution: '과다복용 시 설사 가능 — 구연산 마그네슘 권장', benefit: '수면 질 개선·근육 이완·스트레스 완화' },
-    { name: '오메가-3', value: (hormones.cortisol ?? 35) * 0.6, icon: '🐟', dose: '1,000~2,000mg (EPA+DHA)', timing: '식후', caution: '혈액 희석제 복용 시 의사 상담', benefit: '염증 감소·혈행·뇌·피부 건강' },
+    { name: '오메가-3', value: nutrients.omega3 ?? 0, icon: '🐟', dose: '1,000~2,000mg (EPA+DHA)', timing: '식후', caution: '혈액 희석제 복용 시 의사 상담', benefit: '염증 감소·혈행·뇌·피부 건강' },
+    { name: '칼슘', value: nutrients.calcium ?? 0, icon: '🥛', dose: '500~600mg (1회)', timing: '식후 또는 취침 전', caution: '철분과 동시 복용 피하기', benefit: '뼈·치아 건강·근육 수축·신경 전달' },
     { name: '코엔자임 Q10', value: 40, icon: '⚡', dose: '100~200mg', timing: '아침 식후', caution: '혈압약 복용 시 상호작용 주의', benefit: '세포 에너지 생성·항산화·심장 건강' },
   ];
   return all.sort((a, b) => b.value - a.value).slice(0, 3);
@@ -87,12 +89,14 @@ function getHormoneStage(report, gender, actualAge) {
 
 function getDietDeficientFoods(report, gender) {
   const nutrients = report.nutrients || {};
-  const isMale = gender === 'male';
   const items = [];
   if ((nutrients.vitaminD ?? 0) >= 20) items.push({ nutrient: '비타민 D', icon: '☀️', foods: ['연어 (100g → 447 IU)', '고등어 (100g → 360 IU)', '달걀노른자 (1개 → 40 IU)', '비타민D 강화 우유'], avoid: '과도한 실내 생활 · 자외선 차단제 상시 도포' });
-  if (!isMale && (nutrients.iron ?? 0) >= 20) items.push({ nutrient: '철분', icon: '🩸', foods: ['소 안심 (100g → 3.3mg)', '굴 (100g → 5mg)', '시금치 (100g → 2.7mg)', '렌틸콩 (100g → 3.3mg)'], avoid: '커피·홍차 식사 직후 — 철분 흡수 70% 감소' });
+  if ((nutrients.vitaminB12 ?? 0) >= 20) items.push({ nutrient: '비타민 B12', icon: '🔴', foods: ['소간 (100g → 70μg)', '굴 (100g → 28μg)', '연어 (100g → 3.2μg)', '달걀 (1개 → 0.9μg)'], avoid: '채식 위주 식단 — B12는 동물성 식품에만 존재' });
+  if ((nutrients.iron ?? 0) >= 20) items.push({ nutrient: '철분', icon: '🩸', foods: ['소 안심 (100g → 3.3mg)', '굴 (100g → 5mg)', '시금치 (100g → 2.7mg)', '렌틸콩 (100g → 3.3mg)'], avoid: '커피·홍차 식사 직후 — 철분 흡수 70% 감소' });
   if ((nutrients.zinc ?? 0) >= 20) items.push({ nutrient: '아연', icon: '🌿', foods: ['굴 (100g → 16mg)', '소고기 (100g → 4.8mg)', '호박씨 (30g → 2.2mg)', '캐슈넛'], avoid: '과도한 음주 — 아연 배설 증가' });
-  if ((nutrients.magnesium ?? 0) >= 20 || isMale) items.push({ nutrient: '마그네슘', icon: '💪', foods: ['아몬드 (30g → 80mg)', '시금치 (100g → 79mg)', '다크초콜릿 85% (30g → 64mg)', '아보카도'], avoid: '정제 탄수화물 과다 · 과도한 커피인 섭취' });
+  if ((nutrients.magnesium ?? 0) >= 20) items.push({ nutrient: '마그네슘', icon: '💪', foods: ['아몬드 (30g → 80mg)', '시금치 (100g → 79mg)', '다크초콜릿 85% (30g → 64mg)', '아보카도'], avoid: '정제 탄수화물 과다 · 과도한 카페인 섭취' });
+  if ((nutrients.omega3 ?? 0) >= 20) items.push({ nutrient: '오메가-3', icon: '🐟', foods: ['고등어 (100g → 2.6g)', '연어 (100g → 2.3g)', '정어리 (100g → 1.5g)', '아마씨 (15g → 2.3g)'], avoid: '트랜스지방 과다 · 오메가6 불균형 식단' });
+  if ((nutrients.calcium ?? 0) >= 20) items.push({ nutrient: '칼슘', icon: '🥛', foods: ['저지방 우유 (200ml → 240mg)', '요거트 (100g → 120mg)', '멸치 (30g → 270mg)', '두부 (100g → 130mg)'], avoid: '과도한 나트륨·카페인 — 칼슘 배설 증가' });
   if (items.length === 0) items.push({ nutrient: '비타민 D', icon: '☀️', foods: ['연어', '고등어', '달걀노른자', '강화 우유'], avoid: '과도한 실내 생활' });
   return items;
 }
@@ -322,8 +326,14 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
   const hormones = report.hormones || {};
   const mainRisk = isMale ? (hormones.testosterone ?? 0) : (hormones.estrogen ?? 0);
   const cortisolRisk = hormones.cortisol ?? 0;
+  const insulinRisk = hormones.insulin ?? 0;
+  const thyroidRisk = hormones.thyroid ?? 0;
+  const dheaRisk = hormones.dhea ?? 0;
   const rc = getRiskColor(mainRisk);
   const rcc = getRiskColor(cortisolRisk);
+  const rci = getRiskColor(insulinRisk);
+  const rct = getRiskColor(thyroidRisk);
+  const rcd = getRiskColor(dheaRisk);
 
   const riskLevels = [
     { label: '낮음 (0~29%)', color: '#4CAF7D', tips: ['예방 중심의 건강 관리 유지', '정기 검진 연 1회', '현재 좋은 생활습관 지속'] },
@@ -363,6 +373,36 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
       </div>
       <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
       <div class="hsc-value" style="color:${rcc.color}">${cortisolRisk}% — ${rcc.label}</div>
+    </div>
+    <div class="hsc-meter" style="margin-top:16px">
+      <div class="hsc-meter-label">인슐린 저항성 위험도</div>
+      <div class="hsc-bar-wrap">
+        <div class="hsc-bar" style="width:${insulinRisk}%;background:linear-gradient(90deg,${rci.color}80,${rci.color})"></div>
+        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:60%"></div>
+      </div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-value" style="color:${rci.color}">${insulinRisk}% — ${rci.label}</div>
+    </div>
+    <div class="hsc-meter" style="margin-top:16px">
+      <div class="hsc-meter-label">갑상선 호르몬 불균형 위험도</div>
+      <div class="hsc-bar-wrap">
+        <div class="hsc-bar" style="width:${thyroidRisk}%;background:linear-gradient(90deg,${rct.color}80,${rct.color})"></div>
+        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:60%"></div>
+      </div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-value" style="color:${rct.color}">${thyroidRisk}% — ${rct.label}</div>
+    </div>
+    <div class="hsc-meter" style="margin-top:16px">
+      <div class="hsc-meter-label">DHEA 저하 위험도</div>
+      <div class="hsc-bar-wrap">
+        <div class="hsc-bar" style="width:${dheaRisk}%;background:linear-gradient(90deg,${rcd.color}80,${rcd.color})"></div>
+        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:60%"></div>
+      </div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-value" style="color:${rcd.color}">${dheaRisk}% — ${rcd.label}</div>
     </div>
   </div>
 
@@ -604,7 +644,7 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
   const todayShort = new Date().toLocaleDateString('ko-KR').replace(/\. /g, '.').replace('.', '');
 
   const hormoneRows = getHormoneRows(report.hormones || {}, gender);
-  const nutrientRows = getNutrientRows(report.nutrients || {}, gender);
+  const nutrientRows = getNutrientRows(report.nutrients || {});
   const maxHormoneRisk = Math.max(...hormoneRows.map(h => h.value));
   const nutrientCount = nutrientRows.filter(n => n.value >= 30).length;
   const mainHormone = hormoneRows[0];
@@ -768,7 +808,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .risk-bar{height:100%;border-radius:4px}
 .risk-status{font-size:11px;font-weight:600;letter-spacing:.5px;display:flex;align-items:center;gap:5px}
 .status-dot{width:6px;height:6px;border-radius:50%}
-.nutrition-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+.nutrition-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
 .nut-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;text-align:center}
 .nut-icon{font-size:24px;margin-bottom:10px}
 .nut-name{font-size:12px;font-weight:600;color:var(--text-1);margin-bottom:4px}
@@ -950,7 +990,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
   .age-hero{padding:28px 24px;gap:20px}
   .age-num{font-size:52px}
   .risk-grid{grid-template-columns:1fr}
-  .nutrition-strip{grid-template-columns:1fr 1fr}
+  .nutrition-strip{grid-template-columns:repeat(2,1fr)}
   .plan-row{grid-template-columns:28px 1fr}
   .plan-tag{display:none}
   .priority-items{grid-template-columns:repeat(2,1fr)}
