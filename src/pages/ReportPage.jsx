@@ -468,17 +468,21 @@ export default function ReportPage() {
                   </div>
                   <div className="space-y-1.5 mb-5">
                     {[
-                      '월 4회 정기 분석 (주 1회 관리)',
-                      '월별 변화 그래프',
-                      '건강나이 챌린지 (-3세 목표 + 인증서)',
-                      '3개월 예상 피부 미리보기',
-                      '앰배서더 수익 (단 2명 추천 = 구독료 0원)',
-                      '🔔 매주 맞춤 건강 푸시 알림 — "1주차 실천체크·2주차 중간점검·3주차 분석알림·4주차 월마무리, 내 건강 상태에 맞춘 맞춤 알림"',
-                      '무료 체험 모든 기능 포함',
-                    ].map((text, i) => (
-                      <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/60">
-                        <span className="text-sm flex-shrink-0">✅</span>
-                        <span className="text-sm font-medium text-[#3D2B2B]">{text}</span>
+                      { text: '월 4회 정기 분석 (주 1회 관리)' },
+                      { text: '월별 변화 그래프' },
+                      { text: '건강나이 챌린지 (-3세 목표 + 인증서)' },
+                      { text: '3개월 예상 피부 미리보기' },
+                      { text: '앰배서더 수익 (단 2명 추천 = 구독료 0원)' },
+                      { text: '🌸 생리 주기·계절 변화 반영 맞춤 코멘트 — "내 몸의 리듬에 맞춘 AI 분석"', desc: '갱년기 증상은 계절과 주기에 따라 달라져요. AI가 내 몸의 리듬을 읽고 맞춤 코멘트를 드립니다' },
+                      { text: '🔔 매주 맞춤 건강 푸시 알림 — "1주차 실천체크·2주차 중간점검·3주차 분석알림·4주차 월마무리, 내 건강 상태에 맞춘 맞춤 알림"' },
+                      { text: '무료 체험 모든 기능 포함' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-2.5 px-3 py-2 rounded-xl bg-white/60">
+                        <span className="text-sm flex-shrink-0 mt-0.5">✅</span>
+                        <div>
+                          <span className="text-sm font-medium text-[#3D2B2B]">{item.text}</span>
+                          {item.desc && <p className="text-xs text-[#9A8080] mt-0.5 leading-relaxed">{item.desc}</p>}
+                        </div>
                       </div>
                     ))}
                   </div>
