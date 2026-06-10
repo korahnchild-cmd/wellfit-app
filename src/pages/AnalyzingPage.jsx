@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { analyzeHealth } from '../gemini';
 import { storage, db } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const STEPS = [
@@ -13,7 +13,7 @@ const STEPS = [
   { text: '손톱 영양 상태 분석 중...', emoji: '💅', duration: 1500 },
   { text: '설문 데이터 처리 중...', emoji: '📋', duration: 1500 },
   { text: 'AI 건강 패턴 학습 중...', emoji: '🧠', duration: 2000 },
-  { text: '호르몬 위험도 계산 중...', emoji: '⚗️', duration: 1500 },
+  { text: '호르몬 참고 지수 산출 중...', emoji: '⚗️', duration: 1500 },
   { text: '영양 결핍 지수 산출 중...', emoji: '🔬', duration: 1500 },
   { text: '14일 맞춤 플랜 생성 중...', emoji: '📅', duration: 2000 },
   { text: '리포트 최종 완성 중...', emoji: '✨', duration: 1000 },
@@ -57,25 +57,29 @@ export default function AnalyzingPage() {
       try {
         let faceUrl = null;
         let nailUrl = null;
+        let faceStorageRef = null;
+        let nailStorageRef = null;
 
         // 이미지 업로드 (10초 타임아웃)
         if (user && !user.isGuest && faceImage?.file) {
           try {
-            const faceRef = ref(storage, `users/${user.uid}/face_${Date.now()}.jpg`);
-            await withTimeout(uploadBytes(faceRef, faceImage.file), 10000, 'face upload');
-            faceUrl = await withTimeout(getDownloadURL(faceRef), 5000, 'face url');
+            faceStorageRef = ref(storage, `users/${user.uid}/face_${Date.now()}.jpg`);
+            await withTimeout(uploadBytes(faceStorageRef, faceImage.file), 10000, 'face upload');
+            faceUrl = await withTimeout(getDownloadURL(faceStorageRef), 5000, 'face url');
           } catch (e) {
             console.warn('Face image upload failed:', e.message);
+            faceStorageRef = null;
           }
         }
 
         if (user && !user.isGuest && nailImage?.file) {
           try {
-            const nailRef = ref(storage, `users/${user.uid}/nail_${Date.now()}.jpg`);
-            await withTimeout(uploadBytes(nailRef, nailImage.file), 10000, 'nail upload');
-            nailUrl = await withTimeout(getDownloadURL(nailRef), 5000, 'nail url');
+            nailStorageRef = ref(storage, `users/${user.uid}/nail_${Date.now()}.jpg`);
+            await withTimeout(uploadBytes(nailStorageRef, nailImage.file), 10000, 'nail upload');
+            nailUrl = await withTimeout(getDownloadURL(nailStorageRef), 5000, 'nail url');
           } catch (e) {
             console.warn('Nail image upload failed:', e.message);
+            nailStorageRef = null;
           }
         }
 
@@ -124,6 +128,11 @@ export default function AnalyzingPage() {
         }
 
         setReport({ ...reportData, shareId });
+
+        // 분석 완료 후 Storage 이미지 삭제 (실패해도 리포트 이동 무관)
+        if (faceStorageRef) deleteObject(faceStorageRef).catch(e => console.warn('Face delete failed:', e.message));
+        if (nailStorageRef) deleteObject(nailStorageRef).catch(e => console.warn('Nail delete failed:', e.message));
+
         setStepIdx(STEPS.length - 1);
         setTimeout(() => navigate('/report'), 1500);
       } catch (err) {

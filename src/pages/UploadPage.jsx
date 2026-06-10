@@ -100,8 +100,9 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
 export default function UploadPage() {
   const navigate = useNavigate();
   const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender } = useApp();
+  const [consentChecked, setConsentChecked] = useState(false);
 
-  const canProceed = actualAge && parseInt(actualAge) >= 20 && parseInt(actualAge) <= 80 && gender;
+  const canProceed = actualAge && parseInt(actualAge) >= 20 && parseInt(actualAge) <= 80 && gender && consentChecked;
 
   return (
     <div className="page-container">
@@ -203,6 +204,21 @@ export default function UploadPage() {
           </div>
         </div>
 
+        {/* 생체정보 수집 동의 */}
+        <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer">
+          <input
+            type="checkbox"
+            checked={consentChecked}
+            onChange={(e) => setConsentChecked(e.target.checked)}
+            className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
+            style={{ accentColor: '#C8956C' }}
+          />
+          <span className="text-xs text-[#7A6060] leading-relaxed">
+            얼굴·손톱 이미지는 AI 분석 후 즉시 삭제되며, 제3자에게 제공되지 않습니다. 생체정보 수집 및 이용에 동의합니다.{' '}
+            <span className="font-semibold" style={{ color: '#C8956C' }}>(필수)</span>
+          </span>
+        </label>
+
         {/* 얼굴 업로드 */}
         <ImageUploadCard
           id="face-upload"
@@ -251,7 +267,7 @@ export default function UploadPage() {
         </button>
         {!canProceed && (
           <p className="text-xs text-center text-[#B0A0A0] mt-2">
-            나이와 성별을 입력해주세요 (20~80세)
+            {!consentChecked ? '생체정보 수집 동의 후 진행 가능합니다' : '나이와 성별을 입력해주세요 (20~80세)'}
           </p>
         )}
       </div>

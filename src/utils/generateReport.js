@@ -3,27 +3,27 @@
 function getRiskColor(value) {
   if (value < 30) return { color: '#4CAF7D', bg: '#E8F5E9', label: '양호', dot: '#4CAF7D' };
   if (value < 60) return { color: '#E8A038', bg: '#FFF3E0', label: '주의', dot: '#E8A038' };
-  return { color: '#D4504A', bg: '#FFEBEE', label: '위험', dot: '#D4504A' };
+  return { color: '#D4504A', bg: '#FFEBEE', label: '관리 필요', dot: '#D4504A' };
 }
 
 function getHormoneRows(hormones, gender) {
   const shared = [
-    { name: '코르티솔 과다 위험도', sub: '스트레스 호르몬 (기준 μg/dL)', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
-    { name: '인슐린 저항성 위험도', sub: '혈당 조절 호르몬', value: hormones.insulin ?? 0, comment: hormones.insulinComment ?? '' },
-    { name: '갑상선 호르몬 불균형', sub: '갑상선 (기준 TSH μIU/mL)', value: hormones.thyroid ?? 0, comment: hormones.thyroidComment ?? '' },
-    { name: 'DHEA 저하 위험도', sub: '부신 호르몬 전구체 (기준 μg/dL)', value: hormones.dhea ?? 0, comment: hormones.dheaComment ?? '' },
+    { name: '코르티솔 과다 참고 지수', sub: '스트레스 호르몬 (기준 μg/dL)', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
+    { name: '인슐린 저항성 참고 지수', sub: '혈당 조절 호르몬', value: hormones.insulin ?? 0, comment: hormones.insulinComment ?? '' },
+    { name: '갑상선 호르몬 불균형 참고 지수', sub: '갑상선 (기준 TSH μIU/mL)', value: hormones.thyroid ?? 0, comment: hormones.thyroidComment ?? '' },
+    { name: 'DHEA 저하 참고 지수', sub: '부신 호르몬 전구체 (기준 μg/dL)', value: hormones.dhea ?? 0, comment: hormones.dheaComment ?? '' },
   ];
   if (gender === 'male') {
     return [
-      { name: '테스토스테론 저하 위험도', sub: '남성 호르몬 (기준 ng/dL)', value: hormones.testosterone ?? 0, comment: hormones.testosteroneComment ?? '' },
+      { name: '테스토스테론 저하 참고 지수', sub: '남성 호르몬 (기준 ng/dL)', value: hormones.testosterone ?? 0, comment: hormones.testosteroneComment ?? '' },
       ...shared,
-      { name: '성장호르몬 저하 위험도', sub: '성장호르몬 (기준 ng/mL)', value: hormones.growthHormone ?? 0, comment: hormones.growthHormoneComment ?? '' },
+      { name: '성장호르몬 저하 참고 지수', sub: '성장호르몬 (기준 ng/mL)', value: hormones.growthHormone ?? 0, comment: hormones.growthHormoneComment ?? '' },
     ];
   }
   return [
-    { name: '에스트로겐 저하 위험도', sub: '여성 호르몬 (기준 pg/mL)', value: hormones.estrogen ?? 0, comment: hormones.estrogenComment ?? '' },
+    { name: '에스트로겐 저하 참고 지수', sub: '여성 호르몬 (기준 pg/mL)', value: hormones.estrogen ?? 0, comment: hormones.estrogenComment ?? '' },
     ...shared,
-    { name: '프로게스테론 부족 위험도', sub: '황체호르몬 (기준 ng/mL)', value: hormones.progesterone ?? 0, comment: hormones.progesteroneComment ?? '' },
+    { name: '프로게스테론 부족 참고 지수', sub: '황체호르몬 (기준 ng/mL)', value: hormones.progesterone ?? 0, comment: hormones.progesteroneComment ?? '' },
   ];
 }
 
@@ -272,7 +272,7 @@ function buildSupplementSection(report, gender, actualAge, userName, todayShort)
   </div>
   <div class="section-eyebrow">07 &nbsp; 맞춤 영양제 복용 가이드</div>
   <h2 class="section-title">분석 결과 기반 TOP 3 영양제</h2>
-  <p class="section-desc">결핍 위험도가 높은 순서로 우선 보충이 필요한 영양제를 선정했습니다. 복용 전 전문가 상담을 권장합니다.</p>
+  <p class="section-desc">결핍 참고 지수가 높은 순서로 우선 보충이 필요한 영양제를 선정했습니다. 복용 전 전문가 상담을 권장합니다.</p>
 
   <div class="supp-cards">
     ${supps.map((s, i) => `
@@ -341,7 +341,7 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
   const riskLevels = [
     { label: '낮음 (0~29%)', color: '#4CAF7D', tips: ['예방 중심의 건강 관리 유지', '정기 검진 연 1회', '현재 좋은 생활습관 지속'] },
     { label: '주의 (30~59%)', color: '#E8A038', tips: ['생활습관 집중 개선 필요', '영양제 보충 시작 권장', '3개월 내 재검사 권장'] },
-    { label: '위험 (60~100%)', color: '#D4504A', tips: ['전문의 상담 우선 권장', '호르몬 수치 혈액 검사', '적극적 치료 개입 검토'] },
+    { label: '관리 필요 (60~100%)', color: '#D4504A', tips: ['전문의 상담 우선 권장', '호르몬 수치 혈액 검사', '적극적 치료 개입 검토'] },
   ];
 
   return `
@@ -358,53 +358,53 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
     <div class="hsc-badge" style="background:${rc.color}20;color:${rc.color}">${stage.stage}</div>
     <p class="hsc-desc">${stage.desc}</p>
     <div class="hsc-meter">
-      <div class="hsc-meter-label">${isMale ? '테스토스테론 저하' : '에스트로겐 저하'} 위험도</div>
+      <div class="hsc-meter-label">${isMale ? '테스토스테론 저하' : '에스트로겐 저하'} 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${mainRisk}%;background:linear-gradient(90deg,${rc.color}80,${rc.color})"></div>
         <div class="hsc-tick" style="left:30%"></div>
         <div class="hsc-tick" style="left:60%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
       <div class="hsc-value" style="color:${rc.color}">${mainRisk}% — ${rc.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
-      <div class="hsc-meter-label">코르티솔 과다 위험도</div>
+      <div class="hsc-meter-label">코르티솔 과다 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${cortisolRisk}%;background:linear-gradient(90deg,${rcc.color}80,${rcc.color})"></div>
         <div class="hsc-tick" style="left:30%"></div>
         <div class="hsc-tick" style="left:60%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
       <div class="hsc-value" style="color:${rcc.color}">${cortisolRisk}% — ${rcc.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
-      <div class="hsc-meter-label">인슐린 저항성 위험도</div>
+      <div class="hsc-meter-label">인슐린 저항성 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${insulinRisk}%;background:linear-gradient(90deg,${rci.color}80,${rci.color})"></div>
         <div class="hsc-tick" style="left:30%"></div>
         <div class="hsc-tick" style="left:60%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
       <div class="hsc-value" style="color:${rci.color}">${insulinRisk}% — ${rci.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
-      <div class="hsc-meter-label">갑상선 호르몬 불균형 위험도</div>
+      <div class="hsc-meter-label">갑상선 호르몬 불균형 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${thyroidRisk}%;background:linear-gradient(90deg,${rct.color}80,${rct.color})"></div>
         <div class="hsc-tick" style="left:30%"></div>
         <div class="hsc-tick" style="left:60%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
       <div class="hsc-value" style="color:${rct.color}">${thyroidRisk}% — ${rct.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
-      <div class="hsc-meter-label">DHEA 저하 위험도</div>
+      <div class="hsc-meter-label">DHEA 저하 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${dheaRisk}%;background:linear-gradient(90deg,${rcd.color}80,${rcd.color})"></div>
         <div class="hsc-tick" style="left:30%"></div>
         <div class="hsc-tick" style="left:60%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>위험</span></div>
+      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
       <div class="hsc-value" style="color:${rcd.color}">${dheaRisk}% — ${rcd.label}</div>
     </div>
   </div>
@@ -427,7 +427,7 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
   </div>
 
   <div class="risk-level-guide">
-    <div class="rlg-title">📊 위험도 단계별 행동 가이드</div>
+    <div class="rlg-title">📊 참고 지수 단계별 행동 가이드</div>
     <div class="rlg-levels">
       ${riskLevels.map(rl => `
       <div class="rlg-level" style="border-color:${rl.color}40">
@@ -558,7 +558,7 @@ function buildChallengeSection(report, actualAge, userName, todayShort) {
     },
     {
       month: fmt(month3), label: '3개월 — 목표 달성', color: '#C8956C', target: `건강나이 ${targetAge}세 달성`,
-      goals: ['웰핏+ 재검사로 건강나이 확인', '호르몬 위험도 재측정', '3개월 전후 비교 분석', '다음 3개월 목표 설정'],
+      goals: ['웰핏+ 재검사로 건강나이 확인', '호르몬 참고 지수 재측정', '3개월 전후 비교 분석', '다음 3개월 목표 설정'],
       metric: `목표: ${targetAge}세 (−${healthAge - targetAge}세)`,
     },
   ];
@@ -1020,7 +1020,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
     <div class="cover-tag">Personal Health Analysis</div>
     <h1 class="cover-title">
       <strong>호르몬 · 영양</strong><br>
-      <em>위험도 분석</em><br>
+      <em>참고 지수 분석</em><br>
       <span style="font-weight:300;color:rgba(255,255,255,.5);">건강 리포트</span>
     </h1>
     <p class="cover-sub">셀카 한 장 + 18문항 설문 → AI 즉시 분석</p>
@@ -1039,9 +1039,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
       <div class="cm-sub">실제 나이 대비 ${ageDiff >= 0 ? '−' + ageDiff : '+' + Math.abs(ageDiff)}세</div>
     </div>
     <div class="cover-metric">
-      <div class="cm-label">호르몬 위험도</div>
+      <div class="cm-label">호르몬 참고 지수</div>
       <div class="cm-value cm-rose">${maxHormoneRisk}<span style="font-size:18px;font-weight:400;">%</span></div>
-      <div class="cm-sub">${mainHormone.name} 위험</div>
+      <div class="cm-sub">${mainHormone.name} 관리 필요</div>
     </div>
     <div class="cover-metric">
       <div class="cm-label">영양 관심 항목</div>
@@ -1072,13 +1072,13 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
     <div class="age-comment"><p>${report.summary || ''}</p></div>
   </div>
 
-  <div class="section-eyebrow">02 &nbsp; 호르몬 위험도</div>
-  <h2 class="section-title">호르몬 불균형 위험도 분석</h2>
+  <div class="section-eyebrow">02 &nbsp; 호르몬 참고 지수</div>
+  <h2 class="section-title">호르몬 불균형 참고 지수 분석</h2>
   <p class="section-desc">혈액 채취 없이 얼굴·손톱 이미지와 설문을 AI로 융합 분석한 참고 지표입니다. (특허 출원 기술)</p>
   <div class="risk-grid">${hormoneCardsHTML}</div>
 
-  <div class="section-eyebrow">03 &nbsp; 영양 결핍 위험도</div>
-  <h2 class="section-title">주요 영양소 결핍 위험도</h2>
+  <div class="section-eyebrow">03 &nbsp; 영양 결핍 참고 지수</div>
+  <h2 class="section-title">주요 영양소 결핍 참고 지수</h2>
   <div class="nutrition-strip">${nutrientCardsHTML}</div>
 
   <div class="disclaimer">

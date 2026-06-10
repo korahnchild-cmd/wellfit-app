@@ -9,7 +9,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 function getRiskLevel(value) {
   if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
   if (value < 60) return { label: '주의', color: 'text-yellow-600', bg: 'bg-yellow-100', bar: 'from-yellow-400 to-orange-400' };
-  return { label: '위험', color: 'text-red-500', bg: 'bg-red-100', bar: 'from-red-400 to-rose-500' };
+  return { label: '관리 필요', color: 'text-red-500', bg: 'bg-red-100', bar: 'from-red-400 to-rose-500' };
 }
 
 function GaugeBar({ value, gradient, delay = 0 }) {
@@ -334,7 +334,7 @@ export default function ReportPage() {
 
           {/* 호르몬 */}
           {report.hormones && hormoneItems.length > 0 && (
-            <SectionCard title="호르몬 위험도" icon="⚗️">
+            <SectionCard title="호르몬 참고 지수" icon="⚗️">
               <div className="space-y-4">
                 {hormoneItems.map((item, i) => {
                   if (item.value === undefined || item.value === null) return null;
@@ -344,7 +344,7 @@ export default function ReportPage() {
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-semibold text-[#3D2B2B]">{item.name}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-black text-[#3D2B2B]">{item.value}%</span>
+                          <span className="text-sm font-bold text-[#3D2B2B]">참고 지수 {item.value}%</span>
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${level.bg} ${level.color}`}>{level.label}</span>
                         </div>
                       </div>
@@ -359,7 +359,7 @@ export default function ReportPage() {
 
           {/* 영양 */}
           {report.nutrients && nutrientItems.length > 0 && (
-            <SectionCard title="영양 결핍 위험도" icon="🔬">
+            <SectionCard title="영양 결핍 참고 지수" icon="🔬">
               <div className="space-y-4">
                 {nutrientItems.map((item, i) => {
                   if (item.value === undefined || item.value === null) return null;
@@ -369,7 +369,7 @@ export default function ReportPage() {
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-semibold text-[#3D2B2B] flex items-center gap-1.5"><span>{item.emoji}</span>{item.name}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-black text-[#3D2B2B]">{item.value}%</span>
+                          <span className="text-sm font-bold text-[#3D2B2B]">참고 지수 {item.value}%</span>
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${level.bg} ${level.color}`}>{level.label}</span>
                         </div>
                       </div>
