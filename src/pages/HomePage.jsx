@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   createUserWithEmailAndPassword,
@@ -19,6 +19,19 @@ export default function HomePage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    let ref = params.get('ref');
+    if (!ref && params.has('q')) {
+      const qParams = new URLSearchParams(params.get('q'));
+      ref = qParams.get('ref');
+    }
+    if (ref) {
+      localStorage.setItem('referralCode', ref);
+      localStorage.setItem('referralCodeExpiry', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+    }
+  }, []);
 
   const handleStart = () => {
     if (user) {
