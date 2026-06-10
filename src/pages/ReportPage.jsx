@@ -535,7 +535,7 @@ export default function ReportPage() {
         </div>
         <div className="flex justify-center mt-2">
           <button onClick={() => navigate('/')} className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors">
-            홈으로
+            🏠 홈으로
           </button>
         </div>
       </div>

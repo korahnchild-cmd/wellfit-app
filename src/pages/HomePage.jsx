@@ -150,6 +150,16 @@ export default function HomePage() {
             ✨ 시작하기
           </button>
 
+          {user && !user.isGuest && (
+            <button
+              onClick={() => navigate('/mypage')}
+              className="w-full mt-3 py-3 rounded-2xl font-semibold text-sm border-2 border-rose-gold text-rose-gold hover:bg-rose-gold/10 transition-colors flex items-center justify-center gap-2 animate-slide-up"
+              style={{ animationDelay: '0.6s' }}
+            >
+              👤 내 정보 · 추천코드
+            </button>
+          )}
+
           <p className="text-xs text-[#9A8080] mt-4 animate-slide-up" style={{ animationDelay: '0.6s' }}>
             약 5분 소요 · 무료 · 안전한 데이터 보호
           </p>
@@ -163,16 +173,6 @@ export default function HomePage() {
           </p>
         </div>
 
-        {user && !user.isGuest && (
-          <div className="mt-3 flex justify-center animate-fade-in" style={{ animationDelay: '0.8s' }}>
-            <button
-              onClick={() => navigate('/mypage')}
-              className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors"
-            >
-              마이페이지
-            </button>
-          </div>
-        )}
       </div>
 
       {/* 로그인 모달 */}
