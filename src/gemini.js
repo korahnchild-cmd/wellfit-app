@@ -2,7 +2,7 @@
 // GoogleGenerativeAI 라이브러리 대신 직접 fetch 사용 (AQ. 형식 키 호환)
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`;
 
 async function fileToBase64(file) {
   return new Promise((resolve, reject) => {
