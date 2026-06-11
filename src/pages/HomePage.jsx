@@ -8,7 +8,7 @@ import {
 import { auth } from '../firebase';
 import { useApp } from '../context/AppContext';
 import { Link } from 'react-router-dom';
-import { X, Mail, Lock, Eye, EyeOff, Sparkles, Heart, Shield } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, Sparkles, Shield } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ export default function HomePage() {
 
   return (
     <div className="page-container overflow-hidden">
-      {/* 배경 장식 */}
+      {/* 배경 장식 — 원본 그대로 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-rose-gold/20 to-mauve/20 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-gradient-to-tr from-mauve/15 to-rose-gold/15 blur-3xl" />
@@ -87,7 +87,7 @@ export default function HomePage() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen px-6 py-12">
-        {/* 상단 배지 */}
+        {/* 상단 배지 — 원본 그대로 */}
         <div className="flex justify-center mb-8 animate-fade-in">
           <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm border border-white/80">
             <Sparkles size={14} className="text-rose-gold" />
@@ -95,19 +95,43 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 메인 로고 */}
+        {/* 메인 로고 — 아이콘만 교체 */}
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <div className="animate-float mb-6">
             <div className="relative">
               <div className="w-28 h-28 rounded-3xl bg-rose-gradient shadow-rose flex items-center justify-center mx-auto">
-                <span className="text-5xl">🌸</span>
+                {/* 🌸 → 분자구조+AI 복합 SVG 아이콘 */}
+                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="29" stroke="rgba(255,255,255,0.22)" strokeWidth="1" fill="none" />
+                  <polygon points="32,14 43,20 43,34 32,40 21,34 21,20"
+                    stroke="rgba(255,255,255,0.85)" strokeWidth="1.6" fill="rgba(255,255,255,0.08)" />
+                  <circle cx="32" cy="27" r="5.5" fill="rgba(255,255,255,0.95)" />
+                  <text x="32" y="30.5" textAnchor="middle" fontSize="6" fontWeight="800"
+                    fill="#8B5E83" fontFamily="-apple-system,sans-serif" letterSpacing="-0.3">AI</text>
+                  <circle cx="32" cy="11" r="2.8" fill="rgba(255,255,255,0.9)" />
+                  <circle cx="46" cy="18" r="2.8" fill="rgba(255,255,255,0.9)" />
+                  <circle cx="46" cy="36" r="2.8" fill="rgba(255,255,255,0.9)" />
+                  <circle cx="32" cy="43" r="2.8" fill="rgba(255,255,255,0.9)" />
+                  <circle cx="18" cy="36" r="2.8" fill="rgba(255,255,255,0.9)" />
+                  <circle cx="18" cy="18" r="2.8" fill="rgba(255,255,255,0.9)" />
+                  <line x1="32" y1="13.8" x2="32" y2="21" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                  <line x1="43.6" y1="19.4" x2="39" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                  <line x1="43.6" y1="34.6" x2="39" y2="32" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                  <line x1="32" y1="40.2" x2="32" y2="33" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                  <line x1="20.4" y1="34.6" x2="25" y2="32" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                  <line x1="20.4" y1="19.4" x2="25" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                  <polyline points="14,52 20,52 23,46 27,58 31,49 35,52 41,52 44,46 48,52 50,52"
+                    stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
+              {/* Heart → AI 뱃지 */}
               <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-mauve rounded-2xl flex items-center justify-center shadow-mauve">
-                <Heart size={18} className="text-white fill-white" />
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>AI</span>
               </div>
             </div>
           </div>
 
+          {/* 서비스명 — 원본 그대로 */}
           <div className="mb-3 animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <h1 className="text-3xl font-black text-gradient leading-tight">
               웰핏+ CHECK-UP
@@ -127,7 +151,7 @@ export default function HomePage() {
             <span className="text-rose-gold font-semibold">AI가 분석하는 나만의 건강 리포트</span>를 받아보세요
           </p>
 
-          {/* 특징 카드들 */}
+          {/* 특징 카드 — 원본 그대로 */}
           <div className="grid grid-cols-3 gap-3 w-full mb-10 animate-slide-up" style={{ animationDelay: '0.4s' }}>
             {[
               { icon: '📸', label: '셀카 분석' },
@@ -141,7 +165,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* CTA 버튼 */}
+          {/* CTA — 원본 그대로 */}
           <button
             id="start-button"
             onClick={handleStart}
@@ -151,6 +175,7 @@ export default function HomePage() {
             ✨ 시작하기
           </button>
 
+          {/* 내 정보·추천코드 — 원본 그대로 */}
           {user && !user.isGuest && (
             <button
               onClick={() => navigate('/mypage')}
@@ -161,12 +186,19 @@ export default function HomePage() {
             </button>
           )}
 
-          <p className="text-xs text-[#9A8080] mt-4 animate-slide-up" style={{ animationDelay: '0.6s' }}>
-            약 5분 소요 · 무료 · 안전한 데이터 보호
-          </p>
+          {/* 신뢰 칩 4개 — 폰트 11px */}
+          <div className="flex items-center justify-center gap-1 flex-wrap mt-4 animate-slide-up" style={{ animationDelay: '0.6s' }}>
+            {['약 5분 소요', '무료 체험', '이미지 미저장', '특허 기술'].map((chip, i) => (
+              <span key={chip} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#9A8080' }}>
+                <span style={{ color: '#7DBFA8', fontWeight: 700 }}>✓</span>
+                {chip}
+                {i < 3 && <span style={{ color: '#D0C0C0', margin: '0 2px' }}>·</span>}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {/* 하단 안내 */}
+        {/* 하단 안내 — 원본 그대로 */}
         <div className="mt-8 flex items-center gap-2 justify-center animate-fade-in" style={{ animationDelay: '0.7s' }}>
           <Shield size={12} className="text-cream-deeper" />
           <p className="text-xs text-[#B0A0A0] text-center">
@@ -174,7 +206,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* 푸터 링크 */}
+        {/* 푸터 — 원본 그대로 */}
         <div className="mt-4 flex items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.8s' }}>
           <Link to="/privacy" className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors underline underline-offset-2">
             개인정보처리방침
@@ -184,10 +216,9 @@ export default function HomePage() {
             이용약관
           </Link>
         </div>
-
       </div>
 
-      {/* 로그인 모달 */}
+      {/* 로그인 모달 — 원본 그대로 */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center modal-backdrop bg-black/40"
@@ -202,77 +233,41 @@ export default function HomePage() {
                 <X size={20} className="text-[#7A6060]" />
               </button>
             </div>
-
             <form onSubmit={handleAuth} className="space-y-4">
               <div className="relative">
                 <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-gold" />
-                <input
-                  id="email-input"
-                  type="email"
-                  placeholder="이메일 주소"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-10"
-                  required
-                />
+                <input id="email-input" type="email" placeholder="이메일 주소" value={email}
+                  onChange={(e) => setEmail(e.target.value)} className="input-field pl-10" required />
               </div>
               <div className="relative">
                 <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-gold" />
-                <input
-                  id="password-input"
-                  type={showPw ? 'text' : 'password'}
-                  placeholder="비밀번호 (6자 이상)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-10 pr-10"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((v) => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9A8080]"
-                >
+                <input id="password-input" type={showPw ? 'text' : 'password'} placeholder="비밀번호 (6자 이상)"
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="input-field pl-10 pr-10" required minLength={6} />
+                <button type="button" onClick={() => setShowPw((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9A8080]">
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-
               {error && (
-                <div className="bg-red-50 text-red-500 text-sm rounded-xl px-4 py-3 border border-red-100">
-                  {error}
-                </div>
+                <div className="bg-red-50 text-red-500 text-sm rounded-xl px-4 py-3 border border-red-100">{error}</div>
               )}
-
-              <button
-                id="auth-submit-btn"
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full"
-              >
+              <button id="auth-submit-btn" type="submit" disabled={loading} className="btn-primary w-full">
                 {loading ? '처리 중...' : isLogin ? '로그인하고 시작하기' : '가입하고 시작하기'}
               </button>
             </form>
-
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-cream-deeper" />
               <span className="text-xs text-[#B0A0A0]">또는</span>
               <div className="flex-1 h-px bg-cream-deeper" />
             </div>
-
-            <button
-              id="guest-mode-btn"
-              onClick={handleGuestMode}
-              className="btn-secondary w-full text-sm"
-            >
+            <button id="guest-mode-btn" onClick={handleGuestMode} className="btn-secondary w-full text-sm">
               로그인 없이 체험하기
             </button>
-
             <p className="text-center text-sm text-[#9A8080] mt-4">
               {isLogin ? '아직 계정이 없으신가요?' : '이미 계정이 있으신가요?'}{' '}
-              <button
-                onClick={() => { setIsLogin((v) => !v); setError(''); }}
-                className="text-rose-gold font-semibold hover:text-rose-gold-dark"
-              >
+              <button onClick={() => { setIsLogin((v) => !v); setError(''); }}
+                className="text-rose-gold font-semibold hover:text-rose-gold-dark">
                 {isLogin ? '회원가입' : '로그인'}
               </button>
             </p>
