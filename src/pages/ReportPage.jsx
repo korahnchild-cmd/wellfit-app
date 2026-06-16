@@ -466,6 +466,40 @@ export default function ReportPage() {
                   <div className="flex items-center justify-center gap-1 mb-3">
                     <span className="text-xl font-black" style={{ color: '#C8956C' }}>월 59,800원</span>
                   </div>
+
+                  {/* 월별 건강나이 추이 미리보기 */}
+                  <div className="mb-4 p-3 rounded-2xl border border-rose-gold/20" style={{ background: 'linear-gradient(135deg, #FDF6F0 0%, #F8F0FA 100%)' }}>
+                    <p className="text-xs font-bold text-[#8B5E83] mb-2">📈 월별 건강나이 변화 추이 (구독 시 제공)</p>
+                    <svg viewBox="0 0 280 72" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 72 }}>
+                      <defs>
+                        <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#C8956C" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#C8956C" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      {/* 그리드 라인 */}
+                      <line x1="0" y1="16" x2="280" y2="16" stroke="#E8DDD5" strokeWidth="0.5" strokeDasharray="4 3" />
+                      <line x1="0" y1="36" x2="280" y2="36" stroke="#E8DDD5" strokeWidth="0.5" strokeDasharray="4 3" />
+                      <line x1="0" y1="56" x2="280" y2="56" stroke="#E8DDD5" strokeWidth="0.5" strokeDasharray="4 3" />
+                      {/* 채우기 영역 */}
+                      <path d="M20,52 Q80,46 120,38 T200,26 T260,14 L260,68 L20,68 Z" fill="url(#chartFill)" />
+                      {/* 꺾은선 */}
+                      <path d="M20,52 Q80,46 120,38 T200,26 T260,14" fill="none" stroke="#C8956C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      {/* 데이터 포인트 */}
+                      <circle cx="20"  cy="52" r="3" fill="#C8956C" />
+                      <circle cx="90"  cy="44" r="3" fill="#C8956C" />
+                      <circle cx="160" cy="30" r="3" fill="#C8956C" />
+                      <circle cx="260" cy="14" r="4" fill="#8B5E83" stroke="white" strokeWidth="1.5" />
+                      {/* 월 레이블 */}
+                      <text x="20"  y="68" textAnchor="middle" fontSize="9" fill="#B09090">3월</text>
+                      <text x="90"  y="68" textAnchor="middle" fontSize="9" fill="#B09090">4월</text>
+                      <text x="160" y="68" textAnchor="middle" fontSize="9" fill="#B09090">5월</text>
+                      <text x="260" y="68" textAnchor="middle" fontSize="9" fill="#8B5E83" fontWeight="700">6월</text>
+                      {/* 최신 값 레이블 */}
+                      <text x="260" y="10" textAnchor="middle" fontSize="9" fill="#8B5E83" fontWeight="700">-3세 ✨</text>
+                    </svg>
+                    <p className="text-xs text-[#9A8080] mt-1 text-center">구독 유지 시 건강나이가 이렇게 변화합니다</p>
+                  </div>
                   <div className="space-y-1.5 mb-5">
                     {[
                       { text: '월 4회 정기 분석 (주 1회 관리)' },
@@ -473,8 +507,8 @@ export default function ReportPage() {
                       { text: '건강나이 챌린지 (-3세 목표 + 인증서)' },
                       { text: '3개월 예상 피부 미리보기' },
                       { text: '앰배서더 수익 (단 2명 추천 = 구독료 0원)' },
-                      { text: '🌸 생리 주기·계절 변화 반영 맞춤 코멘트 — "내 몸의 리듬에 맞춘 AI 분석"', desc: '갱년기 증상은 계절과 주기에 따라 달라져요. AI가 내 몸의 리듬을 읽고 맞춤 코멘트를 드립니다' },
-                      { text: '🔔 매주 맞춤 건강 푸시 알림 — "1주차 실천체크·2주차 중간점검·3주차 분석알림·4주차 월마무리, 내 건강 상태에 맞춘 맞춤 알림"' },
+                      { text: '🌸 생리 주기·계절 변화 반영 맞춤 코멘트', desc: '갱년기 증상은 계절과 주기에 따라 달라져요. AI가 내 몸의 리듬을 읽고 맞춤 코멘트를 드립니다.' },
+                      { text: '🔔 매주 맞춤 건강 푸시 알림', desc: '1주차 실천체크 · 2주차 중간점검 · 3주차 분석알림 · 4주차 월마무리' },
                       { text: '무료 체험 모든 기능 포함' },
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-2.5 px-3 py-2 rounded-xl bg-white/60">
