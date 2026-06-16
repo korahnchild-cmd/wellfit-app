@@ -21,7 +21,7 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     const surveyText = buildSurveyText(surveyData);
     const isMale = gender === 'male';
     const genderLabel = isMale ? '한국 남성' : '한국 여성';
-    const roleLabel = isMale ? '남성 건강 전문 AI 어드바이저' : '여성 건강 전문 AI 어드바이저';
+    const roleLabel = isMale ? '남성 건강 라이프스타일 코칭 AI' : '여성 건강 라이프스타일 코칭 AI';
     const menopauseLabel = isMale ? '남성 갱년기(안드로포즈)' : '여성 갱년기';
 
     const hormonePrompt = isMale
@@ -32,12 +32,12 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     "thyroid": <갑상선 호르몬 불균형 참고 지수 0-100>,
     "dhea": <DHEA 저하 참고 지수 0-100>,
     "growthHormone": <성장호르몬 저하 참고 지수 0-100>,
-    "testosteroneComment": "<짧은 조언>",
-    "cortisolComment": "<짧은 조언>",
-    "insulinComment": "<짧은 조언>",
-    "thyroidComment": "<짧은 조언>",
-    "dheaComment": "<짧은 조언>",
-    "growthHormoneComment": "<짧은 조언>"
+    "testosteroneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "cortisolComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "insulinComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "thyroidComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "dheaComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "growthHormoneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
   }`
       : `"hormones": {
     "estrogen": <에스트로겐 부족 참고 지수 0-100>,
@@ -46,12 +46,12 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     "thyroid": <갑상선 호르몬 불균형 참고 지수 0-100>,
     "dhea": <DHEA 저하 참고 지수 0-100>,
     "progesterone": <프로게스테론 부족 참고 지수 0-100>,
-    "estrogenComment": "<짧은 조언>",
-    "cortisolComment": "<짧은 조언>",
-    "insulinComment": "<짧은 조언>",
-    "thyroidComment": "<짧은 조언>",
-    "dheaComment": "<짧은 조언>",
-    "progesteroneComment": "<짧은 조언>"
+    "estrogenComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "cortisolComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "insulinComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "thyroidComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "dheaComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "progesteroneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
   }`;
 
     const nutrientPrompt = `"nutrients": {
@@ -63,18 +63,18 @@ export async function analyzeHealth({ surveyData, faceImage, nailImage, actualAg
     "omega3": <오메가3 결핍 참고 지수 0-100>,
     "calcium": <칼슘 결핍 참고 지수 0-100>,
     "vitaminC": <비타민C 결핍 참고 지수 0-100>,
-    "vitaminDComment": "<짧은 조언>",
-    "vitaminB12Comment": "<짧은 조언>",
-    "ironComment": "<짧은 조언>",
-    "zincComment": "<짧은 조언>",
-    "magnesiumComment": "<짧은 조언>",
-    "omega3Comment": "<짧은 조언>",
-    "calciumComment": "<짧은 조언>",
-    "vitaminCComment": "<짧은 조언>"
+    "vitaminDComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "vitaminB12Comment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "ironComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "zincComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "magnesiumComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "omega3Comment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "calciumComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "vitaminCComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
   }`;
 
     const promptText = `
-당신은 ${roleLabel}입니다. 아래 설문 응답과 이미지를 분석하여 건강 상태를 평가해주세요.
+당신은 ${roleLabel}입니다. 아래 설문 응답과 이미지를 분석하여 생활습관 기반 건강 관리 참고 지수를 산출해주세요. 의료 진단이 아닌 라이프스타일 코칭 참고 자료를 제공합니다.
 
 【 분석 대상자 정보 】
 - 실제 나이: ${actualAge}세
