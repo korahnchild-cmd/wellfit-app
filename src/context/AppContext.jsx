@@ -31,9 +31,12 @@ const initialSurvey = Object.fromEntries(SURVEY_QUESTIONS.map((q) => [q.id, 0]))
 
 // ── 추천코드 자동생성: 이름 앞 2글자 + 숫자 4자리
 function generateReferralCode(user) {
-  const name = (user.displayName || user.email || 'WF').slice(0, 2).toUpperCase();
+  // 이메일 앞부분에서 영문자만 추출 → 2자리 대문자 + 숫자 4자리
+  const emailLocal = (user.email || '').split('@')[0];
+  const letters = emailLocal.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'WF';
+  const prefix = letters.length < 2 ? letters.padEnd(2, 'W') : letters;
   const num = Math.floor(1000 + Math.random() * 9000);
-  return `${name}${num}`;
+  return `${prefix}${num}`;
 }
 
 export function AppProvider({ children }) {
@@ -76,13 +79,15 @@ export function AppProvider({ children }) {
             localStorage.removeItem('referralCodeExpiry');
           }
         } else {
-          // ── 기존 유저: 추천코드 없으면 생성
-          if (!data.myReferralCode) {
+          // ── 기존 유저: 코드 없거나 한글 포함이면 영문 코드로 재생성
+          const existingCode = data.myReferralCode || '';
+          const hasKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(existingCode);
+          if (!existingCode || hasKorean) {
             const newCode = generateReferralCode(firebaseUser);
             await updateDoc(userRef, { myReferralCode: newCode });
             setMyReferralCode(newCode);
           } else {
-            setMyReferralCode(data.myReferralCode);
+            setMyReferralCode(existingCode);
           }
         }
 
