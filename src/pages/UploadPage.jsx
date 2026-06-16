@@ -104,6 +104,8 @@ export default function UploadPage() {
     parseInt(actualAge) >= 20 &&
     parseInt(actualAge) <= 80 &&
     gender &&
+    faceImage &&
+    nailImage &&
     consentChecked &&
     disclaimerChecked;
 
@@ -112,6 +114,8 @@ export default function UploadPage() {
     if (!consentChecked || !disclaimerChecked) return '아래 필수 동의 항목을 모두 체크해주세요';
     if (!actualAge || parseInt(actualAge) < 20 || parseInt(actualAge) > 80) return '나이를 입력해주세요 (20~80세)';
     if (!gender) return '성별을 선택해주세요';
+    if (!faceImage) return '얼굴 정면 사진을 업로드해주세요';
+    if (!nailImage) return '손톱 사진을 업로드해주세요';
     return '';
   };
 
@@ -278,7 +282,7 @@ export default function UploadPage() {
         />
 
         <p className="text-xs text-center text-[#B0A0A0]">
-          사진은 선택사항입니다 · 나이·성별 입력 후 다음 단계로 진행 가능
+          얼굴·손톱 사진 모두 필수입니다
         </p>
       </div>
 
