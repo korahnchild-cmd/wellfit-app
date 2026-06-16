@@ -8,22 +8,22 @@ function getRiskColor(value) {
 
 function getHormoneRows(hormones, gender) {
   const shared = [
-    { name: '코르티솔 과다 참고 지수', sub: '스트레스 호르몬 (기준 μg/dL)', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
+    { name: '코르티솔 과다 참고 지수', sub: '스트레스 호르몬', value: hormones.cortisol ?? 0, comment: hormones.cortisolComment ?? '' },
     { name: '인슐린 저항성 참고 지수', sub: '혈당 조절 호르몬', value: hormones.insulin ?? 0, comment: hormones.insulinComment ?? '' },
-    { name: '갑상선 호르몬 불균형 참고 지수', sub: '갑상선 (기준 TSH μIU/mL)', value: hormones.thyroid ?? 0, comment: hormones.thyroidComment ?? '' },
-    { name: 'DHEA 저하 참고 지수', sub: '부신 호르몬 전구체 (기준 μg/dL)', value: hormones.dhea ?? 0, comment: hormones.dheaComment ?? '' },
+    { name: '갑상선 호르몬 불균형 참고 지수', sub: '갑상선 호르몬', value: hormones.thyroid ?? 0, comment: hormones.thyroidComment ?? '' },
+    { name: 'DHEA 저하 참고 지수', sub: '부신 호르몬 전구체', value: hormones.dhea ?? 0, comment: hormones.dheaComment ?? '' },
   ];
   if (gender === 'male') {
     return [
-      { name: '테스토스테론 저하 참고 지수', sub: '남성 호르몬 (기준 ng/dL)', value: hormones.testosterone ?? 0, comment: hormones.testosteroneComment ?? '' },
+      { name: '테스토스테론 저하 참고 지수', sub: '남성 호르몬', value: hormones.testosterone ?? 0, comment: hormones.testosteroneComment ?? '' },
       ...shared,
-      { name: '성장호르몬 저하 참고 지수', sub: '성장호르몬 (기준 ng/mL)', value: hormones.growthHormone ?? 0, comment: hormones.growthHormoneComment ?? '' },
+      { name: '성장호르몬 저하 참고 지수', sub: '성장호르몬', value: hormones.growthHormone ?? 0, comment: hormones.growthHormoneComment ?? '' },
     ];
   }
   return [
-    { name: '에스트로겐 저하 참고 지수', sub: '여성 호르몬 (기준 pg/mL)', value: hormones.estrogen ?? 0, comment: hormones.estrogenComment ?? '' },
+    { name: '에스트로겐 저하 참고 지수', sub: '여성 호르몬', value: hormones.estrogen ?? 0, comment: hormones.estrogenComment ?? '' },
     ...shared,
-    { name: '프로게스테론 부족 참고 지수', sub: '황체호르몬 (기준 ng/mL)', value: hormones.progesterone ?? 0, comment: hormones.progesteroneComment ?? '' },
+    { name: '프로게스테론 부족 참고 지수', sub: '황체호르몬', value: hormones.progesterone ?? 0, comment: hormones.progesteroneComment ?? '' },
   ];
 }
 
@@ -80,11 +80,11 @@ function getHormoneStage(report, gender, actualAge) {
   if (isMale) {
     const risk = hormones.testosterone ?? 0;
     if (age < 40) return { stage: '테스토스테론 최적기', desc: '30대는 테스토스테론이 서서히 감소 시작. 예방적 관리가 핵심입니다.', risk, tips: ['근력 운동 주 3회 이상', '수면 7시간 이상 유지', '아연·마그네슘 보충', '과음·흡연 자제'] };
-    if (age < 55) return { stage: '남성 갱년기 진입기', desc: '40~50대는 테스토스테론이 연 1~2% 감소. 활력 저하·집중력 감소가 나타날 수 있습니다.', risk, tips: ['고강도 인터벌 트레이닝 추가', '단백질 섭취 체중 1kg당 1.2g', '스트레스 관리 최우선', '연 1회 호르몬 수치 검사'] };
+    if (age < 55) return { stage: '남성 갱년기 진입기', desc: '40~50대는 테스토스테론이 연 1~2% 감소. 활력 저하·집중력 감소가 나타날 수 있습니다.', risk, tips: ['고강도 인터벌 트레이닝 추가', '단백질 섭취 체중 1kg당 1.2g', '스트레스 관리 최우선', '연 1회 호르몬 균형 검진 권장'] };
     return { stage: '남성 갱년기 심화기', desc: '55세 이상은 테스토스테론 저하 증상이 뚜렷해집니다. 전문의 상담을 권장합니다.', risk, tips: ['비뇨기과·내분비과 정기 검진', '고강도 운동 유지', '테스토스테론 보충 치료 검토', '심혈관 건강 집중 관리'] };
   } else {
     const risk = hormones.estrogen ?? 0;
-    if (age < 40) return { stage: '에스트로겐 안정기', desc: '40대 이전은 에스트로겐 수치가 안정적이나, 스트레스·불규칙한 생활로 일시 저하될 수 있습니다.', risk, tips: ['규칙적인 유산소 운동', '콩·두부 등 식물성 에스트로겐 섭취', '스트레스 관리·수면 7시간', '철분·엽산 충분히 섭취'] };
+    if (age < 40) return { stage: '에스트로겐 안정기', desc: '40대 이전은 에스트로겐 균형이 안정적이나, 스트레스·불규칙한 생활로 일시 저하될 수 있습니다.', risk, tips: ['규칙적인 유산소 운동', '콩·두부 등 식물성 에스트로겐 섭취', '스트레스 관리·수면 7시간', '철분·엽산 충분히 섭취'] };
     if (age < 55) return { stage: '갱년기 전환기 (perimenopause)', desc: '40~55세는 에스트로겐이 불규칙하게 변동하는 갱년기 전환기입니다. 증상 모니터링이 중요합니다.', risk, tips: ['산부인과 정기 검진 (연 1회)', '이소플라본·홍삼 보조제 고려', '체중 관리 (복부비만 주의)', '칼슘·비타민D 보충으로 골밀도 보호'] };
     return { stage: '갱년기 후기 (postmenopause)', desc: '55세 이상 폐경 후에는 골다공증·심혈관 위험이 높아집니다. 종합적 건강 관리가 필요합니다.', risk, tips: ['골밀도 검사 (DEXA) 권장', '칼슘 1,200mg + 비타민D 1,000IU 일일', '호르몬 대체 요법(HRT) 전문의 상담', '심혈관 건강 지표 정기 모니터링'] };
   }
@@ -341,7 +341,7 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
   const riskLevels = [
     { label: '낮음 (0~29%)', color: '#4CAF7D', tips: ['예방 중심의 건강 관리 유지', '정기 검진 연 1회', '현재 좋은 생활습관 지속'] },
     { label: '주의 (30~59%)', color: '#E8A038', tips: ['생활습관 집중 개선 필요', '영양제 보충 시작 권장', '3개월 내 재검사 권장'] },
-    { label: '관리 필요 (60~100%)', color: '#D4504A', tips: ['전문의 상담 우선 권장', '호르몬 수치 혈액 검사', '적극적 치료 개입 검토'] },
+    { label: '관리 필요 (60~100%)', color: '#D4504A', tips: ['전문의 상담 우선 권장', '병원 호르몬 검사 고려', '생활습관 집중 개선 병행'] },
   ];
 
   return `
