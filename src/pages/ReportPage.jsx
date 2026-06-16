@@ -129,7 +129,7 @@ export default function ReportPage() {
 
   if (!report) return <div style={{ minHeight: '100vh', backgroundColor: '#FDFAF6' }} />;
 
-  const ageDiff = actualAge - report.healthAge;
+  const ageDiff = report.healthAge - actualAge;
   const visiblePlan = showFullPlan ? report.plan14days : report.plan14days?.slice(0, 7);
   const isMale = (gender || report.gender) === 'male';
   const hormoneItems = report.hormones ? getHormoneItems(report.hormones, isMale ? 'male' : 'female') : [];
@@ -253,8 +253,8 @@ export default function ReportPage() {
               </div>
               <div className="flex flex-col items-center">
                 <div className="text-lg font-bold text-[#C0B0B0] mb-2">VS</div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff > 0 ? 'bg-green-100 text-green-600' : ageDiff < 0 ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
-                  {ageDiff > 0 ? `−${ageDiff}세 젊음 ✨` : ageDiff < 0 ? `+${Math.abs(ageDiff)}세 높음` : '동일'}
+                <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff < 0 ? 'bg-green-100 text-green-600' : ageDiff > 0 ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
+                  {ageDiff < 0 ? `−${Math.abs(ageDiff)}세 젊음 ✨` : ageDiff > 0 ? `+${ageDiff}세 높음` : '동일'}
                 </div>
               </div>
               <div className="text-center">
@@ -263,7 +263,7 @@ export default function ReportPage() {
                 <div className="text-sm text-rose-gold">세</div>
               </div>
             </div>
-            {ageDiff < 0 && (
+            {ageDiff > 0 && (
               <div className="mt-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 text-center">
                 <p className="text-sm text-orange-700 font-medium leading-relaxed">지금 관리하면 충분히 되돌릴 수 있어요 💪</p>
               </div>
