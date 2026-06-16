@@ -49,7 +49,7 @@ Error generating stack: `+a.message+`
 그러함`,`매우
 그러함`];function bg(){const o=Tt(),{surveyAnswers:j,setAnswer:x}=Ta(),[d,y]=H.useState(0),[z,T]=H.useState("right"),[D,N]=H.useState(!0),E=Au[d],_=Au.length,B=(d+1)/_*100,X=Nu[E.category]||Nu.수면,q=Object.values(j).filter(Y=>Y>0).length,O=q===_,R=Y=>{T(Y),N(!1),setTimeout(()=>{Y==="right"&&d<_-1?y($=>$+1):Y==="left"&&d>0&&y($=>$-1),N(!0)},200)},W=Y=>{x(E.id,Y),d<_-1&&setTimeout(()=>R("right"),300)},le=q>=_*.8;return s.jsxs("div",{className:"page-container",children:[s.jsxs("div",{className:"bg-white/90 backdrop-blur-sm sticky top-0 z-10 px-4 pt-4 pb-3 border-b border-cream-deeper",children:[s.jsxs("div",{className:"flex items-center gap-3 mb-3",children:[s.jsx("button",{onClick:()=>o("/upload"),className:"p-2 hover:bg-cream-dark rounded-full transition-colors",children:s.jsx(Ea,{size:20,className:"text-[#7A6060]"})}),s.jsxs("div",{className:"flex-1",children:[s.jsxs("div",{className:"flex justify-between items-center mb-1",children:[s.jsx("h2",{className:"font-bold text-[#3D2B2B] text-sm",children:"건강 설문"}),s.jsxs("span",{className:"text-xs text-[#9A8080] font-medium",children:[d+1," / ",_]})]}),s.jsx("div",{className:"h-2 bg-cream-deeper rounded-full overflow-hidden",children:s.jsx("div",{className:"h-full bg-rose-gradient rounded-full transition-all duration-500 ease-out",style:{width:`${B}%`}})})]})]}),s.jsx("div",{className:"flex gap-1 overflow-x-auto pb-1 scrollbar-hide",children:["수면","식습관","스트레스","갱년기","영양"].map(Y=>{const $=E.category===Y,k=Nu[Y];return s.jsx("div",{className:`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${$?`${k.bg} ${k.text} border ${k.border}`:"text-[#B0A0A0]"}`,children:Y},Y)})})]}),s.jsxs("div",{className:"p-4 pb-48",children:[s.jsxs("div",{className:"transition-all duration-200",style:{opacity:D?1:0,transform:D?"translateX(0)":z==="right"?"translateX(-20px)":"translateX(20px)"},children:[s.jsxs("div",{className:`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 ${X.bg} ${X.text} border ${X.border}`,children:[s.jsx("div",{className:`w-2 h-2 rounded-full ${X.dot}`}),E.category]}),s.jsx("div",{className:"card mb-6",children:s.jsxs("div",{className:"text-center py-4",children:[s.jsx("div",{className:"text-5xl mb-4",children:E.emoji}),s.jsx("p",{className:"text-xl font-bold text-[#3D2B2B] leading-snug mb-2",children:E.text}),s.jsx("p",{className:"text-sm text-[#9A8080]",children:"최근 2주 기준으로 답해주세요"})]})}),s.jsx("div",{className:"space-y-3 mb-6",children:[1,2,3,4,5].map(Y=>{const $=j[E.id]===Y,k=vg[Y-1];return s.jsxs("button",{id:`score-${E.id}-${Y}`,onClick:()=>W(Y),className:`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 ${$?"border-rose-gold bg-gradient-to-r from-rose-gold/10 to-mauve/10 shadow-rose":"border-cream-deeper bg-white hover:border-rose-gold-light hover:bg-cream-dark"}`,children:[s.jsx("div",{className:`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all duration-200 ${$?"bg-rose-gradient text-white shadow-rose":"bg-cream-deeper text-[#7A6060]"}`,children:Y}),s.jsx("span",{className:`text-sm font-semibold leading-tight text-left ${$?"text-rose-gold":"text-[#5A4A4A]"}`,children:k.replace(`
 `," ")}),$&&s.jsx("div",{className:"ml-auto w-6 h-6 rounded-full bg-rose-gold flex items-center justify-center",children:s.jsx("span",{className:"text-white text-xs",children:"✓"})})]},Y)})})]}),s.jsxs("div",{className:"flex gap-3",children:[s.jsxs("button",{onClick:()=>R("left"),disabled:d===0,className:"flex-1 btn-secondary flex items-center justify-center gap-2 disabled:opacity-30",children:[s.jsx(Ea,{size:18}),"이전"]}),d<_-1?s.jsxs("button",{onClick:()=>R("right"),className:"flex-1 btn-primary flex items-center justify-center gap-2",children:["다음",s.jsx(lm,{size:18})]}):s.jsx("button",{id:"survey-complete-btn",onClick:()=>o("/analyzing"),disabled:!le,className:"flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50",children:"✨ 분석 시작"})]}),s.jsx("div",{className:"mt-4 text-center",children:s.jsxs("p",{className:"text-xs text-[#9A8080]",children:["답변 완료:"," ",s.jsx("span",{className:`font-semibold ${O?"text-green-500":"text-rose-gold"}`,children:q})," ","/ ",_,"문항",O&&s.jsx("span",{className:"ml-1 text-green-500",children:"✓ 완료"})]})})]}),s.jsx("div",{className:"fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-6 pt-4 bg-cream-gradient border-t border-cream-deeper",children:O?s.jsxs("div",{className:"space-y-2",children:[s.jsxs("button",{id:"analyze-now-btn",onClick:()=>o("/analyzing"),className:"btn-primary w-full flex items-center justify-center gap-2 animate-pulse-soft",children:[s.jsx(em,{size:18}),"AI 분석 시작하기"]}),s.jsx("p",{className:"text-xs text-center text-green-500 font-semibold",children:"✅ 18문항 모두 완료! 지금 바로 분석할 수 있어요"})]}):s.jsxs("p",{className:"text-xs text-center text-[#B0A0A0] py-2",children:["답변 완료: ",s.jsx("span",{className:"text-rose-gold font-semibold",children:q})," / ",_,"문항",q>=_*.8&&s.jsx("span",{className:"ml-1 text-[#9A8080]",children:"· 80% 이상 완료 시 분석 가능"})]})})]})}const yg="AQ.Ab8RN6KfFSZWH0JuODzW5c406g3HmlQcwjWvGdB_ZEmFVoxD0w",jg=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${yg}`;async function Zf(o){return new Promise((j,x)=>{const d=new FileReader;d.onload=()=>{const y=d.result.split(",")[1];j(y)},d.onerror=x,d.readAsDataURL(o)})}async function Ng({surveyData:o,faceImage:j,nailImage:x,actualAge:d,gender:y="female"}){var z,T,D,N,E;try{const _=Sg(o),B=y==="male",Y=[{text:`
-당신은 ${B?"남성 건강 전문 AI 어드바이저":"여성 건강 전문 AI 어드바이저"}입니다. 아래 설문 응답과 이미지를 분석하여 건강 상태를 평가해주세요.
+당신은 ${B?"남성 건강 라이프스타일 코칭 AI":"여성 건강 라이프스타일 코칭 AI"}입니다. 아래 설문 응답과 이미지를 분석하여 생활습관 기반 건강 관리 참고 지수를 산출해주세요. 의료 진단이 아닌 라이프스타일 코칭 참고 자료를 제공합니다.
 
 【 분석 대상자 정보 】
 - 실제 나이: ${d}세
@@ -73,12 +73,12 @@ ${x?"【 손톱 이미지 분석 포함 】":""}
     "thyroid": <갑상선 호르몬 불균형 참고 지수 0-100>,
     "dhea": <DHEA 저하 참고 지수 0-100>,
     "growthHormone": <성장호르몬 저하 참고 지수 0-100>,
-    "testosteroneComment": "<짧은 조언>",
-    "cortisolComment": "<짧은 조언>",
-    "insulinComment": "<짧은 조언>",
-    "thyroidComment": "<짧은 조언>",
-    "dheaComment": "<짧은 조언>",
-    "growthHormoneComment": "<짧은 조언>"
+    "testosteroneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "cortisolComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "insulinComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "thyroidComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "dheaComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "growthHormoneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
   }`:`"hormones": {
     "estrogen": <에스트로겐 부족 참고 지수 0-100>,
     "cortisol": <코르티솔 과다 참고 지수 0-100>,
@@ -86,12 +86,12 @@ ${x?"【 손톱 이미지 분석 포함 】":""}
     "thyroid": <갑상선 호르몬 불균형 참고 지수 0-100>,
     "dhea": <DHEA 저하 참고 지수 0-100>,
     "progesterone": <프로게스테론 부족 참고 지수 0-100>,
-    "estrogenComment": "<짧은 조언>",
-    "cortisolComment": "<짧은 조언>",
-    "insulinComment": "<짧은 조언>",
-    "thyroidComment": "<짧은 조언>",
-    "dheaComment": "<짧은 조언>",
-    "progesteroneComment": "<짧은 조언>"
+    "estrogenComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "cortisolComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "insulinComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "thyroidComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "dheaComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "progesteroneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
   }`},
   "nutrients": {
     "vitaminD": <비타민D 결핍 참고 지수 0-100>,
@@ -102,14 +102,14 @@ ${x?"【 손톱 이미지 분석 포함 】":""}
     "omega3": <오메가3 결핍 참고 지수 0-100>,
     "calcium": <칼슘 결핍 참고 지수 0-100>,
     "vitaminC": <비타민C 결핍 참고 지수 0-100>,
-    "vitaminDComment": "<짧은 조언>",
-    "vitaminB12Comment": "<짧은 조언>",
-    "ironComment": "<짧은 조언>",
-    "zincComment": "<짧은 조언>",
-    "magnesiumComment": "<짧은 조언>",
-    "omega3Comment": "<짧은 조언>",
-    "calciumComment": "<짧은 조언>",
-    "vitaminCComment": "<짧은 조언>"
+    "vitaminDComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "vitaminB12Comment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "ironComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "zincComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "magnesiumComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "omega3Comment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "calciumComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
+    "vitaminCComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
   },
   "faceAnalysis": ${j?`{
     "moisture": "<피부 수분도 분석>",
