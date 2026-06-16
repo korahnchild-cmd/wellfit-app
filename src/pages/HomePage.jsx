@@ -206,18 +206,86 @@ export default function HomePage() {
             <span className="text-rose-gold font-semibold">AI가 분석하는 나만의 건강 리포트</span>를 받아보세요
           </p>
 
-          {/* 특징 카드 — 원본 그대로 */}
-          <div className="grid grid-cols-3 gap-3 w-full mb-6 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-            {[
-              { icon: '📸', label: '셀카 분석' },
-              { icon: '📋', label: '18문항 설문' },
-              { icon: '📊', label: 'AI 리포트' },
-            ].map((item) => (
-              <div key={item.label} className="card-glass py-4 px-2 text-center">
-                <div className="text-2xl mb-1">{item.icon}</div>
-                <div className="text-xs font-semibold text-mauve">{item.label}</div>
-              </div>
-            ))}
+          {/* 특징 카드 */}
+          <div className="grid grid-cols-3 gap-2.5 w-full mb-6 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+            {(() => {
+              const cards = [
+                {
+                  label: '셀카 분석', sub: '얼굴·손톱',
+                  grad: 'linear-gradient(135deg,#C8956C,#D4A882)',
+                  line: '#C8956C', shadow: 'rgba(200,149,108,0.28)',
+                  path: 'camera',
+                },
+                {
+                  label: '18문항', sub: '건강 설문',
+                  grad: 'linear-gradient(135deg,#9B6FA8,#8B5E83)',
+                  line: '#8B5E83', shadow: 'rgba(139,94,131,0.25)',
+                  path: 'survey',
+                },
+                {
+                  label: 'AI 리포트', sub: '맞춤 분석',
+                  grad: 'linear-gradient(135deg,#7DBFA8,#5DA898)',
+                  line: '#7DBFA8', shadow: 'rgba(125,191,168,0.25)',
+                  path: 'report',
+                },
+              ];
+              return cards.map((c, i) => (
+                <div key={c.label} style={{
+                  position:'relative', background:'rgba(255,255,255,0.72)',
+                  backdropFilter:'blur(12px)', borderRadius:'18px',
+                  border:'1px solid rgba(255,255,255,0.9)',
+                  boxShadow:`0 4px 20px ${c.shadow},0 1px 4px rgba(0,0,0,0.04)`,
+                  overflow:'hidden', padding:'18px 8px 14px', textAlign:'center',
+                }}>
+                  {/* 상단 컬러 라인 */}
+                  <div style={{ position:'absolute',top:0,left:0,right:0,height:'3px',background:c.line }} />
+                  {/* 아이콘 박스 */}
+                  <div style={{
+                    position:'relative', width:'48px', height:'48px', borderRadius:'14px',
+                    background:c.grad, display:'flex', alignItems:'center',
+                    justifyContent:'center', margin:'0 auto 10px',
+                    boxShadow:`0 4px 14px ${c.shadow}`,
+                  }}>
+                    {c.path === 'camera' && (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="5" width="20" height="15" rx="2.5" stroke="white" strokeWidth="1.7" fill="none"/>
+                        <circle cx="12" cy="12.5" r="3.8" stroke="white" strokeWidth="1.7" fill="none"/>
+                        <circle cx="12" cy="12.5" r="1.4" fill="white"/>
+                        <path d="M8.5 5V3.5M15.5 5V3.5" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+                        <circle cx="18.2" cy="8" r="1" fill="white"/>
+                      </svg>
+                    )}
+                    {c.path === 'survey' && (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <rect x="4" y="2" width="16" height="20" rx="2.5" stroke="white" strokeWidth="1.7" fill="none"/>
+                        <line x1="7.5" y1="7" x2="16.5" y2="7" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+                        <line x1="7.5" y1="11" x2="16.5" y2="11" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+                        <line x1="7.5" y1="15" x2="13" y2="15" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+                        <circle cx="16.5" cy="16.5" r="3" fill="white" fillOpacity="0.92"/>
+                        <path d="M15.1 16.5L16.1 17.5L18.1 15.5" stroke="#8B5E83" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                    {c.path === 'report' && (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="18" height="18" rx="2.5" stroke="white" strokeWidth="1.7" fill="none"/>
+                        <polyline points="6,16 9,11 12,13.5 15,8 18,11" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                        <circle cx="18" cy="11" r="1.4" fill="white"/>
+                        <text x="12" y="21" textAnchor="middle" fontSize="4.5" fill="white" fontWeight="800" fontFamily="-apple-system,sans-serif" letterSpacing="0.3">AI</text>
+                      </svg>
+                    )}
+                    {/* pulse 링 */}
+                    <div style={{
+                      position:'absolute', inset:0, borderRadius:'14px',
+                      border:`2px solid ${c.line}`,
+                      animation:`wf-pulse 2.2s ease-out ${i*0.4}s infinite`,
+                    }} />
+                  </div>
+                  <div style={{ fontSize:'12px', fontWeight:800, color:'#3D2B2B', marginBottom:'2px', letterSpacing:'-0.2px' }}>{c.label}</div>
+                  <div style={{ fontSize:'10px', color:'#9A8080', fontWeight:500 }}>{c.sub}</div>
+                  {i === 0 && <style>{`@keyframes wf-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.55);opacity:0}}`}</style>}
+                </div>
+              ));
+            })()}
           </div>
 
           {/* CTA */}
