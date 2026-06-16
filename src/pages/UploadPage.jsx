@@ -56,11 +56,7 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
 
         {preview ? (
           <div className="relative">
-            <img
-              src={preview}
-              alt={title}
-              className="w-full h-52 object-cover rounded-3xl"
-            />
+            <img src={preview} alt={title} className="w-full h-52 object-cover rounded-3xl" />
             <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-3xl opacity-0 hover:opacity-100 transition-opacity">
               <div className="text-white text-sm font-semibold flex items-center gap-2">
                 <Upload size={16} />
@@ -101,8 +97,23 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender } = useApp();
   const [consentChecked, setConsentChecked] = useState(false);
+  const [disclaimerChecked, setDisclaimerChecked] = useState(false);
 
-  const canProceed = actualAge && parseInt(actualAge) >= 20 && parseInt(actualAge) <= 80 && gender && consentChecked;
+  const canProceed =
+    actualAge &&
+    parseInt(actualAge) >= 20 &&
+    parseInt(actualAge) <= 80 &&
+    gender &&
+    consentChecked &&
+    disclaimerChecked;
+
+  // 안내 메시지
+  const getProceedHint = () => {
+    if (!consentChecked || !disclaimerChecked) return '아래 필수 동의 항목을 모두 체크해주세요';
+    if (!actualAge || parseInt(actualAge) < 20 || parseInt(actualAge) > 80) return '나이를 입력해주세요 (20~80세)';
+    if (!gender) return '성별을 선택해주세요';
+    return '';
+  };
 
   return (
     <div className="page-container">
@@ -119,7 +130,6 @@ export default function UploadPage() {
             <h2 className="font-bold text-[#3D2B2B]">사진 업로드</h2>
             <p className="text-xs text-[#9A8080]">Step 1 / 3</p>
           </div>
-          {/* 진행 표시 */}
           <div className="ml-auto flex gap-1.5">
             {[1, 2, 3].map((s) => (
               <div
@@ -204,20 +214,39 @@ export default function UploadPage() {
           </div>
         </div>
 
-        {/* 생체정보 수집 동의 */}
-        <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer">
-          <input
-            type="checkbox"
-            checked={consentChecked}
-            onChange={(e) => setConsentChecked(e.target.checked)}
-            className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
-            style={{ accentColor: '#C8956C' }}
-          />
-          <span className="text-xs text-[#7A6060] leading-relaxed">
-            얼굴·손톱 이미지는 AI 분석 후 즉시 삭제되며, 제3자에게 제공되지 않습니다. 생체정보 수집 및 이용에 동의합니다.{' '}
-            <span className="font-semibold" style={{ color: '#C8956C' }}>(필수)</span>
-          </span>
-        </label>
+        {/* ── 필수 동의 2개 묶음 ── */}
+        <div className="space-y-2">
+          {/* 동의 1: 생체정보 수집 */}
+          <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer hover:border-rose-gold/40 transition-colors">
+            <input
+              type="checkbox"
+              checked={consentChecked}
+              onChange={(e) => setConsentChecked(e.target.checked)}
+              className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
+              style={{ accentColor: '#C8956C' }}
+            />
+            <span className="text-xs text-[#7A6060] leading-relaxed">
+              얼굴·손톱 이미지는 AI 분석 후 즉시 삭제되며, 제3자에게 제공되지 않습니다.
+              생체정보 수집 및 이용에 동의합니다.{' '}
+              <span className="font-semibold text-rose-gold">(필수)</span>
+            </span>
+          </label>
+
+          {/* 동의 2: 의료 면책 고지 */}
+          <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer hover:border-rose-gold/40 transition-colors">
+            <input
+              type="checkbox"
+              checked={disclaimerChecked}
+              onChange={(e) => setDisclaimerChecked(e.target.checked)}
+              className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
+              style={{ accentColor: '#C8956C' }}
+            />
+            <span className="text-xs text-[#7A6060] leading-relaxed">
+              본 서비스는 의료 진단을 대체하지 않으며, 라이프스타일 코칭 및 건강 관리 참고 자료를 제공합니다.{' '}
+              <span className="font-semibold text-rose-gold">(필수)</span>
+            </span>
+          </label>
+        </div>
 
         {/* 얼굴 업로드 */}
         <ImageUploadCard
@@ -248,7 +277,6 @@ export default function UploadPage() {
           ]}
         />
 
-        {/* 건너뛰기 안내 */}
         <p className="text-xs text-center text-[#B0A0A0]">
           사진은 선택사항입니다 · 나이·성별 입력 후 다음 단계로 진행 가능
         </p>
@@ -267,7 +295,7 @@ export default function UploadPage() {
         </button>
         {!canProceed && (
           <p className="text-xs text-center text-[#B0A0A0] mt-2">
-            {!consentChecked ? '생체정보 수집 동의 후 진행 가능합니다' : '나이와 성별을 입력해주세요 (20~80세)'}
+            {getProceedHint()}
           </p>
         )}
       </div>
