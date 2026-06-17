@@ -41,6 +41,7 @@ export default function MyPage() {
   const [scriptTab, setScriptTab] = useState('friend');
   const [scriptCopied, setScriptCopied] = useState(false);
 
+  // ① 기본 정보 로드
   useEffect(() => {
     if (!user || user.isGuest) {
       navigate('/login');
@@ -48,7 +49,6 @@ export default function MyPage() {
     }
     (async () => {
       try {
-        // 내 기본 정보 로드
         const snap = await getDoc(doc(db, 'users', user.uid));
         if (snap.exists()) {
           const data = snap.data();
@@ -60,8 +60,19 @@ export default function MyPage() {
             thisMonthEarnings: data.thisMonthEarnings || 0,
           });
         }
+      } catch (e) {
+        console.warn('기본 정보 로드 실패:', e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [user, navigate]);
 
-        // 내 추천코드로 가입한 유저 — paid/free_trial 분리 카운팅
+  // ② 파트너 카운팅 — myReferralCode 로드 후 실행
+  useEffect(() => {
+    if (!user || user.isGuest || !myReferralCode) return;
+    (async () => {
+      try {
         if (myReferralCode) {
           // 전체 직접 추천 유저
           const allDirectQ = query(
@@ -99,12 +110,10 @@ export default function MyPage() {
           setLiveOverrideCount(overrideTotal);
         }
       } catch (e) {
-        console.warn('파트너 데이터 로드 실패:', e);
-      } finally {
-        setLoading(false);
+        console.warn('파트너 카운팅 실패:', e);
       }
     })();
-  }, [user, navigate, myReferralCode]);
+  }, [user, myReferralCode]);
 
   // 추천코드 저장
   const handleSave = async () => {
