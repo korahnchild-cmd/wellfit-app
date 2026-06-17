@@ -79,10 +79,11 @@ export function AppProvider({ children }) {
             localStorage.removeItem('referralCodeExpiry');
           }
         } else {
-          // ── 기존 유저: 코드 없거나 한글 포함이면 영문 코드로 재생성
+          // ── 기존 유저: 코드가 없거나 한글 포함인 경우에만 재생성
+          // 정상 코드(영문2+숫자4 = 6자리)면 절대 변경 안 함
           const existingCode = data.myReferralCode || '';
-          const hasKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(existingCode);
-          if (!existingCode || hasKorean) {
+          const isValidCode = /^[A-Z]{2}[0-9]{4}$/.test(existingCode);
+          if (!isValidCode) {
             const newCode = generateReferralCode(firebaseUser);
             await updateDoc(userRef, { myReferralCode: newCode });
             setMyReferralCode(newCode);
