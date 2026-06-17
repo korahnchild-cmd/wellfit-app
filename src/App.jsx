@@ -10,6 +10,8 @@ import SharedReportPage from './pages/SharedReportPage';
 import GeneratedReportPage from './pages/GeneratedReportPage';
 import LoginPage from './pages/LoginPage';
 import MyPage from './pages/MyPage';
+import PartnerDashboard from './pages/PartnerDashboard';
+import BottomNav from './components/BottomNav';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 
@@ -27,10 +29,12 @@ export default function App() {
           <Route path="/shared/:shareId" element={<SharedReportPage />} />
           <Route path="/report-view/:shareId" element={<GeneratedReportPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/partner-dashboard" element={<PartnerDashboard />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <BottomNav />
       </BrowserRouter>
     </AppProvider>
   );
