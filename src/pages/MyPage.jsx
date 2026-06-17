@@ -1,5 +1,5 @@
 // src/pages/MyPage.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -180,8 +180,8 @@ export default function MyPage() {
     }
   };
 
-  // 공유 스크립트 생성
-  const getScript = (type) => {
+  // 공유 스크립트 생성 — myReferralCode 로드 후 항상 최신값 반영
+  const getScript = useCallback((type) => {
     const link = `${BASE_URL}/?ref=${myReferralCode}`;
     const scripts = {
       friend: `나 요즘 AI 건강 분석 서비스 쓰고 있는데\n셀카 한 장으로 호르몬이랑 영양 상태 분석해 줘 😮\n\n나이 들수록 이런 거 챙겨야 하는데\n병원 가기 전에 미리 체크할 수 있어서 좋더라고\n\n14일 무료 체험이니까 한번 해봐 👇\n${link}\n\n약 5분이면 돼, 이미지도 분석 후 바로 삭제된대 👍`,
@@ -189,7 +189,7 @@ export default function MyPage() {
       free: `나 요즘 웰핏+ CHECK-UP 쓰는데 진짜 좋아 😊\n\n셀카 + 간단한 설문으로 호르몬·영양 분석해 주고\n14일 맞춤 건강 플랜도 줘\n\n근데 이거 진짜 꿀팁인데\n친구 2명만 초대하면 매달 구독료가 0원이 돼 🤩\n\n그러니까 너도 가입하고 친구 2명한테 보내면\n공짜로 계속 쓸 수 있어 ㅋㅋ\n\n👇 내 링크\n${link}`,
     };
     return scripts[type] || scripts.friend;
-  };
+  }, [myReferralCode]);
 
   // 스크립트 복사
   const handleCopyScript = async () => {
