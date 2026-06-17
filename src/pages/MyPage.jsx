@@ -33,6 +33,7 @@ export default function MyPage() {
     thisMonthEarnings: 0,
   });
   const [liveDirectCount, setLiveDirectCount] = useState(0);
+  const [liveTrialCount, setLiveTrialCount] = useState(0);
   const [liveOverrideCount, setLiveOverrideCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const [scriptTab, setScriptTab] = useState('friend');
@@ -58,24 +59,37 @@ export default function MyPage() {
           });
         }
 
-        // 내 추천코드로 가입한 직접 추천 유저 실시간 카운팅
+        // 내 추천코드로 가입한 유저 — paid/free_trial 분리 카운팅
         if (myReferralCode) {
-          const directQ = query(
+          // 전체 직접 추천 유저
+          const allDirectQ = query(
             collection(db, 'users'),
             where('referredBy', '==', myReferralCode)
           );
-          const directSnap = await getDocs(directQ);
-          const directUsers = directSnap.docs;
-          setLiveDirectCount(directUsers.length);
+          const allDirectSnap = await getDocs(allDirectQ);
+          const allDirectUsers = allDirectSnap.docs;
 
-          // 직접 추천 유저들의 추천코드로 가입한 오버라이딩 유저 카운팅
+          // 유료 전환 완료 (수익 발생)
+          const paidUsers = allDirectUsers.filter(
+            d => d.data().subscriptionStatus === 'paid'
+          );
+          // 무료 체험 중 (전환 대기)
+          const trialUsers = allDirectUsers.filter(
+            d => d.data().subscriptionStatus === 'free_trial'
+          );
+
+          setLiveDirectCount(paidUsers.length);
+          setLiveTrialCount(trialUsers.length);
+
+          // 오버라이딩 — 유료 전환 유저 기준으로만 카운팅
           let overrideTotal = 0;
-          await Promise.all(directUsers.map(async (d) => {
+          await Promise.all(paidUsers.map(async (d) => {
             const theirCode = d.data().myReferralCode;
             if (!theirCode) return;
             const overQ = query(
               collection(db, 'users'),
-              where('referredBy', '==', theirCode)
+              where('referredBy', '==', theirCode),
+              where('subscriptionStatus', '==', 'paid')
             );
             const overSnap = await getDocs(overQ);
             overrideTotal += overSnap.size;
@@ -357,7 +371,7 @@ export default function MyPage() {
                     {directIncome.toLocaleString()}원
                   </p>
                   <p className="text-[10px] text-[#9A8080] mt-0.5">
-                    {liveDirectCount}명 × 14,950원
+                    유료 {liveDirectCount}명 × 14,950원
                   </p>
                 </div>
                 <div className="bg-white/70 rounded-xl p-3 border border-mauve/15 text-center">
@@ -366,7 +380,7 @@ export default function MyPage() {
                     {overrideIncome.toLocaleString()}원
                   </p>
                   <p className="text-[10px] text-[#9A8080] mt-0.5">
-                    {liveOverrideCount}명 × 2,990원
+                    유료 {liveOverrideCount}명 × 2,990원
                   </p>
                 </div>
               </div>
@@ -387,24 +401,41 @@ export default function MyPage() {
                 <h2 className="text-sm font-bold text-[#3D2B2B]">파트너 현황</h2>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-white/70 rounded-xl p-3 border border-white/80 text-center">
-                  <p className="text-[10px] text-[#9A8080] mb-1">내 구독고객</p>
-                  <p className="text-2xl font-black text-[#3D2B2B]">
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="bg-white/70 rounded-xl p-3 border border-rose-gold/20 text-center">
+                  <p className="text-[10px] text-[#9A8080] mb-1">유료 구독고객</p>
+                  <p className="text-2xl font-black text-[#C8956C]">
                     {liveDirectCount}
                     <span className="text-sm font-medium text-[#9A8080]">명</span>
                   </p>
-                  <p className="text-[10px] text-[#9A8080] mt-0.5">직접 모집 · 실시간</p>
+                  <p className="text-[10px] text-[#9A8080] mt-0.5">수익 발생 중</p>
                 </div>
                 <div className="bg-white/70 rounded-xl p-3 border border-white/80 text-center">
                   <p className="text-[10px] text-[#9A8080] mb-1">파트너 고객</p>
-                  <p className="text-2xl font-black text-[#3D2B2B]">
+                  <p className="text-2xl font-black text-[#8B5E83]">
                     {liveOverrideCount}
                     <span className="text-sm font-medium text-[#9A8080]">명</span>
                   </p>
-                  <p className="text-[10px] text-[#9A8080] mt-0.5">오버라이딩 · 실시간</p>
+                  <p className="text-[10px] text-[#9A8080] mt-0.5">오버라이딩 발생</p>
                 </div>
               </div>
+
+              {/* 무료 체험 중 — 전환 대기 */}
+              {liveTrialCount > 0 && (
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl mb-3"
+                  style={{ background: 'rgba(125,191,168,0.1)', border: '1px solid rgba(125,191,168,0.25)' }}>
+                  <div>
+                    <p className="text-xs font-bold" style={{ color: '#5DA898' }}>무료 체험 중</p>
+                    <p className="text-[10px] text-[#9A8080] mt-0.5">유료 전환 시 수익 발생</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-black text-[#3D2B2B]">{liveTrialCount}<span className="text-sm font-medium text-[#9A8080]">명</span></p>
+                    <p className="text-[10px]" style={{ color: '#5DA898' }}>
+                      전환 시 +{(liveTrialCount * DIRECT_RATE).toLocaleString()}원 예정
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* 누적 수익 */}
               <div className="flex items-center justify-between px-4 py-3 bg-white/60 rounded-xl border border-white/80">
