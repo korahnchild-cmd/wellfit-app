@@ -33,6 +33,8 @@ export default function MyPage() {
     thisMonthEarnings: 0,
   });
   const [copied, setCopied] = useState(false);
+  const [scriptTab, setScriptTab] = useState('friend');
+  const [scriptCopied, setScriptCopied] = useState(false);
 
   useEffect(() => {
     if (!user || user.isGuest) {
@@ -107,6 +109,42 @@ export default function MyPage() {
     } else {
       await navigator.clipboard.writeText(text);
       showToast('공유 텍스트가 복사되었습니다 ✓');
+    }
+  };
+
+  // 공유 스크립트 생성
+  const getScript = (type) => {
+    const link = `${BASE_URL}/?ref=${myReferralCode}`;
+    const scripts = {
+      friend: `나 요즘 AI 건강 분석 서비스 쓰고 있는데\n셀카 한 장으로 호르몬이랑 영양 상태 분석해 줘 😮\n\n나이 들수록 이런 거 챙겨야 하는데\n병원 가기 전에 미리 체크할 수 있어서 좋더라고\n\n14일 무료 체험이니까 한번 해봐 👇\n${link}\n\n약 5분이면 돼, 이미지도 분석 후 바로 삭제된대 👍`,
+      menopause: `언니 혹시 요즘 몸이 예전 같지 않다는 느낌 있어? 🥲\n\n아무리 자도 피곤하고, 얼굴 달아오를 때 있고\n검진은 정상인데 몸은 이상하고...\n\n나도 그랬는데 AI 건강 분석 해봤더니\n호르몬이랑 영양 부분에서 딱 짚어주더라고\n\n14일 무료니까 한번 해봐, 셀카 한 장이면 돼 👇\n${link}\n\n특허 기술이라 믿을 만하고, 이미지 저장도 안 된대 ✔`,
+      free: `나 요즘 웰핏+ CHECK-UP 쓰는데 진짜 좋아 😊\n\n셀카 + 간단한 설문으로 호르몬·영양 분석해 주고\n14일 맞춤 건강 플랜도 줘\n\n근데 이거 진짜 꿀팁인데\n친구 2명만 초대하면 매달 구독료가 0원이 돼 🤩\n\n그러니까 너도 가입하고 친구 2명한테 보내면\n공짜로 계속 쓸 수 있어 ㅋㅋ\n\n👇 내 링크\n${link}`,
+    };
+    return scripts[type] || scripts.friend;
+  };
+
+  // 스크립트 복사
+  const handleCopyScript = async () => {
+    try {
+      await navigator.clipboard.writeText(getScript(scriptTab));
+      setScriptCopied(true);
+      showToast('스크립트가 복사되었습니다 ✓');
+      setTimeout(() => setScriptCopied(false), 2000);
+    } catch {
+      showToast('복사에 실패했습니다');
+    }
+  };
+
+  // 카카오톡 공유
+  const handleKakaoShare = async () => {
+    const text = getScript(scriptTab);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: '웰핏+ CHECK-UP', text });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(text);
+      showToast('카카오톡에 붙여넣기 하세요 ✓');
     }
   };
 
@@ -341,6 +379,68 @@ export default function MyPage() {
                 <span className="text-base font-black text-[#3D2B2B]">
                   {partnerData.totalEarnings.toLocaleString()}원
                 </span>
+              </div>
+            </div>
+
+            {/* 공유 스크립트 */}
+            <div className="card-glass p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Share2 size={15} className="text-rose-gold" />
+                <h2 className="text-sm font-bold text-[#3D2B2B]">친구 초대 스크립트</h2>
+                <span className="ml-auto text-xs text-[#9A8080]">추천코드 자동 포함</span>
+              </div>
+
+              {/* 스크립트 탭 */}
+              <div className="flex gap-1.5 mb-3">
+                {[
+                  { id: 'friend', label: '친구용' },
+                  { id: 'menopause', label: '갱년기 공감형' },
+                  { id: 'free', label: '구독료 0원형' },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setScriptTab(t.id)}
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                      scriptTab === t.id
+                        ? 'bg-rose-gradient text-white border-transparent shadow-rose'
+                        : 'bg-white/60 text-[#9A8080] border-cream-deeper'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 스크립트 미리보기 */}
+              <div className="bg-[#FEE500]/15 border border-[#FEE500]/40 rounded-2xl p-3 mb-3" style={{ minHeight: 120 }}>
+                <p className="text-xs text-[#3C3C3C] leading-relaxed whitespace-pre-line">
+                  {getScript(scriptTab)}
+                </p>
+              </div>
+
+              {/* 버튼 2개 */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={handleCopyScript}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-all ${
+                    scriptCopied
+                      ? 'bg-green-50 border-green-200 text-green-600'
+                      : 'bg-rose-gold/10 border-rose-gold/20 text-rose-gold hover:bg-rose-gold/20'
+                  }`}
+                >
+                  {scriptCopied ? <Check size={15} /> : <Copy size={15} />}
+                  {scriptCopied ? '복사됨!' : '전체 복사'}
+                </button>
+                <button
+                  onClick={handleKakaoShare}
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-all"
+                  style={{ background: '#FEE500', borderColor: '#E6CF00', color: '#3C1E1E' }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3C6.477 3 2 6.477 2 10.5c0 2.632 1.608 4.938 4 6.322V21l3.5-2.1A11.5 11.5 0 0012 19c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/>
+                  </svg>
+                  카카오톡 공유
+                </button>
               </div>
             </div>
 
