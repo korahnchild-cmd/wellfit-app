@@ -2,9 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 import { db } from '../firebase';
 import { useApp } from '../context/AppContext';
-import { ChevronLeft, Copy, Check, Users, TrendingUp, Star, Share2 } from 'lucide-react';
+import { ChevronLeft, Copy, Check, Users, TrendingUp, Star, Share2, LogOut } from 'lucide-react';
 
 // ── 수익 계산 상수
 const DIRECT_RATE = 14950;    // 직접 추천 25%
@@ -124,6 +126,16 @@ export default function MyPage() {
     setTimeout(() => setToast(''), 3000);
   };
 
+  // 로그아웃
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch {
+      showToast('로그아웃 중 오류가 발생했습니다');
+    }
+  };
+
   // 링크 복사
   const handleCopyLink = async () => {
     const link = `${BASE_URL}/?ref=${myReferralCode}`;
@@ -218,13 +230,22 @@ export default function MyPage() {
 
       <div className="relative z-10 flex flex-col min-h-screen px-6 py-12">
         {/* 헤더 */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-sm text-[#9A8080] hover:text-rose-gold transition-colors mb-6"
-        >
-          <ChevronLeft size={16} />
-          돌아가기
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1 text-sm text-[#9A8080] hover:text-rose-gold transition-colors"
+          >
+            <ChevronLeft size={16} />
+            돌아가기
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-sm text-[#9A8080] hover:text-red-400 transition-colors"
+          >
+            <LogOut size={14} />
+            로그아웃
+          </button>
+        </div>
 
         <h1 className="text-xl font-black text-[#3D2B2B] mb-5">마이페이지</h1>
 
