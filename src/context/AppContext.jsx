@@ -79,11 +79,9 @@ export function AppProvider({ children }) {
             localStorage.removeItem('referralCodeExpiry');
           }
         } else {
-          // ── 기존 유저: 코드가 없거나 한글 포함인 경우에만 재생성
-          // 정상 코드(영문2+숫자4 = 6자리)면 절대 변경 안 함
+          // ── 기존 유저: 코드가 아예 없을 때만 재생성, 있으면 무조건 유지
           const existingCode = data.myReferralCode || '';
-          const isValidCode = /^[A-Z]{2}[0-9]{4}$/.test(existingCode);
-          if (!isValidCode) {
+          if (!existingCode) {
             const newCode = generateReferralCode(firebaseUser);
             await updateDoc(userRef, { myReferralCode: newCode });
             setMyReferralCode(newCode);
