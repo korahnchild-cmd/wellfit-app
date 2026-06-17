@@ -1,7 +1,7 @@
 // src/pages/MyPage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useApp } from '../context/AppContext';
 import { ChevronLeft, Copy, Check, Users, TrendingUp, Star, Share2 } from 'lucide-react';
@@ -32,6 +32,8 @@ export default function MyPage() {
     totalEarnings: 0,
     thisMonthEarnings: 0,
   });
+  const [liveDirectCount, setLiveDirectCount] = useState(0);
+  const [liveOverrideCount, setLiveOverrideCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const [scriptTab, setScriptTab] = useState('friend');
   const [scriptCopied, setScriptCopied] = useState(false);
@@ -42,20 +44,51 @@ export default function MyPage() {
       return;
     }
     (async () => {
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        setReferredBy(data.referredBy || null);
-        setPartnerData({
-          directPartners: data.directPartners || 0,
-          partnerCustomers: data.partnerCustomers || 0,
-          totalEarnings: data.totalEarnings || 0,
-          thisMonthEarnings: data.thisMonthEarnings || 0,
-        });
+      try {
+        // 내 기본 정보 로드
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          setReferredBy(data.referredBy || null);
+          setPartnerData({
+            directPartners: data.directPartners || 0,
+            partnerCustomers: data.partnerCustomers || 0,
+            totalEarnings: data.totalEarnings || 0,
+            thisMonthEarnings: data.thisMonthEarnings || 0,
+          });
+        }
+
+        // 내 추천코드로 가입한 직접 추천 유저 실시간 카운팅
+        if (myReferralCode) {
+          const directQ = query(
+            collection(db, 'users'),
+            where('referredBy', '==', myReferralCode)
+          );
+          const directSnap = await getDocs(directQ);
+          const directUsers = directSnap.docs;
+          setLiveDirectCount(directUsers.length);
+
+          // 직접 추천 유저들의 추천코드로 가입한 오버라이딩 유저 카운팅
+          let overrideTotal = 0;
+          await Promise.all(directUsers.map(async (d) => {
+            const theirCode = d.data().myReferralCode;
+            if (!theirCode) return;
+            const overQ = query(
+              collection(db, 'users'),
+              where('referredBy', '==', theirCode)
+            );
+            const overSnap = await getDocs(overQ);
+            overrideTotal += overSnap.size;
+          }));
+          setLiveOverrideCount(overrideTotal);
+        }
+      } catch (e) {
+        console.warn('파트너 데이터 로드 실패:', e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
-  }, [user, navigate]);
+  }, [user, navigate, myReferralCode]);
 
   // 추천코드 저장
   const handleSave = async () => {
@@ -148,9 +181,9 @@ export default function MyPage() {
     }
   };
 
-  // 수익 계산
-  const directIncome = partnerData.directPartners * DIRECT_RATE;
-  const overrideIncome = partnerData.directPartners * partnerData.partnerCustomers * OVERRIDE_RATE;
+  // 수익 계산 (실시간 카운팅 기준)
+  const directIncome = liveDirectCount * DIRECT_RATE;
+  const overrideIncome = liveOverrideCount * OVERRIDE_RATE;
   const totalMonthly = directIncome + overrideIncome;
 
   if (loading) {
@@ -324,7 +357,7 @@ export default function MyPage() {
                     {directIncome.toLocaleString()}원
                   </p>
                   <p className="text-[10px] text-[#9A8080] mt-0.5">
-                    {partnerData.directPartners}명 × 14,950원
+                    {liveDirectCount}명 × 14,950원
                   </p>
                 </div>
                 <div className="bg-white/70 rounded-xl p-3 border border-mauve/15 text-center">
@@ -333,7 +366,7 @@ export default function MyPage() {
                     {overrideIncome.toLocaleString()}원
                   </p>
                   <p className="text-[10px] text-[#9A8080] mt-0.5">
-                    파트너 고객 × 2,990원
+                    {liveOverrideCount}명 × 2,990원
                   </p>
                 </div>
               </div>
@@ -358,18 +391,18 @@ export default function MyPage() {
                 <div className="bg-white/70 rounded-xl p-3 border border-white/80 text-center">
                   <p className="text-[10px] text-[#9A8080] mb-1">내 구독고객</p>
                   <p className="text-2xl font-black text-[#3D2B2B]">
-                    {partnerData.directPartners}
+                    {liveDirectCount}
                     <span className="text-sm font-medium text-[#9A8080]">명</span>
                   </p>
-                  <p className="text-[10px] text-[#9A8080] mt-0.5">직접 모집</p>
+                  <p className="text-[10px] text-[#9A8080] mt-0.5">직접 모집 · 실시간</p>
                 </div>
                 <div className="bg-white/70 rounded-xl p-3 border border-white/80 text-center">
                   <p className="text-[10px] text-[#9A8080] mb-1">파트너 고객</p>
                   <p className="text-2xl font-black text-[#3D2B2B]">
-                    {partnerData.directPartners * partnerData.partnerCustomers}
+                    {liveOverrideCount}
                     <span className="text-sm font-medium text-[#9A8080]">명</span>
                   </p>
-                  <p className="text-[10px] text-[#9A8080] mt-0.5">오버라이딩 발생</p>
+                  <p className="text-[10px] text-[#9A8080] mt-0.5">오버라이딩 · 실시간</p>
                 </div>
               </div>
 
@@ -448,7 +481,7 @@ export default function MyPage() {
             <div className="bg-white/40 rounded-2xl px-4 py-3 border border-white/60">
               <p className="text-[11px] text-[#9A8080] leading-relaxed">
                 💡 수익은 매월 말 정산 후 익월 10일 입금됩니다.<br />
-                구독고객 수·수익은 관리자가 월 1회 업데이트합니다.
+                구독고객 수는 실시간 자동 반영됩니다. 수익 정산은 매월 말 기준입니다.
               </p>
             </div>
 
