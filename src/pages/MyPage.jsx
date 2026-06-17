@@ -203,16 +203,14 @@ export default function MyPage() {
     }
   };
 
-  // 카카오톡 공유
+  // 카카오톡 공유 — 스크립트 전체 복사 후 카카오톡에 붙여넣기 안내
   const handleKakaoShare = async () => {
     const text = getScript(scriptTab);
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: '웰핏+ CHECK-UP', text });
-      } catch {}
-    } else {
+    try {
       await navigator.clipboard.writeText(text);
-      showToast('카카오톡에 붙여넣기 하세요 ✓');
+      showToast('복사 완료! 카카오톡 열어서 붙여넣기 하세요 💛');
+    } catch {
+      showToast('복사에 실패했습니다. 전체 복사 버튼을 이용해주세요');
     }
   };
 
