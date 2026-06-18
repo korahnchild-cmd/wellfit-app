@@ -78,7 +78,7 @@ export default function BottomNav() {
         left: '50%',
         transform: 'translateX(-50%)',
         width: '100%',
-        maxWidth: '430px',
+        maxWidth: '448px',
         zIndex: 100,
         background: 'rgba(253,250,246,0.92)',
         backdropFilter: 'blur(20px)',
