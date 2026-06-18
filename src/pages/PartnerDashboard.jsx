@@ -158,7 +158,7 @@ export default function PartnerDashboard() {
     <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #FDFAF6 0%, #F8F0FA 50%, #F0FAF6 100%)', fontFamily: 'Pretendard, -apple-system, sans-serif' }}>
 
       {/* 배경 장식 */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0, width: '100%' }}>
         <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,149,108,0.12) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: -60, left: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,94,131,0.1) 0%, transparent 70%)' }} />
       </div>
