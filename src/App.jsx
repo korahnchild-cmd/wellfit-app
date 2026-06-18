@@ -13,6 +13,8 @@ import MyPage from './pages/MyPage';
 import PartnerDashboard from './pages/PartnerDashboard';
 import BottomNav from './components/BottomNav';
 import PrivacyPage from './pages/PrivacyPage';
+import KakaoCallbackPage from './pages/KakaoCallbackPage';
+import NaverCallbackPage from './pages/NaverCallbackPage';
 import TermsPage from './pages/TermsPage';
 
 export default function App() {
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/partner-dashboard" element={<PartnerDashboard />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/auth/kakao" element={<KakaoCallbackPage />} />
+          <Route path="/auth/naver" element={<NaverCallbackPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

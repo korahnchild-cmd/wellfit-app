@@ -1,7 +1,7 @@
 // src/pages/LoginPage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithCustomToken } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { Shield } from 'lucide-react';
@@ -44,6 +44,20 @@ export default function LoginPage() {
       localStorage.setItem('referralCodeExpiry', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
     }
   }, []);
+
+  // ── 카카오 로그인
+  const handleKakaoLogin = () => {
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_REST_API_KEY}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/kakao')}&response_type=code`;
+    window.location.href = kakaoAuthUrl;
+  };
+
+  // ── 네이버 로그인
+  const handleNaverLogin = () => {
+    const state = Math.random().toString(36).substr(2, 11);
+    sessionStorage.setItem('naverState', state);
+    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/naver')}&state=${state}`;
+    window.location.href = naverAuthUrl;
+  };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -133,6 +147,32 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+
+            {/* 카카오 로그인 */}
+            <button
+              onClick={handleKakaoLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 font-semibold py-3 px-4 rounded-2xl transition-all shadow-sm disabled:opacity-50"
+              style={{ background: '#FEE500', color: '#3C1E1E', border: 'none' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#3C1E1E">
+                <path d="M12 3C6.477 3 2 6.477 2 10.5c0 2.632 1.608 4.938 4 6.322V21l3.5-2.1A11.5 11.5 0 0012 19c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/>
+              </svg>
+              카카오로 시작하기
+            </button>
+
+            {/* 네이버 로그인 */}
+            <button
+              onClick={handleNaverLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 font-semibold py-3 px-4 rounded-2xl transition-all shadow-sm disabled:opacity-50"
+              style={{ background: '#03C75A', color: '#fff', border: 'none' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/>
+              </svg>
+              네이버로 시작하기
+            </button>
 
             <button
               onClick={() => navigate('/upload')}
