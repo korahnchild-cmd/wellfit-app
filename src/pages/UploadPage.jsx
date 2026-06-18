@@ -191,7 +191,7 @@ export default function UploadPage() {
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-48">
+      <div className="p-4 space-y-4 pb-56">
         {/* 안내 배너 */}
         <div className="rounded-3xl bg-rose-gradient p-4 text-white">
           <p className="font-bold text-sm mb-1">📸 AI 이미지 분석</p>
@@ -333,7 +333,7 @@ export default function UploadPage() {
       </div>
 
       {/* 하단 고정 버튼 */}
-      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-4 pt-4 bg-cream-gradient border-t border-cream-deeper">
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-4 pt-4 bg-cream-gradient border-t border-cream-deeper">
         <button
           id="upload-next-btn"
           onClick={() => navigate('/survey')}
