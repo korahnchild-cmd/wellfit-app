@@ -18,7 +18,7 @@ import TermsPage from './pages/TermsPage';
 export default function App() {
   return (
     <AppProvider>
-      <BrowserRouter basename="/wellfit-app">
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
