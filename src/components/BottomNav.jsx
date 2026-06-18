@@ -75,10 +75,9 @@ export default function BottomNav() {
       <div style={{
         position: 'fixed',
         bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
+        left: 0,
+        right: 0,
         width: '100%',
-        maxWidth: '448px',
         zIndex: 100,
         background: 'rgba(253,250,246,0.92)',
         backdropFilter: 'blur(20px)',
@@ -91,6 +90,8 @@ export default function BottomNav() {
           alignItems: 'center',
           justifyContent: 'space-around',
           padding: '8px 0 4px',
+          maxWidth: '448px',
+          margin: '0 auto',
         }}>
           {NAV_ITEMS.map((item) => {
             const isActive = item.path === '/'
