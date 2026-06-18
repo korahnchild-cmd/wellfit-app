@@ -3,8 +3,10 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Camera, Fingerprint, ChevronRight, ChevronLeft, Check, Upload, Info } from 'lucide-react';
+import faceGuide from '../assets/face_guide.jpg';
+import nailGuide from '../assets/nail_guide.jpg';
 
-function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFile, hint, tips }) {
+function ImageUploadCard({ id, title, subtitle, icon: Icon, preview, onFile, hint, tips, guideImage, accentColor = '#C8956C' }) {
   const inputRef = useRef();
   const [dragging, setDragging] = useState(false);
 
@@ -22,9 +24,11 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
   };
 
   return (
-    <div className="card">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-2xl bg-rose-gradient flex items-center justify-center shadow-rose">
+    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* 카드 헤더 */}
+      <div className="flex items-center gap-3 p-4 pb-0">
+        <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-rose"
+          style={{ background: `linear-gradient(135deg, ${accentColor}, #8B5E83)` }}>
           <Icon size={18} className="text-white" />
         </div>
         <div>
@@ -38,8 +42,10 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
         )}
       </div>
 
+      {/* 촬영 영역 */}
       <div
-        className={`upload-zone relative cursor-pointer transition-all duration-300 ${dragging ? 'drag-over' : ''}`}
+        className={`relative cursor-pointer transition-all duration-300 mt-3 ${dragging ? 'opacity-80' : ''}`}
+        style={{ height: '220px' }}
         onClick={() => inputRef.current.click()}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
@@ -50,49 +56,83 @@ function ImageUploadCard({ id, title, subtitle, emoji, icon: Icon, preview, onFi
           ref={inputRef}
           type="file"
           accept="image/*"
+          capture="environment"
           className="hidden"
           onChange={(e) => handleFile(e.target.files[0])}
         />
 
         {preview ? (
-          <div className="relative">
-            <img
-              src={preview}
-              alt={title}
-              className="w-full h-52 object-cover rounded-3xl"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-3xl opacity-0 hover:opacity-100 transition-opacity">
-              <div className="text-white text-sm font-semibold flex items-center gap-2">
-                <Upload size={16} />
-                다시 선택
+          /* 촬영 완료 — 미리보기 */
+          <div className="relative h-full">
+            <img src={preview} alt={title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 active:opacity-100 transition-opacity">
+              <div className="text-white text-sm font-bold flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center">
+                  <Upload size={16} />
+                </div>
+                다시 촬영
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-10 gap-3">
-            <span className="text-5xl animate-float">{emoji}</span>
-            <p className="text-sm font-semibold text-mauve">탭하여 사진 선택</p>
-            <p className="text-xs text-[#B0A0A0]">또는 여기에 드래그&드롭</p>
+          /* 촬영 전 — 가이드 이미지 */
+          <div className="relative h-full">
+            {/* 가이드 이미지 */}
+            <img
+              src={guideImage}
+              alt={`${title} 가이드`}
+              className="w-full h-full object-cover"
+              style={{ opacity: 0.85 }}
+            />
+            {/* 다크 오버레이 */}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 100%)' }} />
+
+            {/* 중앙 촬영 버튼 */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  border: `2.5px solid ${accentColor}`,
+                  background: 'rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                <div style={{ width: 46, height: 46, borderRadius: '50%', background: `linear-gradient(135deg, ${accentColor}, #8B5E83)` }} />
+              </div>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '0.3px', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
+                탭하여 촬영
+              </span>
+            </div>
+
+            {/* 드래그 오버 표시 */}
+            {dragging && (
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: `rgba(${accentColor === '#C8956C' ? '200,149,108' : '139,94,131'},0.3)`, border: `2px dashed ${accentColor}` }}>
+                <p className="text-white font-bold text-sm">여기에 놓으세요</p>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {hint && (
-        <div className="flex items-start gap-2 mt-3 p-3 bg-cream-dark rounded-2xl">
-          <Info size={13} className="text-rose-gold mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-[#7A6060] leading-relaxed">{hint}</p>
-        </div>
-      )}
-
-      {tips && tips.length > 0 && (
-        <div className="mt-2 space-y-1.5">
-          {tips.map((tip, i) => (
-            <div key={i} className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-2xl">
-              <p className="text-xs text-amber-800 leading-relaxed">{tip}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* 힌트 + 팁 */}
+      <div className="p-4 pt-3 space-y-2">
+        {hint && (
+          <div className="flex items-start gap-2 p-3 bg-cream-dark rounded-2xl">
+            <Info size={13} className="text-rose-gold mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-[#7A6060] leading-relaxed">{hint}</p>
+          </div>
+        )}
+        {tips && tips.length > 0 && (
+          <div className="space-y-1.5">
+            {tips.map((tip, i) => (
+              <div key={i} className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-2xl">
+                <p className="text-xs text-amber-800 leading-relaxed">{tip}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -101,8 +141,27 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender } = useApp();
   const [consentChecked, setConsentChecked] = useState(false);
+  const [disclaimerChecked, setDisclaimerChecked] = useState(false);
 
-  const canProceed = actualAge && parseInt(actualAge) >= 20 && parseInt(actualAge) <= 80 && gender && consentChecked;
+  const canProceed =
+    actualAge &&
+    parseInt(actualAge) >= 20 &&
+    parseInt(actualAge) <= 80 &&
+    gender &&
+    faceImage &&
+    nailImage &&
+    consentChecked &&
+    disclaimerChecked;
+
+  // 안내 메시지
+  const getProceedHint = () => {
+    if (!consentChecked || !disclaimerChecked) return '아래 필수 동의 항목을 모두 체크해주세요';
+    if (!actualAge || parseInt(actualAge) < 20 || parseInt(actualAge) > 80) return '나이를 입력해주세요 (20~80세)';
+    if (!gender) return '성별을 선택해주세요';
+    if (!faceImage) return '얼굴 정면 사진을 업로드해주세요';
+    if (!nailImage) return '손톱 사진을 업로드해주세요';
+    return '';
+  };
 
   return (
     <div className="page-container">
@@ -119,7 +178,6 @@ export default function UploadPage() {
             <h2 className="font-bold text-[#3D2B2B]">사진 업로드</h2>
             <p className="text-xs text-[#9A8080]">Step 1 / 3</p>
           </div>
-          {/* 진행 표시 */}
           <div className="ml-auto flex gap-1.5">
             {[1, 2, 3].map((s) => (
               <div
@@ -133,7 +191,7 @@ export default function UploadPage() {
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-32">
+      <div className="p-4 space-y-4">
         {/* 안내 배너 */}
         <div className="rounded-3xl bg-rose-gradient p-4 text-white">
           <p className="font-bold text-sm mb-1">📸 AI 이미지 분석</p>
@@ -204,30 +262,50 @@ export default function UploadPage() {
           </div>
         </div>
 
-        {/* 생체정보 수집 동의 */}
-        <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer">
-          <input
-            type="checkbox"
-            checked={consentChecked}
-            onChange={(e) => setConsentChecked(e.target.checked)}
-            className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
-            style={{ accentColor: '#C8956C' }}
-          />
-          <span className="text-xs text-[#7A6060] leading-relaxed">
-            얼굴·손톱 이미지는 AI 분석 후 즉시 삭제되며, 제3자에게 제공되지 않습니다. 생체정보 수집 및 이용에 동의합니다.{' '}
-            <span className="font-semibold" style={{ color: '#C8956C' }}>(필수)</span>
-          </span>
-        </label>
+        {/* ── 필수 동의 2개 묶음 ── */}
+        <div className="space-y-2">
+          {/* 동의 1: 생체정보 수집 */}
+          <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer hover:border-rose-gold/40 transition-colors">
+            <input
+              type="checkbox"
+              checked={consentChecked}
+              onChange={(e) => setConsentChecked(e.target.checked)}
+              className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
+              style={{ accentColor: '#C8956C' }}
+            />
+            <span className="text-xs text-[#7A6060] leading-relaxed">
+              얼굴·손톱 이미지는 AI 분석 후 즉시 삭제되며, 제3자에게 제공되지 않습니다.
+              생체정보 수집 및 이용에 동의합니다.{' '}
+              <span className="font-semibold text-rose-gold">(필수)</span>
+            </span>
+          </label>
+
+          {/* 동의 2: 의료 면책 고지 */}
+          <label className="flex items-start gap-3 p-3 bg-cream-dark rounded-2xl border border-cream-deeper cursor-pointer hover:border-rose-gold/40 transition-colors">
+            <input
+              type="checkbox"
+              checked={disclaimerChecked}
+              onChange={(e) => setDisclaimerChecked(e.target.checked)}
+              className="mt-0.5 flex-shrink-0 w-4 h-4 rounded cursor-pointer"
+              style={{ accentColor: '#C8956C' }}
+            />
+            <span className="text-xs text-[#7A6060] leading-relaxed">
+              본 서비스는 의료 진단을 대체하지 않으며, 라이프스타일 코칭 및 건강 관리 참고 자료를 제공합니다.{' '}
+              <span className="font-semibold text-rose-gold">(필수)</span>
+            </span>
+          </label>
+        </div>
 
         {/* 얼굴 업로드 */}
         <ImageUploadCard
           id="face-upload"
           title="얼굴 정면 사진"
           subtitle="피부 상태 · 혈색 분석"
-          emoji="🤳"
           icon={Camera}
           preview={faceImage?.preview}
           onFile={setFaceImage}
+          guideImage={faceGuide}
+          accentColor="#C8956C"
           hint="밝은 곳에서 정면을 바라보고 찍어주세요. 화장이 없는 사진이 더 정확합니다."
           tips={["📸 후면 카메라로 촬영하면 분석 정확도가 높아집니다"]}
         />
@@ -237,25 +315,25 @@ export default function UploadPage() {
           id="nail-upload"
           title="손톱 사진"
           subtitle="손톱 색상 · 상태 분석"
-          emoji="💅"
           icon={Fingerprint}
           preview={nailImage?.preview}
           onFile={setNailImage}
-          hint="손톱 여러 개가 보이도록 손을 펴서 찍어주세요. 네일 아트가 없는 사진을 권장합니다."
+          guideImage={nailGuide}
+          accentColor="#8B5E83"
+          hint="손등이 보이도록 손가락을 펴서 찍어주세요. 네일 아트가 없는 사진을 권장합니다."
           tips={[
             "📸 후면 카메라로 촬영해주세요",
             "✋ 세 손가락 이상 한 화면에 나오게 찍어주세요",
           ]}
         />
 
-        {/* 건너뛰기 안내 */}
         <p className="text-xs text-center text-[#B0A0A0]">
-          사진은 선택사항입니다 · 나이·성별 입력 후 다음 단계로 진행 가능
+          얼굴·손톱 사진 모두 필수입니다
         </p>
       </div>
 
-      {/* 하단 고정 버튼 */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-6 pt-4 bg-cream-gradient border-t border-cream-deeper">
+      {/* 하단 버튼 — 스크롤 끝 */}
+      <div className="px-4 pb-4 pt-4 bg-cream-gradient border-t border-cream-deeper" style={{ marginBottom: 80 }}>
         <button
           id="upload-next-btn"
           onClick={() => navigate('/survey')}
@@ -267,7 +345,7 @@ export default function UploadPage() {
         </button>
         {!canProceed && (
           <p className="text-xs text-center text-[#B0A0A0] mt-2">
-            {!consentChecked ? '생체정보 수집 동의 후 진행 가능합니다' : '나이와 성별을 입력해주세요 (20~80세)'}
+            {getProceedHint()}
           </p>
         )}
       </div>

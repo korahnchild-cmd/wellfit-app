@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, X } from 'lucide-react';
 import { db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 function getRiskLevel(value) {
   if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
@@ -77,6 +77,9 @@ export default function ReportPage() {
   const [userName, setUserName] = useState('');
   const [userCity, setUserCity] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
+  const [pastReports, setPastReports] = useState([]);
+  const [analysisCount, setAnalysisCount] = useState(0);
+  const [showCertModal, setShowCertModal] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [activeTab, setActiveTab] = useState('paid');
@@ -115,6 +118,33 @@ export default function ReportPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // 과거 분석 기록 불러오기 (로그인 사용자만)
+  useEffect(() => {
+    if (!user || user.isGuest) return;
+    const fetchPastReports = async () => {
+      try {
+        const q = query(
+          collection(db, 'reports'),
+          where('userId', '==', user.uid),
+          orderBy('timestamp', 'desc'),
+          limit(10)
+        );
+        const snap = await getDocs(q);
+        const docs = snap.docs.map(d => ({
+          id: d.id,
+          healthAge: d.data().reportData?.healthAge,
+          createdAt: d.data().reportData?.createdAt,
+          cortisol: d.data().reportData?.hormones?.cortisol,
+        })).filter(d => d.healthAge);
+        setPastReports(docs);
+        setAnalysisCount(docs.length);
+      } catch (e) {
+        console.warn('과거 분석 로드 실패:', e);
+      }
+    };
+    fetchPastReports();
+  }, [user]);
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#FDFAF6' }}
@@ -129,7 +159,24 @@ export default function ReportPage() {
 
   if (!report) return <div style={{ minHeight: '100vh', backgroundColor: '#FDFAF6' }} />;
 
-  const ageDiff = actualAge - report.healthAge;
+  const ageDiff = report.healthAge - actualAge;
+
+  // 건강나이 챌린지 달성 여부 — 6회 이상 + 처음 대비 -3세 이상
+  const challengeAchieved = (() => {
+    if (analysisCount < 6 || pastReports.length < 6) return false;
+    const oldest = pastReports[pastReports.length - 1]?.healthAge;
+    const latest = pastReports[0]?.healthAge;
+    if (!oldest || !latest) return false;
+    return (oldest - latest) >= 3; // 건강나이가 3세 이상 낮아짐
+  })();
+
+  // 챌린지 개선 수치
+  const challengeImprovement = (() => {
+    if (pastReports.length < 2) return 0;
+    const oldest = pastReports[pastReports.length - 1]?.healthAge;
+    const latest = pastReports[0]?.healthAge;
+    return oldest && latest ? oldest - latest : 0;
+  })();
   const visiblePlan = showFullPlan ? report.plan14days : report.plan14days?.slice(0, 7);
   const isMale = (gender || report.gender) === 'male';
   const hormoneItems = report.hormones ? getHormoneItems(report.hormones, isMale ? 'male' : 'female') : [];
@@ -202,6 +249,19 @@ export default function ReportPage() {
     }
   };
 
+  // 챌린지 인증서 공유
+  const handleCertShare = async () => {
+    const text = `🏆 웰핏+ CHECK-UP 건강나이 챌린지 달성!\n\n${actualAge}세 실제 나이, AI 건강나이 ${challengeImprovement}세 젊어졌어요 ✨\n3개월 꾸준한 관리로 건강나이 챌린지 달성!\n\n나도 분석 받아보기 👇\nhttps://korahnchild-cmd.github.io/wellfit-app/`;
+    if (navigator.share) {
+      try { await navigator.share({ title: '웰핏+ 건강나이 챌린지 달성!', text, url: 'https://korahnchild-cmd.github.io/wellfit-app/' }); }
+      catch {}
+    } else {
+      await copyToClipboard(text);
+      showToast('공유 텍스트가 복사되었습니다');
+    }
+    setShowCertModal(false);
+  };
+
   const handleRestart = () => {
     localStorage.removeItem('lastShareId');
     resetAll();
@@ -253,8 +313,8 @@ export default function ReportPage() {
               </div>
               <div className="flex flex-col items-center">
                 <div className="text-lg font-bold text-[#C0B0B0] mb-2">VS</div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff > 0 ? 'bg-green-100 text-green-600' : ageDiff < 0 ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
-                  {ageDiff > 0 ? `−${ageDiff}세 젊음 ✨` : ageDiff < 0 ? `+${Math.abs(ageDiff)}세 높음` : '동일'}
+                <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff < 0 ? 'bg-green-100 text-green-600' : ageDiff > 0 ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
+                  {ageDiff < 0 ? `−${Math.abs(ageDiff)}세 젊음 ✨` : ageDiff > 0 ? `+${ageDiff}세 높음` : '동일'}
                 </div>
               </div>
               <div className="text-center">
@@ -263,7 +323,7 @@ export default function ReportPage() {
                 <div className="text-sm text-rose-gold">세</div>
               </div>
             </div>
-            {ageDiff < 0 && (
+            {ageDiff > 0 && (
               <div className="mt-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 text-center">
                 <p className="text-sm text-orange-700 font-medium leading-relaxed">지금 관리하면 충분히 되돌릴 수 있어요 💪</p>
               </div>
@@ -274,6 +334,127 @@ export default function ReportPage() {
               </div>
             )}
           </div>
+
+          {/* 건강나이 누적 타임라인 + 패턴 감지 */}
+          {user && !user.isGuest && (
+            <div className="card overflow-hidden" style={{ background: 'linear-gradient(135deg, #FDF6F0 0%, #F8F0FA 100%)', border: '1px solid rgba(200,149,108,0.2)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg">📊</span>
+                <h3 className="font-bold text-[#3D2B2B] text-sm">내 건강나이 변화 기록</h3>
+                {analysisCount > 0 && (
+                  <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(200,149,108,0.15)', color: '#C8956C' }}>
+                    총 {analysisCount}회 분석
+                  </span>
+                )}
+              </div>
+
+              {/* 1~2회: 변화 수치 표시 */}
+              {analysisCount <= 2 && pastReports.length >= 2 && (() => {
+                const prev = pastReports[1];
+                const curr = pastReports[0];
+                const diff = curr.healthAge - prev.healthAge;
+                return (
+                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/70 mb-2">
+                    <div className="text-center">
+                      <div className="text-xs text-[#9A8080] mb-1">지난 분석</div>
+                      <div className="text-2xl font-black text-[#3D2B2B]">{prev.healthAge}<span className="text-sm font-medium">세</span></div>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <div className={`text-lg font-black ${diff < 0 ? 'text-green-500' : diff > 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                        {diff < 0 ? `▼ ${Math.abs(diff)}세 젊어짐 ✨` : diff > 0 ? `▲ ${diff}세 높아짐` : '변화 없음'}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs text-[#9A8080] mb-1">이번 분석</div>
+                      <div className="text-2xl font-black text-gradient">{curr.healthAge}<span className="text-sm font-medium text-rose-gold">세</span></div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* 1회: 첫 분석 안내 */}
+              {analysisCount === 1 && (
+                <div className="p-3 rounded-2xl bg-white/70 mb-2 text-center">
+                  <p className="text-sm font-bold text-[#8B5E83]">첫 번째 분석을 완료했어요! 🎉</p>
+                  <p className="text-xs text-[#9A8080] mt-1">다음 분석부터 건강나이 변화를 추적합니다</p>
+                </div>
+              )}
+
+              {/* 3~5회: 반복 패턴 감지 */}
+              {analysisCount >= 3 && analysisCount <= 5 && (() => {
+                const highCortisol = pastReports.slice(0, 3).filter(r => r.cortisol && r.cortisol >= 60).length;
+                return (
+                  <div className="space-y-2 mb-2">
+                    {/* 미니 꺾은선 */}
+                    <div className="flex items-end gap-1 px-2 py-3 bg-white/70 rounded-2xl" style={{ height: 64 }}>
+                      {pastReports.slice(0, 5).reverse().map((r, i) => {
+                        const maxAge = Math.max(...pastReports.map(p => p.healthAge));
+                        const minAge = Math.min(...pastReports.map(p => p.healthAge));
+                        const range = maxAge - minAge || 1;
+                        const h = 8 + ((maxAge - r.healthAge) / range) * 36;
+                        return (
+                          <div key={r.id} className="flex-1 flex flex-col items-center gap-1">
+                            <div className="text-xs font-bold" style={{ color: '#C8956C', fontSize: '9px' }}>{r.healthAge}세</div>
+                            <div className="w-full rounded-t-md" style={{ height: h, background: i === pastReports.slice(0, 5).length - 1 ? 'linear-gradient(180deg,#8B5E83,#C8956C)' : 'rgba(200,149,108,0.3)' }} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {highCortisol >= 3 && (
+                      <div className="flex items-start gap-2 p-3 rounded-2xl" style={{ background: 'rgba(255,180,100,0.12)', border: '1px solid rgba(255,160,80,0.25)' }}>
+                        <span className="text-base flex-shrink-0">⚠️</span>
+                        <div>
+                          <p className="text-xs font-bold text-orange-700">패턴 감지: 코르티솔 {highCortisol}회 연속 주의 수준</p>
+                          <p className="text-xs text-orange-600 mt-0.5">수면 패턴과 스트레스 관리를 집중적으로 체크해보세요</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* 6회+: 나만의 패턴 리포트 */}
+              {analysisCount >= 6 && (() => {
+                const ages = pastReports.slice(0, 6).map(r => r.healthAge);
+                const trend = ages[0] - ages[ages.length - 1]; // 최근 - 가장 예전
+                const highCortisol = pastReports.slice(0, 6).filter(r => r.cortisol && r.cortisol >= 60).length;
+                return (
+                  <div className="space-y-2 mb-2">
+                    <div className="flex items-end gap-1 px-2 py-3 bg-white/70 rounded-2xl" style={{ height: 64 }}>
+                      {pastReports.slice(0, 6).reverse().map((r, i, arr) => {
+                        const maxAge = Math.max(...arr.map(p => p.healthAge));
+                        const minAge = Math.min(...arr.map(p => p.healthAge));
+                        const range = maxAge - minAge || 1;
+                        const h = 8 + ((maxAge - r.healthAge) / range) * 36;
+                        return (
+                          <div key={r.id} className="flex-1 flex flex-col items-center gap-1">
+                            <div className="text-xs font-bold" style={{ color: '#C8956C', fontSize: '9px' }}>{r.healthAge}</div>
+                            <div className="w-full rounded-t-md" style={{ height: h, background: i === arr.length - 1 ? 'linear-gradient(180deg,#8B5E83,#C8956C)' : 'rgba(200,149,108,0.3)' }} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="p-3 rounded-2xl" style={{ background: 'linear-gradient(135deg,rgba(139,94,131,0.08),rgba(200,149,108,0.08))', border: '1px solid rgba(139,94,131,0.15)' }}>
+                      <p className="text-xs font-bold text-[#8B5E83] mb-1.5">🔍 당신만의 건강 패턴이 보입니다</p>
+                      {trend < 0 && <p className="text-xs text-[#5A4A4A] leading-relaxed">최근 6회 분석에서 건강나이가 <span className="font-bold text-green-600">총 {Math.abs(trend)}세 젊어졌어요</span>. 꾸준한 관리가 효과를 내고 있습니다.</p>}
+                      {trend > 0 && <p className="text-xs text-[#5A4A4A] leading-relaxed">건강나이가 소폭 높아졌어요. <span className="font-bold text-orange-600">지금이 집중 관리 타이밍</span>입니다.</p>}
+                      {trend === 0 && <p className="text-xs text-[#5A4A4A] leading-relaxed">건강나이가 안정적으로 유지되고 있어요. 꾸준한 관리의 힘입니다.</p>}
+                      {highCortisol >= 4 && <p className="text-xs text-orange-600 mt-1 leading-relaxed">⚠️ 코르티솔이 {highCortisol}회 연속 높게 나왔어요. 수면·스트레스 패턴을 꼭 체크하세요.</p>}
+                    </div>
+                    <p className="text-xs text-center text-[#B0A0A0]">탈퇴 시 {analysisCount}회 누적 기록이 모두 삭제됩니다</p>
+                  </div>
+                );
+              })()}
+
+              {/* 0회 (첫 분석) */}
+              {analysisCount === 0 && (
+                <div className="p-3 rounded-2xl bg-white/70 text-center">
+                  <p className="text-sm font-bold text-[#8B5E83]">첫 분석을 완료했어요! 🎉</p>
+                  <p className="text-xs text-[#9A8080] mt-1">분석을 반복할수록 나만의 건강 패턴이 보입니다</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 이미지 분석 */}
           {(report.faceAnalysis || report.nailAnalysis) && (
@@ -466,6 +647,40 @@ export default function ReportPage() {
                   <div className="flex items-center justify-center gap-1 mb-3">
                     <span className="text-xl font-black" style={{ color: '#C8956C' }}>월 59,800원</span>
                   </div>
+
+                  {/* 월별 건강나이 추이 미리보기 */}
+                  <div className="mb-4 p-3 rounded-2xl border border-rose-gold/20" style={{ background: 'linear-gradient(135deg, #FDF6F0 0%, #F8F0FA 100%)' }}>
+                    <p className="text-xs font-bold text-[#8B5E83] mb-2">📈 월별 건강나이 변화 추이 (구독 시 제공)</p>
+                    <svg viewBox="0 0 280 72" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 72 }}>
+                      <defs>
+                        <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#C8956C" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#C8956C" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      {/* 그리드 라인 */}
+                      <line x1="0" y1="16" x2="280" y2="16" stroke="#E8DDD5" strokeWidth="0.5" strokeDasharray="4 3" />
+                      <line x1="0" y1="36" x2="280" y2="36" stroke="#E8DDD5" strokeWidth="0.5" strokeDasharray="4 3" />
+                      <line x1="0" y1="56" x2="280" y2="56" stroke="#E8DDD5" strokeWidth="0.5" strokeDasharray="4 3" />
+                      {/* 채우기 영역 */}
+                      <path d="M20,52 Q80,46 120,38 T200,26 T260,14 L260,68 L20,68 Z" fill="url(#chartFill)" />
+                      {/* 꺾은선 */}
+                      <path d="M20,52 Q80,46 120,38 T200,26 T260,14" fill="none" stroke="#C8956C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      {/* 데이터 포인트 */}
+                      <circle cx="20"  cy="52" r="3" fill="#C8956C" />
+                      <circle cx="90"  cy="44" r="3" fill="#C8956C" />
+                      <circle cx="160" cy="30" r="3" fill="#C8956C" />
+                      <circle cx="260" cy="14" r="4" fill="#8B5E83" stroke="white" strokeWidth="1.5" />
+                      {/* 월 레이블 */}
+                      <text x="20"  y="68" textAnchor="middle" fontSize="9" fill="#B09090">3월</text>
+                      <text x="90"  y="68" textAnchor="middle" fontSize="9" fill="#B09090">4월</text>
+                      <text x="160" y="68" textAnchor="middle" fontSize="9" fill="#B09090">5월</text>
+                      <text x="260" y="68" textAnchor="middle" fontSize="9" fill="#8B5E83" fontWeight="700">6월</text>
+                      {/* 최신 값 레이블 */}
+                      <text x="260" y="10" textAnchor="middle" fontSize="9" fill="#8B5E83" fontWeight="700">-3세 ✨</text>
+                    </svg>
+                    <p className="text-xs text-[#9A8080] mt-1 text-center">구독 유지 시 건강나이가 이렇게 변화합니다</p>
+                  </div>
                   <div className="space-y-1.5 mb-5">
                     {[
                       { text: '월 4회 정기 분석 (주 1회 관리)' },
@@ -473,8 +688,8 @@ export default function ReportPage() {
                       { text: '건강나이 챌린지 (-3세 목표 + 인증서)' },
                       { text: '3개월 예상 피부 미리보기' },
                       { text: '앰배서더 수익 (단 2명 추천 = 구독료 0원)' },
-                      { text: '🌸 생리 주기·계절 변화 반영 맞춤 코멘트 — "내 몸의 리듬에 맞춘 AI 분석"', desc: '갱년기 증상은 계절과 주기에 따라 달라져요. AI가 내 몸의 리듬을 읽고 맞춤 코멘트를 드립니다' },
-                      { text: '🔔 매주 맞춤 건강 푸시 알림 — "1주차 실천체크·2주차 중간점검·3주차 분석알림·4주차 월마무리, 내 건강 상태에 맞춘 맞춤 알림"' },
+                      { text: '🌸 생리 주기·계절 변화 반영 맞춤 코멘트', desc: '갱년기 증상은 계절과 주기에 따라 달라져요. AI가 내 몸의 리듬을 읽고 맞춤 코멘트를 드립니다.' },
+                      { text: '🔔 매주 맞춤 건강 푸시 알림', desc: '1주차 실천체크 · 2주차 중간점검 · 3주차 분석알림 · 4주차 월마무리' },
                       { text: '무료 체험 모든 기능 포함' },
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-2.5 px-3 py-2 rounded-xl bg-white/60">
@@ -513,6 +728,46 @@ export default function ReportPage() {
             </div>
           )}
 
+          {/* 챌린지 달성 배너 */}
+          {challengeAchieved && (
+            <div
+              onClick={() => setShowCertModal(true)}
+              className="card cursor-pointer active:scale-95 transition-transform"
+              style={{ background: 'linear-gradient(135deg, #8B5E83 0%, #C8956C 100%)', border: 'none' }}
+            >
+              <div className="text-center text-white">
+                <div className="text-3xl mb-2">🏆</div>
+                <p className="font-black text-lg mb-1">건강나이 챌린지 달성!</p>
+                <p className="text-sm opacity-90 mb-3">
+                  {analysisCount}회 분석으로 건강나이 <span className="font-black text-yellow-200">{challengeImprovement}세</span> 젊어졌어요
+                </p>
+                <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-sm font-bold">
+                  🎖️ 인증서 발급 · SNS 공유하기
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 챌린지 진행 중 안내 (3회 이상, 미달성) */}
+          {!challengeAchieved && analysisCount >= 3 && challengeImprovement < 3 && (
+            <div className="card" style={{ background: 'linear-gradient(135deg, #FDF6F0, #F8F0FA)', border: '1px solid rgba(139,94,131,0.2)' }}>
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">🎯</div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-[#8B5E83]">건강나이 챌린지 진행 중</p>
+                  <p className="text-xs text-[#9A8080] mt-0.5">
+                    목표: 건강나이 -3세 달성 · 현재 {challengeImprovement > 0 ? `${challengeImprovement}세 개선됨` : '시작 단계'}
+                  </p>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(139,94,131,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#8B5E83' }}>
+                    {Math.min(Math.round((challengeImprovement / 3) * 100), 99)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 의료 고지 */}
           <div className="flex items-start gap-3 p-4 bg-cream-deeper/40 rounded-3xl border border-cream-deeper">
             <Shield size={16} className="text-rose-gold flex-shrink-0 mt-0.5" />
@@ -544,6 +799,62 @@ export default function ReportPage() {
       {toastMsg && (
         <div className="fixed bottom-36 left-1/2 -translate-x-1/2 z-50 bg-[#3D2B2B]/90 text-white text-sm px-5 py-2.5 rounded-full shadow-lg whitespace-nowrap">
           {toastMsg}
+        </div>
+      )}
+
+      {/* 챌린지 인증서 모달 */}
+      {showCertModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setShowCertModal(false)}>
+          <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
+            {/* 인증서 헤더 */}
+            <div style={{ background: 'linear-gradient(135deg, #8B5E83 0%, #C8956C 100%)', padding: '32px 24px', textAlign: 'center', color: 'white' }}>
+              <div style={{ fontSize: 48, marginBottom: 8 }}>🏆</div>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', opacity: 0.8, marginBottom: 6 }}>WELLFIT+ CHECK-UP</div>
+              <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>건강나이 챌린지 달성 인증서</div>
+              <div style={{ fontSize: 12, opacity: 0.8 }}>
+                {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+            </div>
+            {/* 인증서 본문 */}
+            <div style={{ padding: '24px', background: '#FDFAF6' }}>
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: '#9A8080', marginBottom: 4 }}>위 사용자는</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#3D2B2B', marginBottom: 8 }}>
+                  {actualAge}세 · 총 {analysisCount}회 분석
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(139,94,131,0.1),rgba(200,149,108,0.1))', border: '1px solid rgba(200,149,108,0.3)', borderRadius: 16, padding: '12px 24px' }}>
+                  <span style={{ fontSize: 28, fontWeight: 900, background: 'linear-gradient(135deg,#8B5E83,#C8956C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    -{challengeImprovement}세
+                  </span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#3D2B2B' }}>건강나이 개선</div>
+                    <div style={{ fontSize: 10, color: '#9A8080' }}>AI 측정 기준</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: '#9A8080', marginTop: 12, lineHeight: 1.6 }}>
+                  꾸준한 건강 관리로 건강나이 챌린지를<br />성공적으로 달성하였음을 인증합니다.
+                </div>
+              </div>
+              {/* 특허 뱃지 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(200,149,108,0.08)', border: '1px solid rgba(200,149,108,0.2)', borderRadius: 12, padding: '10px 14px', marginBottom: 20 }}>
+                <span style={{ fontSize: 14 }}>🔬</span>
+                <span style={{ fontSize: 11, color: '#7A6060', lineHeight: 1.5 }}>특허 출원 기술 기반 AI 분석 · 웰핏+ CHECK-UP</span>
+              </div>
+              {/* 버튼 */}
+              <button
+                onClick={handleCertShare}
+                style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg,#8B5E83,#C8956C)', color: 'white', fontWeight: 800, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', marginBottom: 10 }}
+              >
+                🎉 SNS에 공유하기
+              </button>
+              <button
+                onClick={() => setShowCertModal(false)}
+                style={{ width: '100%', padding: '12px', background: 'transparent', color: '#9A8080', fontSize: 13, border: 'none', cursor: 'pointer' }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
