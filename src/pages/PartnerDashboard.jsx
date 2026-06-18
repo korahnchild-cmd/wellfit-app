@@ -9,7 +9,7 @@ import { ChevronLeft, Copy, Check, Share2, TrendingUp, Users, Target, Award, Bel
 const DIRECT_RATE = 14950;
 const OVERRIDE_RATE = 2990;
 const SUB_PRICE = 59800;
-const BASE_URL = 'https://korahnchild-cmd.github.io/wellfit-app';
+const BASE_URL = 'https://wellfit-checkup.co.kr';
 
 // 등급 계산
 function getGrade(paidCount) {

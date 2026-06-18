@@ -7,7 +7,7 @@ import { auth, db } from '../firebase';
 import { useApp } from '../context/AppContext';
 import { ChevronLeft, LogOut, Copy, Check } from 'lucide-react';
 
-const BASE_URL = 'https://korahnchild-cmd.github.io/wellfit-app';
+const BASE_URL = 'https://wellfit-checkup.co.kr';
 
 // 28일 플랜 (generateReport.js와 동일)
 const ALL_DAYS = [

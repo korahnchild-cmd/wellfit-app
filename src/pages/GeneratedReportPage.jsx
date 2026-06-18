@@ -12,7 +12,7 @@ export default function GeneratedReportPage() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState(false);
 
-  const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/report-view/${shareId}`;
+  const shareUrl = `https://wellfit-checkup.co.kr/report-view/${shareId}`;
 
   const handleShare = useCallback(async () => {
     if (navigator.share) {
@@ -38,7 +38,7 @@ export default function GeneratedReportPage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           const rd = data.reportData;
-          const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/report-view/${shareId}`;
+          const shareUrl = `https://wellfit-checkup.co.kr/report-view/${shareId}`;
           const generated = generateReportHTML({
             report: rd,
             actualAge: rd.actualAge,
