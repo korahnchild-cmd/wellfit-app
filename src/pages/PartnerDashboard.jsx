@@ -163,7 +163,7 @@ export default function PartnerDashboard() {
         <div style={{ position: 'absolute', bottom: -60, left: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,94,131,0.1) 0%, transparent 70%)' }} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 430, margin: '0 auto', paddingBottom: 100 }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 448, margin: '0 auto', paddingBottom: 100 }}>
 
         {/* 헤더 */}
         <div style={{ padding: '52px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>

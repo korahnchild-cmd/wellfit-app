@@ -88,9 +88,24 @@ export default function MyPage() {
           setEditAge(d.age ? String(d.age) : '');
           setEditCity(d.userCity || '');
 
-          // Day 카운트 계산
-          const startDate = d.trialStartDate?.toDate?.() || new Date(d.trialStartDate || d.createdAt);
-          const diff = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+          // Day 카운트 계산 — Firestore Timestamp / ISO string / 일반 Date 모두 처리
+          let startDate;
+          const ts = d.trialStartDate;
+          if (ts && typeof ts.toDate === 'function') {
+            startDate = ts.toDate(); // Firestore Timestamp
+          } else if (ts && typeof ts === 'string') {
+            startDate = new Date(ts); // ISO string
+          } else if (ts && ts.seconds) {
+            startDate = new Date(ts.seconds * 1000); // Firestore Timestamp plain object
+          } else {
+            startDate = new Date(d.createdAt || Date.now());
+          }
+          // 가입 당일 = 1일째
+          const startMidnight = new Date(startDate);
+          startMidnight.setHours(0, 0, 0, 0);
+          const todayMidnight = new Date();
+          todayMidnight.setHours(0, 0, 0, 0);
+          const diff = Math.floor((todayMidnight - startMidnight) / (1000 * 60 * 60 * 24));
           setDayCount(Math.max(1, diff + 1));
         }
 
@@ -212,7 +227,7 @@ export default function MyPage() {
         <div style={{ position: 'absolute', bottom: -60, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,94,131,0.08) 0%, transparent 70%)' }} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 430, margin: '0 auto', paddingBottom: 100 }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 448, margin: '0 auto', paddingBottom: 100 }}>
 
         {/* 헤더 */}
         <div style={{ padding: '52px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
