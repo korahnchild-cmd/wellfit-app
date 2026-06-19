@@ -115,7 +115,28 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="text-center mb-10">
             <div className="w-20 h-20 rounded-3xl bg-rose-gradient shadow-rose flex items-center justify-center mx-auto mb-4">
-              <span className="text-4xl">🌸</span>
+              <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="29" stroke="rgba(255,255,255,0.22)" strokeWidth="1" fill="none" />
+                <polygon points="32,14 43,20 43,34 32,40 21,34 21,20"
+                  stroke="rgba(255,255,255,0.85)" strokeWidth="1.6" fill="rgba(255,255,255,0.08)" />
+                <circle cx="32" cy="27" r="5.5" fill="rgba(255,255,255,0.95)" />
+                <text x="32" y="30.5" textAnchor="middle" fontSize="6" fontWeight="800"
+                  fill="#8B5E83" fontFamily="-apple-system,sans-serif" letterSpacing="-0.3">AI</text>
+                <circle cx="32" cy="11" r="2.8" fill="rgba(255,255,255,0.9)" />
+                <circle cx="46" cy="18" r="2.8" fill="rgba(255,255,255,0.9)" />
+                <circle cx="46" cy="36" r="2.8" fill="rgba(255,255,255,0.9)" />
+                <circle cx="32" cy="43" r="2.8" fill="rgba(255,255,255,0.9)" />
+                <circle cx="18" cy="36" r="2.8" fill="rgba(255,255,255,0.9)" />
+                <circle cx="18" cy="18" r="2.8" fill="rgba(255,255,255,0.9)" />
+                <line x1="32" y1="13.8" x2="32" y2="21" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                <line x1="43.6" y1="19.4" x2="39" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                <line x1="43.6" y1="34.6" x2="39" y2="32" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                <line x1="32" y1="40.2" x2="32" y2="33" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                <line x1="20.4" y1="34.6" x2="25" y2="32" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                <line x1="20.4" y1="19.4" x2="25" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+                <polyline points="14,52 20,52 23,46 27,58 31,49 35,52 41,52 44,46 48,52 50,52"
+                  stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <h1 className="text-2xl font-black text-gradient">웰핏+ CHECK-UP</h1>
             <p className="text-sm text-[#7A6060] mt-2">AI 건강 분석을 시작하려면 로그인하세요</p>
