@@ -1,8 +1,12 @@
 // src/gemini.js
-// GoogleGenerativeAI 라이브러리 대신 직접 fetch 사용 (AQ. 형식 키 호환)
+// Gemini API를 직접 호출하지 않고, Firebase Functions 프록시를 경유한다.
+// API 키는 클라이언트에 절대 노출되지 않으며 Functions 서버 환경에만 존재한다.
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`;
+// 프로젝트 ID에 맞춰 Functions 엔드포인트 URL을 구성한다.
+// 배포 리전은 firebase functions:config 기본값(us-central1)을 따른다.
+const FUNCTIONS_BASE_URL = import.meta.env.VITE_FUNCTIONS_URL ||
+  `https://us-central1-${import.meta.env.VITE_FIREBASE_PROJECT_ID}.cloudfunctions.net`;
+const ANALYZE_HEALTH_URL = `${FUNCTIONS_BASE_URL}/analyzeHealth`;
 
 async function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -126,58 +130,48 @@ ${nailImage ? '【 손톱 이미지 분석 포함 】' : ''}
 }
 `;
 
-    const parts = [{ text: promptText }];
+    // 이미지는 base64로 변환해서 Functions 프록시로 전달한다.
+    // 실제 Gemini API 키 호출은 서버(Functions) 안에서만 일어난다.
+    const requestBody = { promptText };
 
     if (faceImage) {
-      const faceBase64 = await fileToBase64(faceImage);
-      parts.push({
-        inline_data: {
-          mime_type: faceImage.type || 'image/jpeg',
-          data: faceBase64,
-        },
-      });
+      requestBody.faceImageBase64 = await fileToBase64(faceImage);
+      requestBody.faceImageMimeType = faceImage.type || 'image/jpeg';
     }
 
     if (nailImage) {
-      const nailBase64 = await fileToBase64(nailImage);
-      parts.push({
-        inline_data: {
-          mime_type: nailImage.type || 'image/jpeg',
-          data: nailBase64,
-        },
-      });
+      requestBody.nailImageBase64 = await fileToBase64(nailImage);
+      requestBody.nailImageMimeType = nailImage.type || 'image/jpeg';
     }
 
-    // fetch 호출 (503 시 자동 재시도 3회) — body는 text()로 한 번만 읽음
-    let rawText;
+    // Functions 호출 (503 등 일시 오류 시 자동 재시도 3회)
+    let result;
     for (let attempt = 1; attempt <= 3; attempt++) {
-      const response = await fetch(API_URL, {
+      const response = await fetch(ANALYZE_HEALTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts }] }),
+        body: JSON.stringify(requestBody),
       });
 
-      rawText = await response.text(); // ← 핵심: body 한 번만 읽기
+      result = await response.json();
       console.log(`attempt ${attempt} status:`, response.status);
-      console.log('raw response:', rawText.slice(0, 300));
 
-      if (response.ok) break;
+      if (response.ok && result.success) break;
 
-      const errData = JSON.parse(rawText);
       if (response.status === 503 && attempt < 3) {
         console.log(`503 재시도 ${attempt}/3... 5초 대기`);
         await new Promise(r => setTimeout(r, 5000));
         continue;
       }
-      throw new Error(JSON.stringify(errData));
+
+      throw new Error(result.error || `서버 오류 (status ${response.status})`);
     }
 
-    const data = JSON.parse(rawText);
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error('응답 텍스트가 없습니다: ' + rawText.slice(0, 200));
+    if (!result.success) {
+      throw new Error(result.error || '분석 실패');
+    }
 
-    const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
-    const parsed = JSON.parse(cleanedText);
+    const parsed = result.data;
     parsed.gender = gender;
 
     return { success: true, data: parsed };
