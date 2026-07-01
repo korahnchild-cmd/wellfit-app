@@ -828,7 +828,7 @@ export default function ReportPage() {
                   </span>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#3D2B2B' }}>건강나이 개선</div>
-                    <div style={{ fontSize: 10, color: '#9A8080' }}>AI 측정 기준</div>
+                    <div style={{ fontSize: 10, color: '#9A8080' }}>AI 분석 기준</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 12, color: '#9A8080', marginTop: 12, lineHeight: 1.6 }}>
