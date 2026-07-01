@@ -81,7 +81,7 @@ function getHormoneStage(report, gender, actualAge) {
     const risk = hormones.testosterone ?? 0;
     if (age < 40) return { stage: '테스토스테론 최적기', desc: '30대는 테스토스테론이 서서히 감소 시작. 예방적 관리가 핵심입니다.', risk, tips: ['근력 운동 주 3회 이상', '수면 7시간 이상 유지', '아연·마그네슘 보충', '과음·흡연 자제'] };
     if (age < 55) return { stage: '남성 갱년기 진입기', desc: '40~50대는 테스토스테론이 연 1~2% 감소. 활력 저하·집중력 감소가 나타날 수 있습니다.', risk, tips: ['고강도 인터벌 트레이닝 추가', '단백질 섭취 체중 1kg당 1.2g', '스트레스 관리 최우선', '연 1회 호르몬 균형 검진 권장'] };
-    return { stage: '남성 갱년기 심화기', desc: '55세 이상은 테스토스테론 저하 증상이 뚜렷해집니다. 전문의 상담을 권장합니다.', risk, tips: ['비뇨기과·내분비과 정기 검진', '고강도 운동 유지', '테스토스테론 보충 치료 검토', '심혈관 건강 집중 관리'] };
+    return { stage: '남성 갱년기 심화기', desc: '55세 이상은 테스토스테론 저하 증상이 뚜렷해집니다. 전문의 상담을 권장합니다.', risk, tips: ['비뇨기과·내분비과 정기 검진', '고강도 운동 유지', '테스토스테론 관련 생활습관 개선 검토', '심혈관 건강 집중 관리'] };
   } else {
     const risk = hormones.estrogen ?? 0;
     if (age < 40) return { stage: '에스트로겐 안정기', desc: '40대 이전은 에스트로겐 균형이 안정적이나, 스트레스·불규칙한 생활로 일시 저하될 수 있습니다.', risk, tips: ['규칙적인 유산소 운동', '콩·두부 등 식물성 에스트로겐 섭취', '스트레스 관리·수면 7시간', '철분·엽산 충분히 섭취'] };
@@ -208,7 +208,7 @@ function buildWeeklyPlanSection(report, actualAge, userName, todayShort) {
         { d: 18, cat: '운동', emoji: '🤸', task: '스트레칭 20분: 유연성 확보 + 부상 예방' },
         { d: 19, cat: '마음', emoji: '🧘', task: '명상 5분: 마보·코끼리 앱 활용' },
         { d: 20, cat: '운동', emoji: '🏃', task: '유산소 30분 + 핵심 운동(플랭크·데드버그) 추가' },
-        { d: 21, cat: '점검', emoji: '📏', task: '3주차 체중·체지방 측정, 운동 강도 조정' },
+        { d: 21, cat: '점검', emoji: '📏', task: '3주차 체중·체지방 변화 확인, 운동 강도 조정' },
       ],
     },
     {
@@ -553,12 +553,12 @@ function buildChallengeSection(report, actualAge, userName, todayShort) {
     },
     {
       month: fmt(month2), label: '2개월 — 변화 가속', color: '#E8A038', target: `건강나이 ${Math.round((healthAge + targetAge) / 2)}세 목표`,
-      goals: ['영양 결핍 지표 개선 (재측정)', '운동 강도 업그레이드', '스트레스 관리 루틴 정착', '피부·손톱 변화 육안 확인'],
+      goals: ['영양 결핍 지표 개선 (재확인)', '운동 강도 업그레이드', '스트레스 관리 루틴 정착', '피부·손톱 변화 육안 확인'],
       metric: `목표: ${Math.round((healthAge + targetAge) / 2)}세`,
     },
     {
       month: fmt(month3), label: '3개월 — 목표 달성', color: '#C8956C', target: `건강나이 ${targetAge}세 달성`,
-      goals: ['웰핏+ 재검사로 건강나이 확인', '호르몬 참고 지수 재측정', '3개월 전후 비교 분석', '다음 3개월 목표 설정'],
+      goals: ['웰핏+ 재검사로 건강나이 확인', '호르몬 참고 지수 재확인', '3개월 전후 비교 분석', '다음 3개월 목표 설정'],
       metric: `목표: ${targetAge}세 (−${healthAge - targetAge}세)`,
     },
   ];
