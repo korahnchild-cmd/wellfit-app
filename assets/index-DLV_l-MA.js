@@ -51,6 +51,12 @@ Error generating stack: `+a.message+`
 `," ")}),J&&i.jsx("div",{className:"ml-auto w-6 h-6 rounded-full bg-rose-gold flex items-center justify-center",children:i.jsx("span",{className:"text-white text-xs",children:"✓"})})]},$)})})]}),i.jsxs("div",{className:"flex gap-3",children:[i.jsxs("button",{onClick:()=>M("left"),disabled:d===0,className:"flex-1 btn-secondary flex items-center justify-center gap-2 disabled:opacity-30",children:[i.jsx(ra,{size:18}),"이전"]}),d<H-1?i.jsxs("button",{onClick:()=>M("right"),className:"flex-1 btn-primary flex items-center justify-center gap-2",children:["다음",i.jsx(v0,{size:18})]}):i.jsx("button",{id:"survey-complete-btn",onClick:()=>r("/analyzing"),disabled:!Z,className:"flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50",children:"✨ 분석 시작"})]}),i.jsx("div",{className:"mt-4 text-center",children:i.jsxs("p",{className:"text-xs text-[#9A8080]",children:["답변 완료:"," ",i.jsx("span",{className:`font-semibold ${_?"text-green-500":"text-rose-gold"}`,children:k})," ","/ ",H,"문항",_&&i.jsx("span",{className:"ml-1 text-green-500",children:"✓ 완료"})]})})]}),i.jsx("div",{className:"fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-6 pt-4 bg-cream-gradient border-t border-cream-deeper",children:_?i.jsxs("div",{className:"space-y-2",children:[i.jsxs("button",{id:"analyze-now-btn",onClick:()=>r("/analyzing"),className:"btn-primary w-full flex items-center justify-center gap-2 animate-pulse-soft",children:[i.jsx(p0,{size:18}),"AI 분석 시작하기"]}),i.jsx("p",{className:"text-xs text-center text-green-500 font-semibold",children:"✅ 18문항 모두 완료! 지금 바로 분석할 수 있어요"})]}):i.jsxs("p",{className:"text-xs text-center text-[#B0A0A0] py-2",children:["답변 완료: ",i.jsx("span",{className:"text-rose-gold font-semibold",children:k})," / ",H,"문항",k>=H*.8&&i.jsx("span",{className:"ml-1 text-[#9A8080]",children:"· 80% 이상 완료 시 분석 가능"})]})})]})}const _g="https://us-central1-wellfit-checkup.cloudfunctions.net",Lg=`${_g}/analyzeHealth`;async function i0(r){return new Promise((g,m)=>{const d=new FileReader;d.onload=()=>{const p=d.result.split(",")[1];g(p)},d.onerror=m,d.readAsDataURL(r)})}async function qg({surveyData:r,faceImage:g,nailImage:m,actualAge:d,gender:p="female"}){try{const S=$g(r),U=p==="male",k={promptText:`
 당신은 ${U?"남성 건강 라이프스타일 코칭 AI":"여성 건강 라이프스타일 코칭 AI"}입니다. 아래 설문 응답과 이미지를 분석하여 생활습관 기반 건강 관리 참고 지수를 산출해주세요. 의료 진단이 아닌 라이프스타일 코칭 참고 자료를 제공합니다.
 
+【 필수 준수 사항 — comment 작성 규칙 】
+모든 Comment 필드는 반드시 아래 규칙을 따르세요:
+✅ 허용 표현: "~을 챙겨보세요", "~하면 도움이 될 수 있어요", "~을 늘려보세요", "~루틴을 권장해요", "~에 신경 써보세요"
+❌ 절대 금지 표현: "정상 범위", "정상 범위 진입", "경계 범위", "수치가 낮다/높다", "결핍입니다", "과다입니다", "진단", "치료", "확인됩니다", "측정 결과", "임상", "검사 수치"
+→ Comment는 생활습관 개선 조언 1문장만 작성하며, 의료적 판정·수치 확정·진단 표현은 어떤 형태로도 사용하지 않습니다.
+
 【 분석 대상자 정보 】
 - 실제 나이: ${d}세
 - 성별: ${U?"한국 남성":"한국 여성"}
@@ -73,12 +79,12 @@ ${m?"【 손톱 이미지 분석 포함 】":""}
     "thyroid": <갑상선 호르몬 불균형 참고 지수 0-100>,
     "dhea": <DHEA 저하 참고 지수 0-100>,
     "growthHormone": <성장호르몬 저하 참고 지수 0-100>,
-    "testosteroneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "cortisolComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "insulinComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "thyroidComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "dheaComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "growthHormoneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
+    "testosteroneComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '수치가 낮다' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "cortisolComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '수치가 높다' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "insulinComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "thyroidComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "dheaComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "growthHormoneComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>"
   }`:`"hormones": {
     "estrogen": <에스트로겐 부족 참고 지수 0-100>,
     "cortisol": <코르티솔 과다 참고 지수 0-100>,
@@ -86,12 +92,12 @@ ${m?"【 손톱 이미지 분석 포함 】":""}
     "thyroid": <갑상선 호르몬 불균형 참고 지수 0-100>,
     "dhea": <DHEA 저하 참고 지수 0-100>,
     "progesterone": <프로게스테론 부족 참고 지수 0-100>,
-    "estrogenComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "cortisolComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "insulinComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "thyroidComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "dheaComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "progesteroneComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
+    "estrogenComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '수치가 낮다' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "cortisolComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '수치가 높다' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "insulinComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "thyroidComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "dheaComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>",
+    "progesteroneComment": "<생활습관 개선 조언 1문장. 반드시 '~하면 도움이 될 수 있어요' '~을 챙겨보세요' 등 완곡한 표현 사용. '정상 범위' '경계 범위' '진단' '치료' '확인됩니다' 등 의료적 판정 표현 절대 사용 금지>"
   }`},
   "nutrients": {
     "vitaminD": <비타민D 결핍 참고 지수 0-100>,
@@ -102,14 +108,14 @@ ${m?"【 손톱 이미지 분석 포함 】":""}
     "omega3": <오메가3 결핍 참고 지수 0-100>,
     "calcium": <칼슘 결핍 참고 지수 0-100>,
     "vitaminC": <비타민C 결핍 참고 지수 0-100>,
-    "vitaminDComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "vitaminB12Comment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "ironComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "zincComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "magnesiumComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "omega3Comment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "calciumComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>",
-    "vitaminCComment": "<의료 진단 없이, 생활습관 개선 조언 1문장>"
+    "vitaminDComment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "vitaminB12Comment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "ironComment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "zincComment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "magnesiumComment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "omega3Comment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "calciumComment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>",
+    "vitaminCComment": "<생활습관 개선 조언 1문장. '~을 챙겨보세요' '~하면 도움이 될 수 있어요' 등 완곡 표현 사용. '정상 범위 진입' '정상 범위' '경계 범위' '결핍입니다' '수치' '진단' '치료' 등 의료적 판정 표현 절대 사용 금지>"
   },
   "faceAnalysis": ${g?`{
     "moisture": "<피부 수분도 분석>",
