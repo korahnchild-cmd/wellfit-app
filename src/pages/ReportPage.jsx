@@ -6,12 +6,14 @@ import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, X } from 'lu
 import { db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
-// 게이지 색상 톤 조정 (2026.7.4) — 초록/노랑/빨강(임상 검사지 느낌) 대신
-// 브랜드 팔레트(에메랄드/앰버/모브)로 변경. '관리 필요'는 경고성 빨강 대신
-// 모브(rose-gold-dark)로 표현해 "이상 수치 경고"보다 코칭 톤에 가깝게 조정.
+// 게이지 색상/등급 톤 조정 (2026.7.4) — 3단계(양호/주의/관리필요)는 '주의' 구간이
+// 30~59%로 너무 넓어 대부분의 값이 한 등급에 몰리는 문제가 있어 5단계로 세분화.
+// 색도 임상 검사지 느낌(초록/노랑/빨강) 대신 브랜드 팔레트 그러데이션으로 변경.
 function getRiskLevel(value) {
-  if (value < 30) return { label: '양호', color: 'text-emerald-600', bg: 'bg-emerald-50', bar: 'from-emerald-300 to-teal-400' };
-  if (value < 60) return { label: '주의', color: 'text-amber-600', bg: 'bg-amber-50', bar: 'from-amber-300 to-amber-500' };
+  if (value < 20) return { label: '매우 양호', color: 'text-teal-700', bg: 'bg-teal-50', bar: 'from-teal-300 to-teal-500' };
+  if (value < 40) return { label: '양호', color: 'text-emerald-600', bg: 'bg-emerald-50', bar: 'from-emerald-300 to-teal-400' };
+  if (value < 60) return { label: '안정적', color: 'text-amber-500', bg: 'bg-amber-50', bar: 'from-amber-200 to-amber-400' };
+  if (value < 80) return { label: '관찰 필요', color: 'text-amber-700', bg: 'bg-amber-100', bar: 'from-amber-300 to-amber-500' };
   return { label: '관리 필요', color: 'text-rose-gold-dark', bg: 'bg-rose-gold-light/20', bar: 'from-rose-gold to-mauve' };
 }
 
@@ -329,6 +331,12 @@ export default function ReportPage() {
             {ageDiff > 0 && (
               <div className="mt-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 text-center">
                 <p className="text-sm text-orange-700 font-medium leading-relaxed">지금 관리하면 충분히 되돌릴 수 있어요 💪</p>
+              </div>
+            )}
+            {ageDiff < 0 && (
+              <div className="mt-3 p-3 bg-teal-50 rounded-2xl border border-teal-100 text-center flex items-center justify-center gap-2">
+                <span className="text-lg">🎉</span>
+                <p className="text-sm text-teal-700 font-medium leading-relaxed">축하드려요! 지금의 좋은 습관을 꾸준히 유지해보세요</p>
               </div>
             )}
             {report.summary && (

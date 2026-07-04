@@ -1,11 +1,15 @@
 // src/utils/generateReport.js
 
-// 게이지 색상 톤 조정 (2026.7.4) — 기존 초록/주황/빨강(임상 검사지 느낌)에서
-// 브랜드 팔레트(민트/앰버/모브)로 변경. 특히 '관리 필요' 단계를 경고성 빨강(#D4504A)
-// 대신 모브(#8B5E83, --mauve와 동일)로 바꿔 "이상 수치 경고"보다 "코칭 톤"에 가깝게 조정.
+// 게이지 색상/등급 톤 조정 (2026.7.4) — 기존 3단계(양호/주의/관리필요)는
+// '주의' 구간이 30~59%로 너무 넓어서 실제 값 대부분이 한 등급에 몰리고,
+// 60%만 넘어도 곧바로 무거운 '관리 필요' 라벨이 붙는 문제가 있었음.
+// 5단계로 세분화하고 색도 임상 검사지 느낌(초록/주황/빨강) 대신
+// 브랜드 팔레트(민트→골드→앰버→모브)의 자연스러운 그러데이션으로 변경.
 function getRiskColor(value) {
-  if (value < 30) return { color: '#7DBFA8', bg: '#E8F5F1', label: '양호', dot: '#7DBFA8' };
-  if (value < 60) return { color: '#E8A038', bg: '#FFF3E0', label: '주의', dot: '#E8A038' };
+  if (value < 20) return { color: '#5FA88F', bg: '#E7F4F0', label: '매우 양호', dot: '#5FA88F' };
+  if (value < 40) return { color: '#7DBFA8', bg: '#E8F5F1', label: '양호', dot: '#7DBFA8' };
+  if (value < 60) return { color: '#D9A857', bg: '#FBF1DF', label: '안정적', dot: '#D9A857' };
+  if (value < 80) return { color: '#E8A038', bg: '#FFF3E0', label: '관찰 필요', dot: '#E8A038' };
   return { color: '#8B5E83', bg: '#F0E8EF', label: '관리 필요', dot: '#8B5E83' };
 }
 
@@ -109,11 +113,13 @@ function getDietDeficientFoods(report, gender) {
 
 function buildLifestyleSection(report, actualAge, userName, todayShort) {
   const scores = getLifestyleScores(report, actualAge);
+  // 상태 라벨/색은 getRiskColor(호르몬·영양과 동일한 5단계 체계)로 통일해서 렌더링 시 계산.
+  // tips 문구는 60% 기준(관찰 필요·관리 필요 구간)으로 "집중 관리형" vs "유지형" 2세트만 유지.
   const areas = [
-    { icon: '🌙', label: '수면', score: scores.sleep, color: '#8B5E83', status: scores.sleep >= 60 ? '개선 필요' : scores.sleep >= 30 ? '주의' : '양호', tips: scores.sleep >= 60 ? ['취침 시간 고정 (밤 11시 이전)', '자기 전 1시간 스마트폰 금지', '마그네슘 취침 전 복용', '수면 트래커 앱 활용'] : ['현재 수면 패턴 잘 유지', '주말 수면 빚 최소화', '낮잠 20분 이내로 제한'] },
-    { icon: '🥗', label: '식단', score: scores.diet, color: '#4CAF7D', status: scores.diet >= 60 ? '개선 필요' : scores.diet >= 30 ? '주의' : '양호', tips: scores.diet >= 60 ? ['채소 매끼 1/2 접시 채우기', '가공식품·당류 50% 줄이기', '결핍 영양소 식품 우선 섭취', '물 하루 8잔 (2L) 목표'] : ['균형 잡힌 식사 유지', '계절 채소 다양하게 섭취', '과식 피하고 천천히 먹기'] },
-    { icon: '🏃', label: '운동', score: scores.exercise, color: '#E8A038', status: scores.exercise >= 60 ? '개선 필요' : scores.exercise >= 30 ? '주의' : '양호', tips: scores.exercise >= 60 ? ['주 150분 유산소 목표 설정', '엘리베이터 대신 계단 이용', '점심시간 10분 걷기 시작', '주 2회 근력 운동 추가'] : ['현재 운동 습관 유지·강화', '고강도 인터벌 도전 검토', '운동 다양성 추가'] },
-    { icon: '🧘', label: '스트레스', score: scores.stress, color: '#D4504A', status: scores.stress >= 60 ? '개선 필요' : scores.stress >= 30 ? '주의' : '양호', tips: scores.stress >= 60 ? ['하루 5분 복식 호흡 실천', '명상 앱(마보·코끼리) 활용', '디지털 디톡스 주 1회', '취미 활동 주 2시간 확보'] : ['스트레스 관리 잘 되고 있음', '긍정적 루틴 계속 유지', '사회적 관계 적극 활용'] },
+    { icon: '🌙', label: '수면', score: scores.sleep, color: '#8B5E83', tips: scores.sleep >= 60 ? ['취침 시간 고정 (밤 11시 이전)', '자기 전 1시간 스마트폰 금지', '마그네슘 취침 전 복용', '수면 트래커 앱 활용'] : ['현재 수면 패턴 잘 유지', '주말 수면 빚 최소화', '낮잠 20분 이내로 제한'] },
+    { icon: '🥗', label: '식단', score: scores.diet, color: '#4CAF7D', tips: scores.diet >= 60 ? ['채소 매끼 1/2 접시 채우기', '가공식품·당류 50% 줄이기', '결핍 영양소 식품 우선 섭취', '물 하루 8잔 (2L) 목표'] : ['균형 잡힌 식사 유지', '계절 채소 다양하게 섭취', '과식 피하고 천천히 먹기'] },
+    { icon: '🏃', label: '운동', score: scores.exercise, color: '#E8A038', tips: scores.exercise >= 60 ? ['주 150분 유산소 목표 설정', '엘리베이터 대신 계단 이용', '점심시간 10분 걷기 시작', '주 2회 근력 운동 추가'] : ['현재 운동 습관 유지·강화', '고강도 인터벌 도전 검토', '운동 다양성 추가'] },
+    { icon: '🧘', label: '스트레스', score: scores.stress, color: '#D4504A', tips: scores.stress >= 60 ? ['하루 5분 복식 호흡 실천', '명상 앱(마보·코끼리) 활용', '디지털 디톡스 주 1회', '취미 활동 주 2시간 확보'] : ['스트레스 관리 잘 되고 있음', '긍정적 루틴 계속 유지', '사회적 관계 적극 활용'] },
   ];
   const priorityOrder = [...areas].sort((a, b) => b.score - a.score);
 
@@ -137,7 +143,7 @@ function buildLifestyleSection(report, actualAge, userName, todayShort) {
         <div class="ls-icon-wrap" style="background:${a.color}15">${a.icon}</div>
         <div>
           <div class="ls-area-name">${a.label}</div>
-          <div class="ls-area-status" style="color:${r.color}">${a.status}</div>
+          <div class="ls-area-status" style="color:${r.color}">${r.label}</div>
         </div>
         <div class="ls-score" style="color:${a.color}">${a.score}<span style="font-size:12px">%</span></div>
       </div>
@@ -342,9 +348,11 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
   const rcd = getRiskColor(dheaRisk);
 
   const riskLevels = [
-    { label: '낮음 (0~29%)', color: '#7DBFA8', tips: ['예방 중심의 건강 관리 유지', '정기 검진 연 1회', '현재 좋은 생활습관 지속'] },
-    { label: '주의 (30~59%)', color: '#E8A038', tips: ['생활습관 집중 개선 필요', '영양제 보충 시작 권장', '3개월 내 재검사 권장'] },
-    { label: '관리 필요 (60~100%)', color: '#8B5E83', tips: ['전문의 상담 우선 권장', '병원 호르몬 검사 고려', '생활습관 집중 개선 병행'] },
+    { label: '매우 양호 (0~19%)', color: '#5FA88F', tips: ['지금의 좋은 습관을 그대로 유지', '예방 중심의 건강 관리', '정기 검진 연 1회'] },
+    { label: '양호 (20~39%)', color: '#7DBFA8', tips: ['현재 좋은 생활습관 지속', '가벼운 컨디션 변화 체크', '정기 검진 연 1회'] },
+    { label: '안정적 (40~59%)', color: '#D9A857', tips: ['생활습관 변화 조금씩 시작', '수면·식단 패턴 가볍게 점검', '3~6개월 내 재확인 권장'] },
+    { label: '관찰 필요 (60~79%)', color: '#E8A038', tips: ['생활습관 집중 개선 필요', '영양제 보충 시작 권장', '3개월 내 재검사 권장'] },
+    { label: '관리 필요 (80~100%)', color: '#8B5E83', tips: ['전문가 상담 고려', '생활습관 집중 개선 병행', '정기적인 재확인 권장'] },
   ];
 
   return `
@@ -364,50 +372,60 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
       <div class="hsc-meter-label">${isMale ? '테스토스테론 저하' : '에스트로겐 저하'} 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${mainRisk}%;background:linear-gradient(90deg,${rc.color}80,${rc.color})"></div>
-        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:20%"></div>
+        <div class="hsc-tick" style="left:40%"></div>
         <div class="hsc-tick" style="left:60%"></div>
+        <div class="hsc-tick" style="left:80%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
+      <div class="hsc-bar-labels"><span>매우양호</span><span>양호</span><span>안정적</span><span>관찰필요</span><span>관리필요</span></div>
       <div class="hsc-value" style="color:${rc.color}">${mainRisk}% — ${rc.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
       <div class="hsc-meter-label">코르티솔 과다 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${cortisolRisk}%;background:linear-gradient(90deg,${rcc.color}80,${rcc.color})"></div>
-        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:20%"></div>
+        <div class="hsc-tick" style="left:40%"></div>
         <div class="hsc-tick" style="left:60%"></div>
+        <div class="hsc-tick" style="left:80%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
+      <div class="hsc-bar-labels"><span>매우양호</span><span>양호</span><span>안정적</span><span>관찰필요</span><span>관리필요</span></div>
       <div class="hsc-value" style="color:${rcc.color}">${cortisolRisk}% — ${rcc.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
       <div class="hsc-meter-label">인슐린 저항성 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${insulinRisk}%;background:linear-gradient(90deg,${rci.color}80,${rci.color})"></div>
-        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:20%"></div>
+        <div class="hsc-tick" style="left:40%"></div>
         <div class="hsc-tick" style="left:60%"></div>
+        <div class="hsc-tick" style="left:80%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
+      <div class="hsc-bar-labels"><span>매우양호</span><span>양호</span><span>안정적</span><span>관찰필요</span><span>관리필요</span></div>
       <div class="hsc-value" style="color:${rci.color}">${insulinRisk}% — ${rci.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
       <div class="hsc-meter-label">갑상선 호르몬 불균형 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${thyroidRisk}%;background:linear-gradient(90deg,${rct.color}80,${rct.color})"></div>
-        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:20%"></div>
+        <div class="hsc-tick" style="left:40%"></div>
         <div class="hsc-tick" style="left:60%"></div>
+        <div class="hsc-tick" style="left:80%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
+      <div class="hsc-bar-labels"><span>매우양호</span><span>양호</span><span>안정적</span><span>관찰필요</span><span>관리필요</span></div>
       <div class="hsc-value" style="color:${rct.color}">${thyroidRisk}% — ${rct.label}</div>
     </div>
     <div class="hsc-meter" style="margin-top:16px">
       <div class="hsc-meter-label">DHEA 저하 참고 지수</div>
       <div class="hsc-bar-wrap">
         <div class="hsc-bar" style="width:${dheaRisk}%;background:linear-gradient(90deg,${rcd.color}80,${rcd.color})"></div>
-        <div class="hsc-tick" style="left:30%"></div>
+        <div class="hsc-tick" style="left:20%"></div>
+        <div class="hsc-tick" style="left:40%"></div>
         <div class="hsc-tick" style="left:60%"></div>
+        <div class="hsc-tick" style="left:80%"></div>
       </div>
-      <div class="hsc-bar-labels"><span>양호</span><span>주의</span><span>관리 필요</span></div>
+      <div class="hsc-bar-labels"><span>매우양호</span><span>양호</span><span>안정적</span><span>관찰필요</span><span>관리필요</span></div>
       <div class="hsc-value" style="color:${rcd.color}">${dheaRisk}% — ${rcd.label}</div>
     </div>
   </div>
@@ -644,7 +662,7 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
   const genderLabel = isMale ? '남성' : '여성';
   const avatar = isMale ? '👨' : '🌸';
   const ageDiff = parseInt(actualAge) - report.healthAge;
-  const ageDiffLabel = ageDiff > 0 ? `✓ &nbsp;−${ageDiff}세 더 젊음` : ageDiff < 0 ? `⚠ &nbsp;+${Math.abs(ageDiff)}세 높음` : '실제 나이와 동일';
+  const ageDiffLabel = ageDiff > 0 ? `🎉 &nbsp;−${ageDiff}세 더 젊음` : ageDiff < 0 ? `+${Math.abs(ageDiff)}세 높음` : '실제 나이와 동일';
   const ageDiffColor = ageDiff > 0 ? '#7DBFA8' : ageDiff < 0 ? '#8B5E83' : '#888';
   const today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const todayShort = new Date().toLocaleDateString('ko-KR').replace(/\. /g, '.').replace('.', '');
@@ -915,7 +933,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .ht-list li::before{content:'✓';position:absolute;left:0;color:var(--safe);font-weight:700;font-size:10px}
 .risk-level-guide{background:var(--warm-gray);border-radius:16px;padding:24px}
 .rlg-title{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:16px}
-.rlg-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rlg-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .rlg-level{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px}
 .rlg-level-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:8px;color:#fff;margin-bottom:10px;display:inline-block}
 .rlg-tips{list-style:none;display:flex;flex-direction:column;gap:5px}
@@ -977,6 +995,10 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .cf-box{background:linear-gradient(135deg,var(--rose-ultra),var(--mauve-light));border:2px solid var(--rose-light);border-radius:16px;padding:24px 28px;display:flex;align-items:center;gap:20px}
 .cf-icon{font-size:36px}
 .cf-text{font-size:14px;color:var(--text-2);line-height:1.8}
+.congrats-box{margin-top:16px;background:linear-gradient(135deg,var(--mint-light),var(--rose-ultra));border:2px solid var(--mint);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:16px}
+.congrats-icon{font-size:30px}
+.congrats-text{font-size:14px;color:var(--text-2);line-height:1.7}
+.congrats-text strong{color:#2D7A5F}
 .cf-text strong{color:var(--text-1)}
 
 /* ===== IMAGE ANALYSIS CARDS ===== */
@@ -1074,6 +1096,12 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
     </div>
     <div class="age-comment"><p>${report.summary || ''}</p></div>
   </div>
+
+  ${ageDiff > 0 ? `
+  <div class="congrats-box">
+    <div class="congrats-icon">🎉</div>
+    <div class="congrats-text"><strong>축하드려요!</strong> AI 건강 나이가 실제 나이보다 ${ageDiff}세 젊게 나왔어요. 지금의 좋은 습관을 꾸준히 유지해보세요.</div>
+  </div>` : ''}
 
   <div class="section-eyebrow">02 &nbsp; 호르몬 참고 지수</div>
   <h2 class="section-title">호르몬 불균형 참고 지수 분석</h2>

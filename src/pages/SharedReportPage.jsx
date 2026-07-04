@@ -5,11 +5,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Shield, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
-// 게이지 색상 톤 조정 (2026.7.4) — ReportPage.jsx와 동일한 브랜드 팔레트로 통일.
-// 기존 '위험' 라벨도 다른 페이지와 표현을 맞춰 '관리 필요'로 통일(경고성 어휘 완화).
+// 게이지 색상/등급 톤 조정 (2026.7.4) — ReportPage.jsx와 동일하게 5단계로 세분화.
 function getRiskLevel(value) {
-  if (value < 30) return { label: '양호', color: 'text-emerald-600', bg: 'bg-emerald-50', bar: 'from-emerald-300 to-teal-400' };
-  if (value < 60) return { label: '주의', color: 'text-amber-600', bg: 'bg-amber-50', bar: 'from-amber-300 to-amber-500' };
+  if (value < 20) return { label: '매우 양호', color: 'text-teal-700', bg: 'bg-teal-50', bar: 'from-teal-300 to-teal-500' };
+  if (value < 40) return { label: '양호', color: 'text-emerald-600', bg: 'bg-emerald-50', bar: 'from-emerald-300 to-teal-400' };
+  if (value < 60) return { label: '안정적', color: 'text-amber-500', bg: 'bg-amber-50', bar: 'from-amber-200 to-amber-400' };
+  if (value < 80) return { label: '관찰 필요', color: 'text-amber-700', bg: 'bg-amber-100', bar: 'from-amber-300 to-amber-500' };
   return { label: '관리 필요', color: 'text-rose-gold-dark', bg: 'bg-rose-gold-light/20', bar: 'from-rose-gold to-mauve' };
 }
 
@@ -178,6 +179,12 @@ export default function SharedReportPage() {
           {ageDiff > 0 && (
             <div className="mt-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 text-center">
               <p className="text-sm text-orange-700 font-medium leading-relaxed">지금 관리하면 충분히 되돌릴 수 있어요 💪</p>
+            </div>
+          )}
+          {ageDiff < 0 && (
+            <div className="mt-3 p-3 bg-teal-50 rounded-2xl border border-teal-100 text-center flex items-center justify-center gap-2">
+              <span className="text-lg">🎉</span>
+              <p className="text-sm text-teal-700 font-medium leading-relaxed">축하드려요! 지금의 좋은 습관을 꾸준히 유지해보세요</p>
             </div>
           )}
           {report.summary && (
