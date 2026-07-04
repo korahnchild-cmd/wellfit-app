@@ -1,8 +1,8 @@
 // src/pages/PartnerDashboard.jsx
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 import { useApp } from '../context/AppContext';
 import { ChevronLeft, Copy, Check, Share2, TrendingUp, Users, Target, Award, Bell } from 'lucide-react';
 
@@ -10,6 +10,12 @@ const DIRECT_RATE = 14950;
 const OVERRIDE_RATE = 2990;
 const SUB_PRICE = 59800;
 const BASE_URL = 'https://wellfit-checkup.co.kr';
+// 2026.7.4 — 파트너 추천인 집계는 users 컬렉션 필드 검색이 필요해 클라이언트에서
+// 직접 Firestore 쿼리 시 보안 규칙과 충돌함(아래 useEffect 주석 참조). Cloud
+// Function(Admin SDK, getPartnerStats)으로 이관 — gemini.js와 동일한 방식으로
+// Functions 엔드포인트 URL 구성
+const FUNCTIONS_BASE_URL = import.meta.env.VITE_FUNCTIONS_URL ||
+  `https://us-central1-${import.meta.env.VITE_FIREBASE_PROJECT_ID}.cloudfunctions.net`;
 
 // 등급 계산
 function getGrade(paidCount) {
@@ -36,10 +42,10 @@ export default function PartnerDashboard() {
   const [toast, setToast] = useState('');
   const [showCelebModal, setShowCelebModal] = useState(false);
   const [celebType, setCelebType] = useState('');
-  // 2026.7.4 — firestore.rules 배포로 users 컬렉션의 referredBy 필드 기반
-  // 컬렉션 쿼리(아래 allQ/overQ)가 권한 거부로 실패할 수 있음. 실패 시 0명으로
-  // 조용히 표시되면 오해를 살 수 있어 안내 배너로 명시. 근본 해결(Cloud Function
-  // 이관)은 별도 작업으로 진행 예정 — 현재 활성 파트너 없어 후순위 처리.
+  // 2026.7.4 — users 컬렉션 필드 검색(referredBy 기반) 쿼리는 firestore.rules와
+  // 구조적으로 충돌해 클라이언트에서 직접 실행 불가 → getPartnerStats Cloud
+  // Function(Admin SDK)으로 이관 완료. 그래도 네트워크 오류 등 예외 상황 대비해
+  // 배너는 유지.
   const [countError, setCountError] = useState(false);
   // XY 그래프 슬라이더
   const [sliderDirect, setSliderDirect] = useState(5);
@@ -64,40 +70,37 @@ export default function PartnerDashboard() {
     })();
   }, [user, navigate]);
 
-  // 파트너 카운팅
+  // 파트너 카운팅 — getPartnerStats Cloud Function 호출 (2026.7.4 이관)
+  // 서버가 idToken에서 검증된 uid로 본인 추천코드를 직접 조회해 집계하므로
+  // 클라이언트가 myReferralCode를 보낼 필요 없음(스푸핑 방지 겸 단순화)
   useEffect(() => {
-    if (!user || user.isGuest || !myReferralCode) return;
+    if (!user || user.isGuest) return;
     (async () => {
       try {
-        const allQ = query(collection(db, 'users'), where('referredBy', '==', myReferralCode));
-        const allSnap = await getDocs(allQ);
-        const allUsers = allSnap.docs;
-        const paid = allUsers.filter(d => d.data().subscriptionStatus === 'paid');
-        const trial = allUsers.filter(d => d.data().subscriptionStatus === 'free_trial');
-        setPaidCount(paid.length);
-        setTrialCount(trial.length);
+        const idToken = await auth.currentUser.getIdToken();
+        const res = await fetch(`${FUNCTIONS_BASE_URL}/getPartnerStats`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || '파트너 통계 조회 실패');
+
+        const { paidCount: paid, trialCount: trial, overrideCount: over, totalDirectCount } = json;
+        setPaidCount(paid);
+        setTrialCount(trial);
+        setOverrideCount(over);
 
         // 첫 유료 전환 축하
-        if (paid.length === 1 && trial.length === 0) {
+        if (paid === 1 && trial === 0) {
           setCelebType('first_paid'); setShowCelebModal(true);
         }
         // 구독료 0원 달성 (2명 이상)
-        if (paid.length >= 2 && paid.length === allUsers.length) {
+        if (paid >= 2 && paid === totalDirectCount) {
           setCelebType('free_sub'); setShowCelebModal(true);
         }
-
-        let over = 0;
-        await Promise.all(paid.map(async (d) => {
-          const theirCode = d.data().myReferralCode;
-          if (!theirCode) return;
-          const overQ = query(collection(db, 'users'), where('referredBy', '==', theirCode), where('subscriptionStatus', '==', 'paid'));
-          const overSnap = await getDocs(overQ);
-          over += overSnap.size;
-        }));
-        setOverrideCount(over);
       } catch (e) { console.warn(e); setCountError(true); }
     })();
-  }, [user, myReferralCode]);
+  }, [user]);
 
   // 수익 계산
   const directIncome = paidCount * DIRECT_RATE;
@@ -344,9 +347,9 @@ export default function PartnerDashboard() {
 
                 {/* 곡선 — 슬라이더 값 기반 */}
                 {(() => {
-                  const maxIncome = 20 * DIRECT_RATE + 20 * 10 * OVERRIDE_RATE;
+                  const maxIncome = 50 * DIRECT_RATE + 50 * 50 * OVERRIDE_RATE;
                   const points = Array.from({ length: 11 }, (_, i) => {
-                    const d = i * 2;
+                    const d = i * 5;
                     const inc = d * DIRECT_RATE + d * sliderOverride * OVERRIDE_RATE;
                     const x = 30 + (i / 10) * 260;
                     const y = 95 - (inc / maxIncome) * 80;
@@ -354,7 +357,7 @@ export default function PartnerDashboard() {
                   });
                   const pathD = `M${points[0]} Q${points[2]} ${points[3]} T${points[5]} T${points[7]} T${points[9]} T${points[10]}`;
                   const fillD = pathD + ` L290,95 L30,95 Z`;
-                  const curX = 30 + (sliderDirect / 20) * 260;
+                  const curX = 30 + (sliderDirect / 50) * 260;
                   const curInc = sliderDirect * DIRECT_RATE + sliderDirect * sliderOverride * OVERRIDE_RATE;
                   const curY = 95 - (curInc / maxIncome) * 80;
                   return (
@@ -374,8 +377,8 @@ export default function PartnerDashboard() {
                 })()}
 
                 {/* X축 레이블 */}
-                {[0, 5, 10, 15, 20].map((n) => (
-                  <text key={n} x={30 + (n / 20) * 260} y="110" textAnchor="middle" fontSize="9" fill="#B0A0A0">{n}명</text>
+                {[0, 10, 20, 30, 40, 50].map((n) => (
+                  <text key={n} x={30 + (n / 50) * 260} y="110" textAnchor="middle" fontSize="9" fill="#B0A0A0">{n}명</text>
                 ))}
 
                 {/* Y축 레이블 */}
@@ -391,14 +394,14 @@ export default function PartnerDashboard() {
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#C8956C' }}>{sliderDirect}명</span>
               </div>
               <input
-                type="range" min="0" max="20" step="1" value={sliderDirect}
+                type="range" min="0" max="50" step="1" value={sliderDirect}
                 onChange={e => setSliderDirect(Number(e.target.value))}
                 style={{ width: '100%', accentColor: '#C8956C', cursor: 'pointer' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
                 <span style={{ fontSize: 9, color: '#B0A0A0' }}>0명</span>
                 <span style={{ fontSize: 9, color: '#C8956C', fontWeight: 600 }}>월 {(sliderDirect * DIRECT_RATE).toLocaleString()}원</span>
-                <span style={{ fontSize: 9, color: '#B0A0A0' }}>20명</span>
+                <span style={{ fontSize: 9, color: '#B0A0A0' }}>50명</span>
               </div>
             </div>
 
@@ -409,14 +412,14 @@ export default function PartnerDashboard() {
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#8B5E83' }}>{sliderOverride}명</span>
               </div>
               <input
-                type="range" min="0" max="10" step="1" value={sliderOverride}
+                type="range" min="0" max="50" step="1" value={sliderOverride}
                 onChange={e => setSliderOverride(Number(e.target.value))}
                 style={{ width: '100%', accentColor: '#8B5E83', cursor: 'pointer' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
                 <span style={{ fontSize: 9, color: '#B0A0A0' }}>0명</span>
                 <span style={{ fontSize: 9, color: '#8B5E83', fontWeight: 600 }}>오버라이딩 {(sliderDirect * sliderOverride * OVERRIDE_RATE).toLocaleString()}원</span>
-                <span style={{ fontSize: 9, color: '#B0A0A0' }}>10명</span>
+                <span style={{ fontSize: 9, color: '#B0A0A0' }}>50명</span>
               </div>
             </div>
 
