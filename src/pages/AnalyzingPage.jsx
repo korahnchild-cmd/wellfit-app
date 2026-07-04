@@ -60,12 +60,13 @@ export default function AnalyzingPage() {
         let faceStorageRef = null;
         let nailStorageRef = null;
 
-        // 이미지 업로드 (10초 타임아웃)
+        // 이미지 업로드 (20초 타임아웃 — 2026.7.3 실사용 테스트에서 10초 초과로
+        // faceImageUrl/nailImageUrl이 null 저장되는 사례 확인되어 상향)
         if (user && !user.isGuest && faceImage?.file) {
           try {
             faceStorageRef = ref(storage, `users/${user.uid}/face_${Date.now()}.jpg`);
-            await withTimeout(uploadBytes(faceStorageRef, faceImage.file), 10000, 'face upload');
-            faceUrl = await withTimeout(getDownloadURL(faceStorageRef), 5000, 'face url');
+            await withTimeout(uploadBytes(faceStorageRef, faceImage.file), 20000, 'face upload');
+            faceUrl = await withTimeout(getDownloadURL(faceStorageRef), 8000, 'face url');
           } catch (e) {
             console.warn('Face image upload failed:', e.message);
             faceStorageRef = null;
@@ -75,8 +76,8 @@ export default function AnalyzingPage() {
         if (user && !user.isGuest && nailImage?.file) {
           try {
             nailStorageRef = ref(storage, `users/${user.uid}/nail_${Date.now()}.jpg`);
-            await withTimeout(uploadBytes(nailStorageRef, nailImage.file), 10000, 'nail upload');
-            nailUrl = await withTimeout(getDownloadURL(nailStorageRef), 5000, 'nail url');
+            await withTimeout(uploadBytes(nailStorageRef, nailImage.file), 20000, 'nail upload');
+            nailUrl = await withTimeout(getDownloadURL(nailStorageRef), 8000, 'nail url');
           } catch (e) {
             console.warn('Nail image upload failed:', e.message);
             nailStorageRef = null;
@@ -102,29 +103,61 @@ export default function AnalyzingPage() {
           nailImageUrl: nailUrl,
         };
 
-        // Firestore 저장 (5초 타임아웃 — 실패해도 리포트는 보여줌)
+        // Firestore 저장 (15초 타임아웃, 1회 재시도 — 그래도 실패하면
+        // saveFailures 컬렉션에 실패 사실만 기록하고 리포트는 그대로 보여줌)
         let shareId = null;
-        try {
-          const docRef = await withTimeout(
-            addDoc(collection(db, 'reports'), {
-              userId: user?.uid || 'guest',
-              email: user?.email || 'guest',
-              reportData,
-              surveyAnswers,
-              gender: gender || 'female',
-              isPublic: true,
-              userName: '',
-              userCity: '',
-              timestamp: serverTimestamp(),
-            }),
-            5000,
+        const reportPayload = {
+          userId: user?.uid || 'guest',
+          email: user?.email || 'guest',
+          reportData,
+          surveyAnswers,
+          gender: gender || 'female',
+          isPublic: true,
+          userName: '',
+          userCity: '',
+          timestamp: serverTimestamp(),
+        };
+
+        const trySaveReport = () =>
+          withTimeout(
+            addDoc(collection(db, 'reports'), reportPayload),
+            15000,
             'Firestore'
           );
+
+        try {
+          const docRef = await trySaveReport();
           shareId = docRef.id;
           localStorage.setItem('lastShareId', shareId);
           console.log('Firestore 저장 완료:', shareId);
-        } catch (e) {
-          console.warn('Firestore save failed (타임아웃 포함):', e.message);
+        } catch (firstErr) {
+          console.warn('Firestore 저장 1차 실패, 3초 후 재시도:', firstErr.message);
+          await new Promise((r) => setTimeout(r, 3000));
+          try {
+            const docRef = await trySaveReport();
+            shareId = docRef.id;
+            localStorage.setItem('lastShareId', shareId);
+            console.log('Firestore 저장 완료(재시도 성공):', shareId);
+          } catch (secondErr) {
+            // 재시도까지 실패 — 사용자 경험은 그대로 유지하되, 실패 자체는
+            // console.error로 격상하고 saveFailures에 최소 정보만 베스트에포트로 남긴다.
+            console.error(
+              '❌ Firestore 리포트 저장 최종 실패 (재시도 포함) — reports 컬렉션에 이 분석 결과가 저장되지 않았습니다:',
+              secondErr.message
+            );
+            try {
+              await addDoc(collection(db, 'saveFailures'), {
+                userId: user?.uid || 'guest',
+                actualAge: parseInt(actualAge) || null,
+                gender: gender || 'female',
+                errorMessage: secondErr.message || String(secondErr),
+                timestamp: serverTimestamp(),
+              });
+            } catch (logErr) {
+              // 실패 로그조차 실패하면 콘솔에만 남긴다 (더 이상 할 수 있는 게 없음)
+              console.error('saveFailures 기록도 실패:', logErr.message);
+            }
+          }
         }
 
         setReport({ ...reportData, shareId });

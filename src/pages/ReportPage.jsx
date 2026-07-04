@@ -6,10 +6,13 @@ import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, X } from 'lu
 import { db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
+// 게이지 색상 톤 조정 (2026.7.4) — 초록/노랑/빨강(임상 검사지 느낌) 대신
+// 브랜드 팔레트(에메랄드/앰버/모브)로 변경. '관리 필요'는 경고성 빨강 대신
+// 모브(rose-gold-dark)로 표현해 "이상 수치 경고"보다 코칭 톤에 가깝게 조정.
 function getRiskLevel(value) {
-  if (value < 30) return { label: '양호', color: 'text-green-500', bg: 'bg-green-100', bar: 'from-green-400 to-green-500' };
-  if (value < 60) return { label: '주의', color: 'text-yellow-600', bg: 'bg-yellow-100', bar: 'from-yellow-400 to-orange-400' };
-  return { label: '관리 필요', color: 'text-red-500', bg: 'bg-red-100', bar: 'from-red-400 to-rose-500' };
+  if (value < 30) return { label: '양호', color: 'text-emerald-600', bg: 'bg-emerald-50', bar: 'from-emerald-300 to-teal-400' };
+  if (value < 60) return { label: '주의', color: 'text-amber-600', bg: 'bg-amber-50', bar: 'from-amber-300 to-amber-500' };
+  return { label: '관리 필요', color: 'text-rose-gold-dark', bg: 'bg-rose-gold-light/20', bar: 'from-rose-gold to-mauve' };
 }
 
 function GaugeBar({ value, gradient, delay = 0 }) {
@@ -313,7 +316,7 @@ export default function ReportPage() {
               </div>
               <div className="flex flex-col items-center">
                 <div className="text-lg font-bold text-[#C0B0B0] mb-2">VS</div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff < 0 ? 'bg-green-100 text-green-600' : ageDiff > 0 ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
+                <div className={`px-3 py-1 rounded-full text-xs font-bold ${ageDiff < 0 ? 'bg-emerald-50 text-emerald-600' : ageDiff > 0 ? 'bg-rose-gold-light/20 text-rose-gold-dark' : 'bg-gray-100 text-gray-500'}`}>
                   {ageDiff < 0 ? `−${Math.abs(ageDiff)}세 젊음 ✨` : ageDiff > 0 ? `+${ageDiff}세 높음` : '동일'}
                 </div>
               </div>
@@ -360,7 +363,7 @@ export default function ReportPage() {
                       <div className="text-2xl font-black text-[#3D2B2B]">{prev.healthAge}<span className="text-sm font-medium">세</span></div>
                     </div>
                     <div className="flex-1 text-center">
-                      <div className={`text-lg font-black ${diff < 0 ? 'text-green-500' : diff > 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                      <div className={`text-lg font-black ${diff < 0 ? 'text-emerald-600' : diff > 0 ? 'text-rose-gold-dark' : 'text-gray-400'}`}>
                         {diff < 0 ? `▼ ${Math.abs(diff)}세 젊어짐 ✨` : diff > 0 ? `▲ ${diff}세 높아짐` : '변화 없음'}
                       </div>
                     </div>
@@ -828,7 +831,7 @@ export default function ReportPage() {
                   </span>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#3D2B2B' }}>건강나이 개선</div>
-                    <div style={{ fontSize: 10, color: '#9A8080' }}>AI 측정 기준</div>
+                    <div style={{ fontSize: 10, color: '#9A8080' }}>AI 분석 기준</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 12, color: '#9A8080', marginTop: 12, lineHeight: 1.6 }}>

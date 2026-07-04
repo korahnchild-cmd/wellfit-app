@@ -1,9 +1,12 @@
 // src/utils/generateReport.js
 
+// 게이지 색상 톤 조정 (2026.7.4) — 기존 초록/주황/빨강(임상 검사지 느낌)에서
+// 브랜드 팔레트(민트/앰버/모브)로 변경. 특히 '관리 필요' 단계를 경고성 빨강(#D4504A)
+// 대신 모브(#8B5E83, --mauve와 동일)로 바꿔 "이상 수치 경고"보다 "코칭 톤"에 가깝게 조정.
 function getRiskColor(value) {
-  if (value < 30) return { color: '#4CAF7D', bg: '#E8F5E9', label: '양호', dot: '#4CAF7D' };
+  if (value < 30) return { color: '#7DBFA8', bg: '#E8F5F1', label: '양호', dot: '#7DBFA8' };
   if (value < 60) return { color: '#E8A038', bg: '#FFF3E0', label: '주의', dot: '#E8A038' };
-  return { color: '#D4504A', bg: '#FFEBEE', label: '관리 필요', dot: '#D4504A' };
+  return { color: '#8B5E83', bg: '#F0E8EF', label: '관리 필요', dot: '#8B5E83' };
 }
 
 function getHormoneRows(hormones, gender) {
@@ -81,7 +84,7 @@ function getHormoneStage(report, gender, actualAge) {
     const risk = hormones.testosterone ?? 0;
     if (age < 40) return { stage: '테스토스테론 최적기', desc: '30대는 테스토스테론이 서서히 감소 시작. 예방적 관리가 핵심입니다.', risk, tips: ['근력 운동 주 3회 이상', '수면 7시간 이상 유지', '아연·마그네슘 보충', '과음·흡연 자제'] };
     if (age < 55) return { stage: '남성 갱년기 진입기', desc: '40~50대는 테스토스테론이 연 1~2% 감소. 활력 저하·집중력 감소가 나타날 수 있습니다.', risk, tips: ['고강도 인터벌 트레이닝 추가', '단백질 섭취 체중 1kg당 1.2g', '스트레스 관리 최우선', '연 1회 호르몬 균형 검진 권장'] };
-    return { stage: '남성 갱년기 심화기', desc: '55세 이상은 테스토스테론 저하 증상이 뚜렷해집니다. 전문의 상담을 권장합니다.', risk, tips: ['비뇨기과·내분비과 정기 검진', '고강도 운동 유지', '테스토스테론 보충 치료 검토', '심혈관 건강 집중 관리'] };
+    return { stage: '남성 갱년기 심화기', desc: '55세 이상은 테스토스테론 저하 증상이 뚜렷해집니다. 전문의 상담을 권장합니다.', risk, tips: ['비뇨기과·내분비과 정기 검진', '고강도 운동 유지', '테스토스테론 관련 생활습관 개선 검토', '심혈관 건강 집중 관리'] };
   } else {
     const risk = hormones.estrogen ?? 0;
     if (age < 40) return { stage: '에스트로겐 안정기', desc: '40대 이전은 에스트로겐 균형이 안정적이나, 스트레스·불규칙한 생활로 일시 저하될 수 있습니다.', risk, tips: ['규칙적인 유산소 운동', '콩·두부 등 식물성 에스트로겐 섭취', '스트레스 관리·수면 7시간', '철분·엽산 충분히 섭취'] };
@@ -153,9 +156,9 @@ function buildLifestyleSection(report, actualAge, userName, todayShort) {
     <div class="priority-items">
       ${priorityOrder.map((a, i) => `
       <div class="priority-item">
-        <div class="priority-rank" style="background:${['#D4504A','#E8A038','#4CAF7D','#8B5E83'][i]}">${i + 1}</div>
+        <div class="priority-rank" style="background:${['#8B5E83','#E8A038','#7DBFA8','#C8956C'][i]}">${i + 1}</div>
         <div class="priority-label">${a.icon} ${a.label}</div>
-        <div class="priority-score" style="color:${['#D4504A','#E8A038','#4CAF7D','#8B5E83'][i]}">${a.score}%</div>
+        <div class="priority-score" style="color:${['#8B5E83','#E8A038','#7DBFA8','#C8956C'][i]}">${a.score}%</div>
       </div>`).join('')}
     </div>
   </div>
@@ -208,7 +211,7 @@ function buildWeeklyPlanSection(report, actualAge, userName, todayShort) {
         { d: 18, cat: '운동', emoji: '🤸', task: '스트레칭 20분: 유연성 확보 + 부상 예방' },
         { d: 19, cat: '마음', emoji: '🧘', task: '명상 5분: 마보·코끼리 앱 활용' },
         { d: 20, cat: '운동', emoji: '🏃', task: '유산소 30분 + 핵심 운동(플랭크·데드버그) 추가' },
-        { d: 21, cat: '점검', emoji: '📏', task: '3주차 체중·체지방 측정, 운동 강도 조정' },
+        { d: 21, cat: '점검', emoji: '📏', task: '3주차 체중·체지방 변화 확인, 운동 강도 조정' },
       ],
     },
     {
@@ -339,9 +342,9 @@ function buildHormoneGuideSection(report, gender, actualAge, userName, todayShor
   const rcd = getRiskColor(dheaRisk);
 
   const riskLevels = [
-    { label: '낮음 (0~29%)', color: '#4CAF7D', tips: ['예방 중심의 건강 관리 유지', '정기 검진 연 1회', '현재 좋은 생활습관 지속'] },
+    { label: '낮음 (0~29%)', color: '#7DBFA8', tips: ['예방 중심의 건강 관리 유지', '정기 검진 연 1회', '현재 좋은 생활습관 지속'] },
     { label: '주의 (30~59%)', color: '#E8A038', tips: ['생활습관 집중 개선 필요', '영양제 보충 시작 권장', '3개월 내 재검사 권장'] },
-    { label: '관리 필요 (60~100%)', color: '#D4504A', tips: ['전문의 상담 우선 권장', '병원 호르몬 검사 고려', '생활습관 집중 개선 병행'] },
+    { label: '관리 필요 (60~100%)', color: '#8B5E83', tips: ['전문의 상담 우선 권장', '병원 호르몬 검사 고려', '생활습관 집중 개선 병행'] },
   ];
 
   return `
@@ -553,12 +556,12 @@ function buildChallengeSection(report, actualAge, userName, todayShort) {
     },
     {
       month: fmt(month2), label: '2개월 — 변화 가속', color: '#E8A038', target: `건강나이 ${Math.round((healthAge + targetAge) / 2)}세 목표`,
-      goals: ['영양 결핍 지표 개선 (재측정)', '운동 강도 업그레이드', '스트레스 관리 루틴 정착', '피부·손톱 변화 육안 확인'],
+      goals: ['영양 결핍 지표 개선 (재확인)', '운동 강도 업그레이드', '스트레스 관리 루틴 정착', '피부·손톱 변화 육안 확인'],
       metric: `목표: ${Math.round((healthAge + targetAge) / 2)}세`,
     },
     {
       month: fmt(month3), label: '3개월 — 목표 달성', color: '#C8956C', target: `건강나이 ${targetAge}세 달성`,
-      goals: ['웰핏+ 재검사로 건강나이 확인', '호르몬 참고 지수 재측정', '3개월 전후 비교 분석', '다음 3개월 목표 설정'],
+      goals: ['웰핏+ 재검사로 건강나이 확인', '호르몬 참고 지수 재확인', '3개월 전후 비교 분석', '다음 3개월 목표 설정'],
       metric: `목표: ${targetAge}세 (−${healthAge - targetAge}세)`,
     },
   ];
@@ -642,7 +645,7 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
   const avatar = isMale ? '👨' : '🌸';
   const ageDiff = parseInt(actualAge) - report.healthAge;
   const ageDiffLabel = ageDiff > 0 ? `✓ &nbsp;−${ageDiff}세 더 젊음` : ageDiff < 0 ? `⚠ &nbsp;+${Math.abs(ageDiff)}세 높음` : '실제 나이와 동일';
-  const ageDiffColor = ageDiff > 0 ? '#4CAF7D' : ageDiff < 0 ? '#D4504A' : '#888';
+  const ageDiffColor = ageDiff > 0 ? '#7DBFA8' : ageDiff < 0 ? '#8B5E83' : '#888';
   const today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const todayShort = new Date().toLocaleDateString('ko-KR').replace(/\. /g, '.').replace('.', '');
 
@@ -750,7 +753,7 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
   --mint:#7DBFA8;--mint-light:#E8F5F1;
   --cream:#FDFAF6;--warm-gray:#F5F0EB;
   --text-1:#2A2118;--text-2:#6B5C4E;--text-3:#A8998A;
-  --border:#EDE4D8;--danger:#D4504A;--warn:#E8A038;--safe:#4CAF7D;
+  --border:#EDE4D8;--danger:#8B5E83;--warn:#E8A038;--safe:#7DBFA8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--cream);color:var(--text-1);-webkit-font-smoothing:antialiased;padding-bottom:80px}

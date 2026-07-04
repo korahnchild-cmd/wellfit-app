@@ -108,6 +108,16 @@ export default function SurveyPage() {
             {question.category}
           </div>
 
+          {/* 솔직 답변 유도 넛지 — 첫 문항에서만 노출 (자기보고 편향 완화용, 2026.7.3 추가) */}
+          {current === 0 && (
+            <div className="mb-4 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-2">
+              <span className="text-base leading-none mt-0.5">💡</span>
+              <p className="text-xs text-[#8A6D3B] leading-relaxed">
+                망설여지는 항목도 있는 그대로, 솔직하게 답변해주세요. 실제와 다르게 답하면 리포트 정확도가 떨어질 수 있어요.
+              </p>
+            </div>
+          )}
+
           {/* 문항 */}
           <div className="card mb-6">
             <div className="text-center py-4">
