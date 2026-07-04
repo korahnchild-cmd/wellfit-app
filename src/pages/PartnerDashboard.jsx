@@ -36,6 +36,11 @@ export default function PartnerDashboard() {
   const [toast, setToast] = useState('');
   const [showCelebModal, setShowCelebModal] = useState(false);
   const [celebType, setCelebType] = useState('');
+  // 2026.7.4 — firestore.rules 배포로 users 컬렉션의 referredBy 필드 기반
+  // 컬렉션 쿼리(아래 allQ/overQ)가 권한 거부로 실패할 수 있음. 실패 시 0명으로
+  // 조용히 표시되면 오해를 살 수 있어 안내 배너로 명시. 근본 해결(Cloud Function
+  // 이관)은 별도 작업으로 진행 예정 — 현재 활성 파트너 없어 후순위 처리.
+  const [countError, setCountError] = useState(false);
   // XY 그래프 슬라이더
   const [sliderDirect, setSliderDirect] = useState(5);
   const [sliderOverride, setSliderOverride] = useState(3);
@@ -90,7 +95,7 @@ export default function PartnerDashboard() {
           over += overSnap.size;
         }));
         setOverrideCount(over);
-      } catch (e) { console.warn(e); }
+      } catch (e) { console.warn(e); setCountError(true); }
     })();
   }, [user, myReferralCode]);
 
@@ -254,8 +259,15 @@ export default function PartnerDashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Users size={15} color="#C8956C" />
               <span style={{ fontSize: 14, fontWeight: 700, color: '#3D2B2B' }}>파트너 현황</span>
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#9A8080' }}>실시간 자동 반영</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: countError ? '#C8956C' : '#9A8080' }}>
+                {countError ? '집계 점검 중' : '실시간 자동 반영'}
+              </span>
             </div>
+            {countError && (
+              <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(200,149,108,0.08)', borderRadius: 10, fontSize: 10.5, color: '#9A8080', lineHeight: 1.5 }}>
+                추천 고객 집계 시스템을 점검 중입니다. 실제 추천·수익 내역은 정산 시 별도 확인해 드립니다.
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0 }}>
