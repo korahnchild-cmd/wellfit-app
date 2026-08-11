@@ -22,3 +22,8 @@ yarn-error.log*
 
 .env
 .env.local
+# 내부 문서·로그 (공개 레포에 올리지 않음)
+functions/firebase-debug.log
+wellfit_project_context*.md
+wellfit_dashboard.html
+cowork_task_brief.md
