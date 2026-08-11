@@ -197,22 +197,22 @@ export default function LoginPage() {
 
             <button
               onClick={() => navigate('/upload')}
-              className="w-full text-xs text-[#B0A0A0] hover:text-[#9A8080] transition-colors text-center py-1"
+              className="w-full text-sm text-[#7A6060] hover:text-[#5A4A4A] transition-colors text-center py-1"
             >
               로그인 없이 시작하기
             </button>
 
             <button
               onClick={() => navigate('/')}
-              className="w-full text-sm text-[#9A8080] hover:text-rose-gold transition-colors text-center py-2"
+              className="w-full text-sm text-[#7A6060] hover:text-rose-gold transition-colors text-center py-2"
             >
               돌아가기
             </button>
           </div>
 
           <div className="flex items-center gap-2 justify-center mt-6">
-            <Shield size={12} className="text-[#B0A0A0]" />
-            <p className="text-xs text-[#B0A0A0] text-center">
+            <Shield size={13} className="text-[#8A7A7A]" />
+            <p className="text-xs text-[#8A7A7A] text-center">
               약 5분 소요 · 무료 · 안전한 데이터 보호
             </p>
           </div>

@@ -140,9 +140,9 @@ function buildLifestyleSection(report, actualAge, userName, todayShort) {
       return `
     <div class="ls-area-card" style="border-color:${a.color}20">
       <div class="ls-area-top">
-        <div class="ls-icon-wrap" style="background:${a.color}15">${a.icon}</div>
+        <div class="ls-icon-wrap" style="background:${a.color}15;color:${a.color}">${a.icon}</div>
         <div>
-          <div class="ls-area-name">${a.label}</div>
+          <div class="ls-area-name" style="color:${a.color}">${a.label}</div>
           <div class="ls-area-status" style="color:${r.color}">${r.label}</div>
         </div>
         <div class="ls-score" style="color:${a.color}">${a.score}<span style="font-size:12px">%</span></div>
@@ -584,6 +584,33 @@ function buildChallengeSection(report, actualAge, userName, todayShort) {
     },
   ];
 
+  // 건강나이 변화 예측 미니 차트 좌표 계산 (2026.7.4 추가 — 챌린지 섹션의
+  // 여백이 많다는 피드백에 따라 동적 모션 차트 삽입. pathLength="1" 트릭으로
+  // <script> 없이 CSS 애니메이션만으로 선 그리기 효과 구현)
+  const midAgeChart = Math.round((healthAge + targetAge) / 2);
+  const trajTop = 26, trajBottom = 118, trajDenom = (healthAge - targetAge) || 1;
+  const trajY = (age) => trajBottom - ((healthAge - age) / trajDenom) * (trajBottom - trajTop);
+  const trajX = [70, 335, 600];
+  const trajAges = [healthAge, midAgeChart, targetAge];
+  const trajColors = checkpoints.map(cp => cp.color);
+  const trajPathD = `M${trajX[0]},${trajY(trajAges[0])} L${trajX[1]},${trajY(trajAges[1])} L${trajX[2]},${trajY(trajAges[2])}`;
+  const trajChartHTML = `
+  <div class="traj-chart">
+    <div class="traj-chart-header">
+      <span>📉 건강나이 변화 예측 그래프</span>
+      <span class="traj-chart-badge">−${healthAge - targetAge}세 목표</span>
+    </div>
+    <svg viewBox="0 0 670 150" class="traj-svg" preserveAspectRatio="none">
+      <line x1="0" y1="${trajBottom}" x2="670" y2="${trajBottom}" class="traj-baseline"/>
+      <path d="${trajPathD}" pathLength="1" class="traj-line"/>
+      ${trajX.map((x, i) => `
+      <circle cx="${x}" cy="${trajY(trajAges[i])}" r="7" class="traj-dot" style="animation-delay:${0.5 + i * 0.3}s;fill:${trajColors[i]}"/>
+      <text x="${x}" y="${trajY(trajAges[i]) - 16}" text-anchor="middle" class="traj-val" style="animation-delay:${0.7 + i * 0.3}s;fill:${trajColors[i]}">${trajAges[i]}세</text>
+      <text x="${x}" y="${trajBottom + 24}" text-anchor="middle" class="traj-month">${checkpoints[i].month.split(' ')[1]}</text>
+      `).join('')}
+    </svg>
+  </div>`;
+
   return `
 <div class="page">
   <div class="page-header">
@@ -608,7 +635,7 @@ function buildChallengeSection(report, actualAge, userName, todayShort) {
     </div>
     <div class="ch-target">
       <div class="ch-label">목표 건강나이</div>
-      <div class="ch-num" style="color:var(--rose)">${targetAge}<span>세</span></div>
+      <div class="ch-num ch-num-target" style="color:var(--rose)">${targetAge}<span>세</span></div>
       <div class="ch-sub" style="color:var(--rose)">−${healthAge - targetAge}세 감소 목표</div>
     </div>
     <div class="ch-comment">
@@ -621,6 +648,8 @@ function buildChallengeSection(report, actualAge, userName, todayShort) {
       </ul>
     </div>
   </div>
+
+  ${trajChartHTML}
 
   <div class="challenge-timeline">
     ${checkpoints.map((cp, i) => `
@@ -775,6 +804,19 @@ export function generateReportHTML({ report, actualAge, gender, userName, userCi
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--cream);color:var(--text-1);-webkit-font-smoothing:antialiased;padding-bottom:80px}
+
+/* ===== 인터랙티브/모션 효과 (2026.7.4 — 리포트 고급화) =====
+   이 HTML은 dangerouslySetInnerHTML로 삽입되어 <script>는 실행되지 않으므로
+   CSS 애니메이션만으로 동적 효과를 구현함 (스크롤 트리거 대신 로드 시 1회 재생) */
+@keyframes reportFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes reportPopIn{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}
+@keyframes reportShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes reportRankGlow{0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.08)}50%{box-shadow:0 0 0 8px rgba(255,255,255,.02),0 0 18px 2px currentColor}}
+@keyframes reportNumGlow{0%,100%{text-shadow:0 0 0 rgba(200,149,108,0)}50%{text-shadow:0 0 24px rgba(200,149,108,.65)}}
+@keyframes reportTargetPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes reportDrawLine{to{stroke-dashoffset:0}}
+@keyframes reportDotPop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+@keyframes reportBarGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .cover{min-height:100vh;background:linear-gradient(145deg,#1A1210 0%,#2D1F18 50%,#1A1210 100%);display:flex;flex-direction:column;position:relative;overflow:hidden}
 .cover-glow-1{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,149,108,.15) 0%,transparent 70%);top:-100px;right:-100px}
 .cover-glow-2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(139,94,131,.12) 0%,transparent 70%);bottom:100px;left:-80px}
@@ -842,10 +884,13 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .ai-block-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .ai-block-header span{font-size:12px;font-weight:700;color:var(--rose);letter-spacing:.5px}
 .ai-block p{font-size:14px;color:var(--text-2);line-height:1.8}
-.plan-section{margin-bottom:28px}
-.plan-header{display:flex;align-items:center;gap:10px;background:var(--warm-gray);border-radius:10px;padding:12px 16px;margin-bottom:12px}
-.plan-header-icon{font-size:16px}
-.plan-header-title{font-size:14px;font-weight:700;color:var(--text-1)}
+.plan-section{margin-bottom:28px;opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.plan-section:nth-of-type(1){animation-delay:.06s}
+.plan-section:nth-of-type(2){animation-delay:.2s}
+.plan-header{display:flex;align-items:center;gap:12px;border-radius:12px;padding:14px 18px;margin-bottom:12px}
+.plan-header-icon{font-size:19px;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plan-header-title{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.plan-header-range{font-size:12px;font-weight:600;color:var(--text-3);margin-left:4px}
 .plan-rows{display:flex;flex-direction:column;gap:8px}
 .plan-row{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 16px}
 .plan-day{width:24px;height:24px;border-radius:6px;background:var(--rose-light);color:var(--rose);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
@@ -860,30 +905,47 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 
 /* ===== SECTION 05 — 생활습관 로드맵 ===== */
 .lifestyle-radar{display:flex;flex-direction:column;gap:16px;margin-bottom:28px}
-.ls-area-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:20px 24px}
+.ls-area-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:20px 24px;opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.ls-area-card:nth-of-type(1){animation-delay:.05s}
+.ls-area-card:nth-of-type(2){animation-delay:.18s}
+.ls-area-card:nth-of-type(3){animation-delay:.31s}
+.ls-area-card:nth-of-type(4){animation-delay:.44s}
 .ls-area-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-.ls-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.ls-area-name{font-size:15px;font-weight:700;color:var(--text-1);margin-bottom:2px}
+.ls-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 14px -4px currentColor}
+.ls-area-name{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px;position:relative;display:inline-block}
+.ls-area-name::after{content:'';position:absolute;left:0;bottom:-3px;width:22px;height:3px;border-radius:2px;background:currentColor;opacity:.55}
 .ls-area-status{font-size:12px;font-weight:600}
-.ls-score{font-size:32px;font-weight:700;margin-left:auto;line-height:1}
-.ls-bar-wrap{height:6px;background:var(--warm-gray);border-radius:3px;overflow:hidden;margin-bottom:12px}
-.ls-bar{height:100%;border-radius:3px;transition:width .3s}
+.ls-score{font-size:34px;font-weight:800;margin-left:auto;line-height:1;letter-spacing:-1px}
+.ls-bar-wrap{height:7px;background:var(--warm-gray);border-radius:4px;overflow:hidden;margin-bottom:12px}
+.ls-bar{height:100%;border-radius:4px;transition:width .3s;position:relative;overflow:hidden}
+.ls-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:reportShimmer 2.6s ease-in-out infinite}
 .ls-tips{list-style:none;display:flex;flex-direction:column;gap:4px}
 .ls-tips li{font-size:12px;color:var(--text-2);padding-left:14px;position:relative;line-height:1.5}
 .ls-tips li::before{content:'›';position:absolute;left:0;color:var(--rose);font-weight:700}
-.priority-banner{background:linear-gradient(135deg,#1A1210,#2D1F18);border-radius:16px;padding:24px 28px}
-.priority-title{font-size:13px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.7);margin-bottom:16px}
-.priority-items{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.priority-item{display:flex;flex-direction:column;align-items:center;gap:8px}
-.priority-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
-.priority-label{font-size:12px;color:rgba(255,255,255,.7);font-weight:600}
-.priority-score{font-size:18px;font-weight:700}
+.priority-banner{background:linear-gradient(135deg,#1A1210,#2D1F18);border-radius:16px;padding:24px 28px;position:relative;overflow:hidden}
+.priority-banner::before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(200,149,108,.15),transparent 70%);top:-80px;right:-60px;pointer-events:none}
+.priority-title{font-size:15px;font-weight:800;letter-spacing:1.5px;color:#fff;margin-bottom:18px;position:relative;text-transform:uppercase}
+.priority-items{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative}
+.priority-item{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:reportPopIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.priority-item:nth-child(1){animation-delay:.1s}
+.priority-item:nth-child(2){animation-delay:.22s}
+.priority-item:nth-child(3){animation-delay:.34s}
+.priority-item:nth-child(4){animation-delay:.46s}
+.priority-rank{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.priority-item:nth-child(1) .priority-rank{animation:reportRankGlow 2.4s ease-in-out .6s infinite}
+.priority-label{font-size:12px;color:rgba(255,255,255,.75);font-weight:600}
+.priority-score{font-size:19px;font-weight:800;letter-spacing:-.3px}
 
 /* ===== SECTION 06 — 주차별 실천 계획 ===== */
 .week-section{border:2px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
-.week-header{display:flex;align-items:center;gap:12px;padding:14px 20px}
-.week-icon{font-size:18px}
-.week-title{font-size:14px;font-weight:700}
+.week-header{display:flex;align-items:center;gap:12px;padding:16px 20px}
+.week-icon{font-size:20px}
+.week-title{font-size:17px;font-weight:800;letter-spacing:-.2px}
+.week-section{opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.week-section:nth-of-type(1){animation-delay:.05s}
+.week-section:nth-of-type(2){animation-delay:.15s}
+.week-section:nth-of-type(3){animation-delay:.25s}
+.week-section:nth-of-type(4){animation-delay:.35s}
 .week-days{display:flex;flex-direction:column;gap:0}
 .week-day-row{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:12px;padding:11px 20px;border-top:1px solid var(--border);background:#fff}
 .week-day-row:hover{background:var(--cream)}
@@ -893,75 +955,86 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 
 /* ===== SECTION 07 — 영양제 가이드 ===== */
 .supp-cards{display:flex;flex-direction:column;gap:20px;margin-bottom:28px}
-.supp-card{background:#fff;border:2px solid var(--border);border-radius:18px;padding:24px;position:relative;overflow:hidden}
-.supp-rank-badge{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:12px}
+.supp-card{background:#fff;border:2px solid var(--border);border-radius:18px;padding:24px;position:relative;overflow:hidden;opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.supp-card:nth-of-type(1){animation-delay:.08s}
+.supp-card:nth-of-type(2){animation-delay:.22s}
+.supp-card:nth-of-type(3){animation-delay:.36s}
+.supp-rank-badge{position:absolute;top:16px;right:16px;font-size:10.5px;font-weight:800;letter-spacing:1px;padding:5px 12px;border-radius:12px}
+.supp-card:nth-of-type(1) .supp-rank-badge{animation:reportRankGlow 2.4s ease-in-out 1s infinite}
 .supp-top{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-right:80px}
 .supp-icon-circle{width:52px;height:52px;border-radius:14px;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.supp-name{font-size:17px;font-weight:700;color:var(--text-1);margin-bottom:4px}
-.supp-benefit{font-size:12px;color:var(--text-2);line-height:1.5}
-.supp-risk-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-left:auto;white-space:nowrap}
+.supp-name{font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;letter-spacing:-.2px}
+.supp-benefit{font-size:12.5px;color:var(--text-2);line-height:1.5}
+.supp-risk-badge{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:8px;margin-left:auto;white-space:nowrap}
 .supp-details{display:flex;flex-direction:column;gap:8px;background:var(--warm-gray);border-radius:12px;padding:14px 18px}
 .supp-detail-item{display:flex;align-items:baseline;gap:8px;font-size:13px}
 .supp-detail-icon{font-size:14px;flex-shrink:0}
-.supp-detail-label{font-size:11px;font-weight:600;color:var(--text-3);width:64px;flex-shrink:0}
+.supp-detail-label{font-size:11.5px;font-weight:700;color:var(--text-3);width:64px;flex-shrink:0}
 .supp-detail-val{color:var(--text-2);line-height:1.5}
 .supp-detail-item.caution .supp-detail-val{color:#E8A038}
-.supp-timing-chart{background:linear-gradient(135deg,#1A1210,#2D1F18);border-radius:16px;padding:24px 28px}
-.stc-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:16px}
-.stc-rows{display:flex;flex-direction:column;gap:12px}
+.supp-timing-chart{background:linear-gradient(135deg,#1A1210,#2D1F18);border-radius:16px;padding:24px 28px;position:relative;overflow:hidden}
+.supp-timing-chart::before{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(200,149,108,.12),transparent 70%);top:-60px;right:-40px;pointer-events:none}
+.stc-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:.3px;margin-bottom:18px;position:relative}
+.stc-rows{display:flex;flex-direction:column;gap:12px;position:relative}
 .stc-row{display:flex;align-items:center;gap:16px}
-.stc-time{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.5px;width:72px;flex-shrink:0}
+.stc-time{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.5px;width:72px;flex-shrink:0}
 .stc-items{display:flex;flex-wrap:wrap;gap:8px}
-.stc-pill{font-size:12px;font-weight:600;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.15);padding:4px 12px;border-radius:20px}
+.stc-pill{font-size:12px;font-weight:600;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.15);padding:4px 12px;border-radius:20px}
 
 /* ===== SECTION 08 — 호르몬 가이드 ===== */
-.hormone-stage-card{background:#fff;border:2px solid var(--border);border-radius:18px;padding:28px 32px;margin-bottom:24px}
-.hsc-badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.5px;padding:6px 14px;border-radius:20px;margin-bottom:14px}
+.hormone-stage-card{background:#fff;border:2px solid var(--border);border-radius:18px;padding:28px 32px;margin-bottom:24px;opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.hsc-badge{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.3px;padding:7px 16px;border-radius:20px;margin-bottom:14px}
 .hsc-desc{font-size:14px;color:var(--text-2);line-height:1.8;margin-bottom:20px}
 .hsc-meter{margin-bottom:8px}
-.hsc-meter-label{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px}
-.hsc-bar-wrap{height:10px;background:var(--warm-gray);border-radius:5px;overflow:visible;position:relative;margin-bottom:4px}
-.hsc-bar{height:100%;border-radius:5px;transition:width .3s}
-.hsc-tick{position:absolute;top:-3px;width:2px;height:16px;background:var(--border);border-radius:1px}
+.hsc-meter-label{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px}
+.hsc-bar-wrap{height:11px;background:var(--warm-gray);border-radius:6px;overflow:visible;position:relative;margin-bottom:4px}
+.hsc-bar{height:100%;border-radius:6px;transform-origin:left;animation:reportBarGrow 1s cubic-bezier(.22,1,.36,1) forwards}
+.hsc-tick{position:absolute;top:-3px;width:2px;height:17px;background:var(--border);border-radius:1px}
 .hsc-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);padding:0 2px;margin-bottom:4px}
-.hsc-value{font-size:13px;font-weight:700}
+.hsc-value{font-size:14px;font-weight:800}
 .hormone-tips-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.ht-section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px}
-.ht-title{font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:12px}
+.ht-section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.ht-section:nth-of-type(1){animation-delay:.1s}
+.ht-section:nth-of-type(2){animation-delay:.22s}
+.ht-title{font-size:14px;font-weight:800;color:var(--text-1);margin-bottom:12px;letter-spacing:-.2px}
 .ht-list{list-style:none;display:flex;flex-direction:column;gap:6px}
-.ht-list li{font-size:12px;color:var(--text-2);padding-left:14px;position:relative;line-height:1.5}
+.ht-list li{font-size:12.5px;color:var(--text-2);padding-left:14px;position:relative;line-height:1.5}
 .ht-list li::before{content:'✓';position:absolute;left:0;color:var(--safe);font-weight:700;font-size:10px}
 .risk-level-guide{background:var(--warm-gray);border-radius:16px;padding:24px}
-.rlg-title{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:16px}
+.rlg-title{font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:16px;letter-spacing:-.2px}
 .rlg-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.rlg-level{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px}
-.rlg-level-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:8px;color:#fff;margin-bottom:10px;display:inline-block}
+.rlg-level{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;opacity:0;animation:reportFadeUp .55s cubic-bezier(.22,1,.36,1) forwards}
+.rlg-level:nth-of-type(1){animation-delay:.05s}.rlg-level:nth-of-type(2){animation-delay:.13s}.rlg-level:nth-of-type(3){animation-delay:.21s}.rlg-level:nth-of-type(4){animation-delay:.29s}.rlg-level:nth-of-type(5){animation-delay:.37s}
+.rlg-level-badge{font-size:10.5px;font-weight:800;padding:5px 11px;border-radius:8px;color:#fff;margin-bottom:10px;display:inline-block}
 .rlg-tips{list-style:none;display:flex;flex-direction:column;gap:5px}
 .rlg-tips li{font-size:11px;color:var(--text-2);padding-left:12px;position:relative;line-height:1.4}
 .rlg-tips li::before{content:'·';position:absolute;left:0;color:var(--text-3);font-weight:700}
 
 /* ===== SECTION 09 — 식단 가이드 ===== */
 .diet-deficient-section{margin-bottom:28px}
-.dds-title{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.dds-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px}
+.dds-title{font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:14px;display:flex;align-items:center;gap:8px;letter-spacing:-.2px}
+.dds-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px;opacity:0;animation:reportFadeUp .55s cubic-bezier(.22,1,.36,1) forwards}
+.dds-card:nth-of-type(1){animation-delay:.04s}.dds-card:nth-of-type(2){animation-delay:.12s}.dds-card:nth-of-type(3){animation-delay:.2s}.dds-card:nth-of-type(4){animation-delay:.28s}.dds-card:nth-of-type(5){animation-delay:.36s}.dds-card:nth-of-type(6){animation-delay:.44s}.dds-card:nth-of-type(7){animation-delay:.52s}
 .dds-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.dds-icon{font-size:18px}
-.dds-nutrient{font-size:13px;font-weight:700;color:var(--text-1)}
+.dds-icon{font-size:19px}
+.dds-nutrient{font-size:14.5px;font-weight:800;color:var(--text-1);letter-spacing:-.2px}
 .dds-foods{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-.dds-food-tag{font-size:12px;background:var(--mint-light);color:#2D7A5F;border:1px solid #B8DDD3;padding:4px 10px;border-radius:8px;font-weight:500}
-.dds-avoid{font-size:11px;color:#E8A038;background:#FFF3E0;border-radius:6px;padding:6px 10px}
+.dds-food-tag{font-size:12px;background:var(--mint-light);color:#2D7A5F;border:1px solid #B8DDD3;padding:4px 10px;border-radius:8px;font-weight:600}
+.dds-avoid{font-size:11.5px;color:#E8A038;background:#FFF3E0;border-radius:6px;padding:6px 10px}
 .avoid-section{margin-bottom:28px}
-.avoid-title{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:14px}
+.avoid-title{font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:14px;letter-spacing:-.2px}
 .avoid-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.avoid-card{background:#fff;border:1px solid #F0D8D6;border-left:3px solid var(--danger);border-radius:0 12px 12px 0;padding:14px 16px}
+.avoid-card{background:#fff;border:1px solid #F0D8D6;border-left:3px solid var(--danger);border-radius:0 12px 12px 0;padding:14px 16px;opacity:0;animation:reportFadeUp .5s cubic-bezier(.22,1,.36,1) forwards}
+.avoid-card:nth-of-type(1){animation-delay:.05s}.avoid-card:nth-of-type(2){animation-delay:.14s}.avoid-card:nth-of-type(3){animation-delay:.23s}.avoid-card:nth-of-type(4){animation-delay:.32s}
 .avoid-icon{font-size:20px;margin-bottom:6px}
-.avoid-name{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:4px}
-.avoid-reason{font-size:11px;color:var(--text-2);line-height:1.5}
+.avoid-name{font-size:14px;font-weight:800;color:var(--text-1);margin-bottom:4px}
+.avoid-reason{font-size:11.5px;color:var(--text-2);line-height:1.5}
 .meal-plan-section{background:var(--warm-gray);border-radius:16px;padding:24px}
-.mps-title{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:16px}
+.mps-title{font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:16px;letter-spacing:-.2px}
 .mps-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.mps-meal{background:#fff;border-radius:12px;padding:16px 18px}
-.mps-meal-label{font-size:12px;font-weight:700;margin-bottom:10px}
+.mps-meal{background:#fff;border-radius:12px;padding:16px 18px;opacity:0;animation:reportPopIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.mps-meal:nth-of-type(1){animation-delay:.06s}.mps-meal:nth-of-type(2){animation-delay:.16s}.mps-meal:nth-of-type(3){animation-delay:.26s}.mps-meal:nth-of-type(4){animation-delay:.36s}
+.mps-meal-label{font-size:13px;font-weight:800;margin-bottom:10px}
 .mps-meal ul{list-style:none;display:flex;flex-direction:column;gap:5px}
 .mps-meal li{font-size:12px;color:var(--text-2);padding-left:12px;position:relative;line-height:1.4}
 .mps-meal li::before{content:'·';position:absolute;left:0;color:var(--rose);font-weight:700}
@@ -972,6 +1045,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .ch-label{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:6px}
 .ch-num{font-size:64px;font-weight:700;line-height:1}
 .ch-num span{font-size:20px;font-weight:400;color:rgba(255,255,255,.5)}
+.ch-num-target{display:inline-block;animation:reportTargetPulse 2.4s ease-in-out .8s infinite,reportNumGlow 2.4s ease-in-out .8s infinite}
+.ch-target{position:relative}
+.ch-target::before{content:'🎯 GOAL';position:absolute;top:-18px;left:0;font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--rose);opacity:.8}
 .ch-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
 .ch-arrow{flex-shrink:0;display:flex;align-items:center}
 .ch-arrow-inner{text-align:center;color:var(--rose);font-size:20px;font-weight:700}
@@ -980,11 +1056,23 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--
 .ch-comment ul{list-style:none;display:flex;flex-direction:column;gap:6px}
 .ch-comment li{font-size:12px;color:rgba(255,255,255,.6);padding-left:14px;position:relative;line-height:1.5}
 .ch-comment li::before{content:'✓';position:absolute;left:0;color:var(--safe);font-size:10px;font-weight:700}
+.traj-chart{background:#fff;border:2px solid var(--border);border-radius:16px;padding:22px 26px 12px;margin-bottom:24px;opacity:0;animation:reportFadeUp .6s .1s cubic-bezier(.22,1,.36,1) forwards}
+.traj-chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:13px;font-weight:800;color:var(--text-1)}
+.traj-chart-badge{background:var(--rose-light);color:var(--rose);font-size:12px;font-weight:800;padding:3px 12px;border-radius:10px;letter-spacing:-.2px}
+.traj-svg{width:100%;height:auto;overflow:visible;display:block}
+.traj-baseline{stroke:var(--border);stroke-width:1}
+.traj-line{stroke:var(--mauve);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-dasharray:1;stroke-dashoffset:1;animation:reportDrawLine 1.7s .4s cubic-bezier(.22,1,.36,1) forwards}
+.traj-dot{opacity:0;stroke:#fff;stroke-width:2;animation:reportDotPop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.traj-val{font-size:16px;font-weight:800;opacity:0;animation:reportFadeUp .5s ease forwards}
+.traj-month{font-size:10px;fill:var(--text-3);font-weight:600}
 .challenge-timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:32px}
 .ctl-item{position:relative;padding-bottom:8px}
 .ctl-dot{width:14px;height:14px;border-radius:50%;position:absolute;left:-32px;top:16px;z-index:2;border:2px solid var(--cream)}
 .ctl-line{width:2px;position:absolute;left:-26px;top:30px;bottom:0;z-index:1}
-.ctl-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:16px}
+.ctl-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:16px;opacity:0;animation:reportFadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
+.ctl-item:nth-of-type(1) .ctl-card{animation-delay:.5s}
+.ctl-item:nth-of-type(2) .ctl-card{animation-delay:.65s}
+.ctl-item:nth-of-type(3) .ctl-card{animation-delay:.8s}
 .ctl-month{font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
 .ctl-label{font-size:15px;font-weight:700;color:var(--text-1);margin-bottom:12px}
 .ctl-target{display:inline-block;font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;margin-bottom:12px}
@@ -1130,11 +1218,17 @@ ${imageAnalysisHTML}
   <h2 class="section-title">나만을 위한 14일 건강 가이드</h2>
   <p class="section-desc">분석 결과를 바탕으로 AI가 생성한 맞춤형 14일 실천 플랜입니다.</p>
   <div class="plan-section">
-    <div class="plan-header"><div class="plan-header-icon">🌱</div><div class="plan-header-title">Week 1 — 기초 습관 (1~7일)</div></div>
+    <div class="plan-header" style="background:linear-gradient(135deg,#4CAF7D15,#4CAF7D05);border-left:4px solid #4CAF7D">
+      <div class="plan-header-icon" style="background:#4CAF7D20">🌱</div>
+      <div class="plan-header-title" style="color:#2E7D32">Week 1 — 기초 습관 <span class="plan-header-range">1~7일</span></div>
+    </div>
     <div class="plan-rows">${planRowsHTML(planWeek1)}</div>
   </div>
   <div class="plan-section">
-    <div class="plan-header"><div class="plan-header-icon">🌿</div><div class="plan-header-title">Week 2 — 심화 관리 (8~14일)</div></div>
+    <div class="plan-header" style="background:linear-gradient(135deg,#7DBFA815,#7DBFA805);border-left:4px solid #7DBFA8">
+      <div class="plan-header-icon" style="background:#7DBFA820">🌿</div>
+      <div class="plan-header-title" style="color:#2D7A5F">Week 2 — 심화 관리 <span class="plan-header-range">8~14일</span></div>
+    </div>
     <div class="plan-rows">${planRowsHTML(planWeek2)}</div>
   </div>
   <div class="disclaimer">

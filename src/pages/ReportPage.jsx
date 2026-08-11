@@ -115,13 +115,20 @@ export default function ReportPage() {
         }
         const data = snap.data();
         const rd = data.reportData;
-        setReport({ ...rd, shareId: snap.id });
+        setReport({ ...rd, shareId: snap.id, userName: data.userName || '', userCity: data.userCity || '' });
         if (rd?.actualAge) setActualAge(String(rd.actualAge));
         setGender(data.gender || rd?.gender || 'female');
       })
       .catch(() => navigate('/'))
       .finally(() => setLoading(false));
   }, []);
+
+  // 리포트에 이름/거주지가 이미 있으면(마이페이지 프로필에서 자동 반영) 입력창에
+  // 미리 채워둠 — "리포트 보기" 클릭 시 모달을 건너뛸 수 있도록 함
+  useEffect(() => {
+    if (report?.userName) setUserName(report.userName);
+    if (report?.userCity) setUserCity(report.userCity);
+  }, [report]);
 
   // 과거 분석 기록 불러오기 (로그인 사용자만)
   useEffect(() => {
@@ -156,7 +163,7 @@ export default function ReportPage() {
            className="flex items-center justify-center">
         <div className="text-center">
           <div className="spinner-rose mx-auto mb-4" />
-          <p className="text-sm text-[#9A8080]">리포트 불러오는 중...</p>
+          <p className="text-sm text-[#7A6060]">리포트 불러오는 중...</p>
         </div>
       </div>
     );
@@ -196,7 +203,10 @@ export default function ReportPage() {
     } catch (e) {
       console.warn('Firestore update failed:', e);
     }
-    window.open(`https://korahnchild-cmd.github.io/wellfit-app/report-view/${report.shareId}`, '_blank');
+    // 2026.7.4 — 프로덕션 도메인이 하드코딩되어 있어 로컬 dev 서버(localhost)에서
+    // 리포트 보기를 눌러도 항상 실제 배포 사이트로 열려 로컬 수정사항 확인이 불가능했음.
+    // window.location.origin으로 바꿔 지금 접속 중인 호스트(로컬/배포) 기준으로 열리게 함.
+    window.open(`${window.location.origin}/report-view/${report.shareId}`, '_blank');
     setReportGenerated(true);
     setShowInfoModal(false);
   };
@@ -312,9 +322,9 @@ export default function ReportPage() {
             </div>
             <div className="flex items-center justify-around">
               <div className="text-center">
-                <div className="text-xs text-[#9A8080] mb-1 font-medium">실제 나이</div>
+                <div className="text-xs text-[#7A6060] mb-1 font-medium">실제 나이</div>
                 <div className="text-5xl font-black text-[#3D2B2B]">{actualAge}</div>
-                <div className="text-sm text-[#9A8080]">세</div>
+                <div className="text-sm text-[#7A6060]">세</div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="text-lg font-bold text-[#C0B0B0] mb-2">VS</div>
@@ -323,7 +333,7 @@ export default function ReportPage() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-[#9A8080] mb-1 font-medium">AI 건강 나이</div>
+                <div className="text-xs text-[#7A6060] mb-1 font-medium">AI 건강 나이</div>
                 <div className="text-5xl font-black text-gradient">{report.healthAge}</div>
                 <div className="text-sm text-rose-gold">세</div>
               </div>
@@ -367,7 +377,7 @@ export default function ReportPage() {
                 return (
                   <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/70 mb-2">
                     <div className="text-center">
-                      <div className="text-xs text-[#9A8080] mb-1">지난 분석</div>
+                      <div className="text-xs text-[#7A6060] mb-1">지난 분석</div>
                       <div className="text-2xl font-black text-[#3D2B2B]">{prev.healthAge}<span className="text-sm font-medium">세</span></div>
                     </div>
                     <div className="flex-1 text-center">
@@ -376,7 +386,7 @@ export default function ReportPage() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-xs text-[#9A8080] mb-1">이번 분석</div>
+                      <div className="text-xs text-[#7A6060] mb-1">이번 분석</div>
                       <div className="text-2xl font-black text-gradient">{curr.healthAge}<span className="text-sm font-medium text-rose-gold">세</span></div>
                     </div>
                   </div>
@@ -387,7 +397,7 @@ export default function ReportPage() {
               {analysisCount === 1 && (
                 <div className="p-3 rounded-2xl bg-white/70 mb-2 text-center">
                   <p className="text-sm font-bold text-[#8B5E83]">첫 번째 분석을 완료했어요! 🎉</p>
-                  <p className="text-xs text-[#9A8080] mt-1">다음 분석부터 건강나이 변화를 추적합니다</p>
+                  <p className="text-xs text-[#7A6060] mt-1">다음 분석부터 건강나이 변화를 추적합니다</p>
                 </div>
               )}
 
@@ -452,7 +462,7 @@ export default function ReportPage() {
                       {trend === 0 && <p className="text-xs text-[#5A4A4A] leading-relaxed">건강나이가 안정적으로 유지되고 있어요. 꾸준한 관리의 힘입니다.</p>}
                       {highCortisol >= 4 && <p className="text-xs text-orange-600 mt-1 leading-relaxed">⚠️ 코르티솔이 {highCortisol}회 연속 높게 나왔어요. 수면·스트레스 패턴을 꼭 체크하세요.</p>}
                     </div>
-                    <p className="text-xs text-center text-[#B0A0A0]">탈퇴 시 {analysisCount}회 누적 기록이 모두 삭제됩니다</p>
+                    <p className="text-xs text-center text-[#8A7A7A]">탈퇴 시 {analysisCount}회 누적 기록이 모두 삭제됩니다</p>
                   </div>
                 );
               })()}
@@ -461,7 +471,7 @@ export default function ReportPage() {
               {analysisCount === 0 && (
                 <div className="p-3 rounded-2xl bg-white/70 text-center">
                   <p className="text-sm font-bold text-[#8B5E83]">첫 분석을 완료했어요! 🎉</p>
-                  <p className="text-xs text-[#9A8080] mt-1">분석을 반복할수록 나만의 건강 패턴이 보입니다</p>
+                  <p className="text-xs text-[#7A6060] mt-1">분석을 반복할수록 나만의 건강 패턴이 보입니다</p>
                 </div>
               )}
             </div>
@@ -646,7 +656,7 @@ export default function ReportPage() {
                   ].map((item, i) => (
                     <div key={i} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl ${item.ok ? 'bg-white/60' : ''}`} style={!item.ok ? { opacity: 0.45 } : {}}>
                       <span className="text-sm flex-shrink-0">{item.ok ? '✅' : '❌'}</span>
-                      <span className={`text-sm ${item.ok ? 'font-medium text-[#3D2B2B]' : 'text-[#9A8080] line-through'}`}>{item.text}</span>
+                      <span className={`text-sm ${item.ok ? 'font-medium text-[#3D2B2B]' : 'text-[#7A6060] line-through'}`}>{item.text}</span>
                     </div>
                   ))}
                 </div>
@@ -690,7 +700,7 @@ export default function ReportPage() {
                       {/* 최신 값 레이블 */}
                       <text x="260" y="10" textAnchor="middle" fontSize="9" fill="#8B5E83" fontWeight="700">-3세 ✨</text>
                     </svg>
-                    <p className="text-xs text-[#9A8080] mt-1 text-center">구독 유지 시 건강나이가 이렇게 변화합니다</p>
+                    <p className="text-xs text-[#7A6060] mt-1 text-center">구독 유지 시 건강나이가 이렇게 변화합니다</p>
                   </div>
                   <div className="space-y-1.5 mb-5">
                     {[
@@ -707,7 +717,7 @@ export default function ReportPage() {
                         <span className="text-sm flex-shrink-0 mt-0.5">✅</span>
                         <div>
                           <span className="text-sm font-medium text-[#3D2B2B]">{item.text}</span>
-                          {item.desc && <p className="text-xs text-[#9A8080] mt-0.5 leading-relaxed">{item.desc}</p>}
+                          {item.desc && <p className="text-xs text-[#7A6060] mt-0.5 leading-relaxed">{item.desc}</p>}
                         </div>
                       </div>
                     ))}
@@ -725,7 +735,7 @@ export default function ReportPage() {
                   >
                     14일 무료 체험 시작하기
                   </button>
-                  <p className="text-xs text-center text-[#B0A0A0] mt-2">신용카드 없이 시작 · 언제든 해지 가능</p>
+                  <p className="text-xs text-center text-[#8A7A7A] mt-2">신용카드 없이 시작 · 언제든 해지 가능</p>
                 </>
               ) : (
                 <button
@@ -766,7 +776,7 @@ export default function ReportPage() {
                 <div className="text-2xl">🎯</div>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-[#8B5E83]">건강나이 챌린지 진행 중</p>
-                  <p className="text-xs text-[#9A8080] mt-0.5">
+                  <p className="text-xs text-[#7A6060] mt-0.5">
                     목표: 건강나이 -3세 달성 · 현재 {challengeImprovement > 0 ? `${challengeImprovement}세 개선됨` : '시작 단계'}
                   </p>
                 </div>
@@ -782,7 +792,7 @@ export default function ReportPage() {
           {/* 의료 고지 */}
           <div className="flex items-start gap-3 p-4 bg-cream-deeper/40 rounded-3xl border border-cream-deeper">
             <Shield size={16} className="text-rose-gold flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-[#9A8080] leading-relaxed">
+            <p className="text-xs text-[#7A6060] leading-relaxed">
               {report.disclaimer || '본 분석 결과는 AI 기반 라이프스타일 코칭 참고 자료이며, 의료 진단을 대체하지 않습니다.'}
             </p>
           </div>
@@ -792,7 +802,13 @@ export default function ReportPage() {
       {/* 하단 버튼 */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-6 pt-4 bg-cream-gradient border-t border-cream-deeper">
         <div className="flex gap-2">
-          <button onClick={() => setShowInfoModal(true)} className="flex-1 btn-primary flex items-center justify-center gap-2">
+          <button
+            onClick={() => {
+              // 이름이 이미 있으면(프로필 자동반영) 모달 없이 바로 리포트 열기
+              if (userName.trim()) { handleViewReport(); } else { setShowInfoModal(true); }
+            }}
+            className="flex-1 btn-primary flex items-center justify-center gap-2"
+          >
             <FileText size={17} />리포트 보기
           </button>
           <button onClick={handleRestart} className="flex-1 btn-secondary flex items-center justify-center gap-2">
@@ -800,7 +816,7 @@ export default function ReportPage() {
           </button>
         </div>
         <div className="flex justify-center mt-2">
-          <button onClick={() => navigate('/')} className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors">
+          <button onClick={() => navigate('/')} className="text-xs text-[#8A7A7A] hover:text-rose-gold transition-colors">
             🏠 홈으로
           </button>
         </div>
@@ -829,7 +845,7 @@ export default function ReportPage() {
             {/* 인증서 본문 */}
             <div style={{ padding: '24px', background: '#FDFAF6' }}>
               <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                <div style={{ fontSize: 13, color: '#9A8080', marginBottom: 4 }}>위 사용자는</div>
+                <div style={{ fontSize: 13, color: '#7A6060', marginBottom: 4 }}>위 사용자는</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#3D2B2B', marginBottom: 8 }}>
                   {actualAge}세 · 총 {analysisCount}회 분석
                 </div>
@@ -839,10 +855,10 @@ export default function ReportPage() {
                   </span>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#3D2B2B' }}>건강나이 개선</div>
-                    <div style={{ fontSize: 10, color: '#9A8080' }}>AI 분석 기준</div>
+                    <div style={{ fontSize: 11.5, color: '#7A6060' }}>AI 분석 기준</div>
                   </div>
                 </div>
-                <div style={{ fontSize: 12, color: '#9A8080', marginTop: 12, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 12, color: '#7A6060', marginTop: 12, lineHeight: 1.6 }}>
                   꾸준한 건강 관리로 건강나이 챌린지를<br />성공적으로 달성하였음을 인증합니다.
                 </div>
               </div>
@@ -860,7 +876,7 @@ export default function ReportPage() {
               </button>
               <button
                 onClick={() => setShowCertModal(false)}
-                style={{ width: '100%', padding: '12px', background: 'transparent', color: '#9A8080', fontSize: 13, border: 'none', cursor: 'pointer' }}
+                style={{ width: '100%', padding: '12px', background: 'transparent', color: '#7A6060', fontSize: 13, border: 'none', cursor: 'pointer' }}
               >
                 닫기
               </button>
@@ -892,7 +908,7 @@ export default function ReportPage() {
             <button onClick={handleViewReport} className="btn-primary w-full flex items-center justify-center gap-2">
               <FileText size={17} />리포트 열기
             </button>
-            <p className="text-xs text-center text-[#B0A0A0] mt-3">입력 정보는 리포트 표시용으로만 사용됩니다</p>
+            <p className="text-xs text-center text-[#8A7A7A] mt-3">입력 정보는 리포트 표시용으로만 사용됩니다</p>
           </div>
         </div>
       )}

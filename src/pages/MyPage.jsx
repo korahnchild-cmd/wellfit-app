@@ -231,10 +231,10 @@ export default function MyPage() {
 
         {/* 헤더 */}
         <div style={{ padding: '52px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#9A8080', fontSize: 13, cursor: 'pointer' }}>
+          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#7A6060', fontSize: 13, cursor: 'pointer' }}>
             <ChevronLeft size={16} /> 돌아가기
           </button>
-          <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#9A8080', fontSize: 13, cursor: 'pointer' }}>
+          <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: '#7A6060', fontSize: 13, cursor: 'pointer' }}>
             <LogOut size={14} /> 로그아웃
           </button>
         </div>
@@ -246,14 +246,14 @@ export default function MyPage() {
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '1.5px', marginBottom: 6, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '1.5px', marginBottom: 6, textTransform: 'uppercase' }}>
                 {isPaid ? '유료 구독 중' : '무료 체험 중'}
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                 <span style={{ fontSize: 64, fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: '-3px' }}>{Math.min(dayCount, isPaid ? 28 : 14)}</span>
-                <span style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>일째</span>
+                <span style={{ fontSize: 20, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>일째</span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginTop: 4 }}>
                 {isPaid ? '4주 건강 실천 플랜' : '14일 건강 가이드'}
               </div>
             </div>
@@ -282,10 +282,10 @@ export default function MyPage() {
           {/* 최근 건강나이 */}
           {latestReport?.healthAge && (
             <div style={{ marginTop: 16, padding: '10px 14px', background: 'rgba(255,255,255,0.08)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '0.5px solid rgba(255,255,255,0.12)' }}>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>AI 건강나이</span>
+              <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.72)' }}>AI 건강나이</span>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span style={{ fontSize: 22, fontWeight: 900, color: '#C8956C', letterSpacing: '-0.5px' }}>{latestReport.healthAge}</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>세</span>
+                <span style={{ fontSize: 22, fontWeight: 900, color: '#F0C49A', letterSpacing: '-0.5px' }}>{latestReport.healthAge}</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>세</span>
                 {userData.age && (
                   <span style={{ fontSize: 11, color: latestReport.healthAge < userData.age ? '#7DBFA8' : '#F59E0B', fontWeight: 700, marginLeft: 6 }}>
                     {latestReport.healthAge < userData.age ? `▼ ${userData.age - latestReport.healthAge}세 젊음` : `▲ ${latestReport.healthAge - userData.age}세 높음`}
@@ -298,17 +298,17 @@ export default function MyPage() {
 
         {/* ── 오늘의 건강 가이드 ── */}
         <div style={{ margin: '0 20px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A8080', letterSpacing: '1px', marginBottom: 10, paddingLeft: 2 }}>TODAY'S PLAN</div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: '#7A6060', letterSpacing: '1px', marginBottom: 10, paddingLeft: 2 }}>TODAY'S PLAN</div>
 
           {/* 어제 */}
           {dayCount > 1 && prevPlan && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.4)', borderRadius: 14, marginBottom: 6, opacity: 0.6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.4)', borderRadius: 14, marginBottom: 6, opacity: 0.7 }}>
               <div style={{ fontSize: 18, flexShrink: 0 }}>{prevPlan.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 9, color: '#B0A0A0', marginBottom: 2 }}>DAY {prevPlan.d} · {prevPlan.cat}</div>
-                <div style={{ fontSize: 12, color: '#7A6060', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prevPlan.task}</div>
+                <div style={{ fontSize: 10.5, color: '#8A7A7A', marginBottom: 2 }}>DAY {prevPlan.d} · {prevPlan.cat}</div>
+                <div style={{ fontSize: 13, color: '#7A6060', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prevPlan.task}</div>
               </div>
-              <div style={{ fontSize: 10, color: '#7DBFA8', fontWeight: 700, flexShrink: 0 }}>완료 ✓</div>
+              <div style={{ fontSize: 11, color: '#5DA898', fontWeight: 700, flexShrink: 0 }}>완료 ✓</div>
             </div>
           )}
 
@@ -317,8 +317,8 @@ export default function MyPage() {
             <div style={{ background: `linear-gradient(135deg, ${CAT_COLORS[todayPlan.cat] || '#C8956C'}15, ${CAT_COLORS[todayPlan.cat] || '#C8956C'}05)`, padding: '16px 18px', borderBottom: `0.5px solid ${CAT_COLORS[todayPlan.cat] || '#C8956C'}20` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: CAT_COLORS[todayPlan.cat] || '#C8956C', boxShadow: `0 0 8px ${CAT_COLORS[todayPlan.cat] || '#C8956C'}60` }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: CAT_COLORS[todayPlan.cat] || '#C8956C', letterSpacing: '1px' }}>DAY {todayPlan.d} · {todayPlan.cat.toUpperCase()}</span>
-                <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#fff', background: CAT_COLORS[todayPlan.cat] || '#C8956C', padding: '2px 8px', borderRadius: 10 }}>오늘</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: CAT_COLORS[todayPlan.cat] || '#C8956C', letterSpacing: '1px' }}>DAY {todayPlan.d} · {todayPlan.cat.toUpperCase()}</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#fff', background: CAT_COLORS[todayPlan.cat] || '#C8956C', padding: '3px 9px', borderRadius: 10 }}>오늘</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <div style={{ fontSize: 36, lineHeight: 1, flexShrink: 0 }}>{todayPlan.emoji}</div>
@@ -334,7 +334,7 @@ export default function MyPage() {
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#C8956C', marginBottom: 2 }}>
                       {14 - dayCount}일 후 체험 종료
                     </div>
-                    <div style={{ fontSize: 10, color: '#9A8080' }}>유료 구독 시 4주 플랜 + 더 많은 기능</div>
+                    <div style={{ fontSize: 11, color: '#7A6060' }}>유료 구독 시 4주 플랜 + 더 많은 기능</div>
                   </div>
                   <button onClick={() => navigate('/report')} style={{ padding: '7px 14px', borderRadius: 10, background: 'linear-gradient(135deg, #C8956C, #8B5E83)', color: '#fff', fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                     구독하기
@@ -349,8 +349,8 @@ export default function MyPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.4)', borderRadius: 14, marginTop: 6, opacity: 0.5 }}>
               <div style={{ fontSize: 18, flexShrink: 0 }}>{nextPlan.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 9, color: '#B0A0A0', marginBottom: 2 }}>내일 · DAY {nextPlan.d} · {nextPlan.cat}</div>
-                <div style={{ fontSize: 12, color: '#7A6060', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nextPlan.task}</div>
+                <div style={{ fontSize: 10.5, color: '#8A7A7A', marginBottom: 2 }}>내일 · DAY {nextPlan.d} · {nextPlan.cat}</div>
+                <div style={{ fontSize: 13, color: '#7A6060', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nextPlan.task}</div>
               </div>
             </div>
           )}
@@ -368,15 +368,15 @@ export default function MyPage() {
               {/* 호르몬 Top 2 */}
               {topHormones.length > 0 && (
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 10, color: '#9A8080', fontWeight: 600, marginBottom: 8, letterSpacing: '0.5px' }}>⚗️ 호르몬 주의 항목</div>
+                  <div style={{ fontSize: 11, color: '#7A6060', fontWeight: 600, marginBottom: 8, letterSpacing: '0.5px' }}>⚗️ 호르몬 주의 항목</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {topHormones.map(h => (
                       <div key={h.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ fontSize: 12, color: '#5A4A4A', flex: 1 }}>{h.name}</span>
                         <div style={{ flex: 2, height: 5, borderRadius: 3, background: 'rgba(200,149,108,0.12)', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 3, background: h.value >= 60 ? '#D4504A' : h.value >= 40 ? '#F59E0B' : '#7DBFA8', width: `${h.value}%`, transition: 'width 0.8s ease' }} />
+                          <div style={{ height: '100%', borderRadius: 3, background: h.value >= 80 ? '#8B5E83' : h.value >= 60 ? '#E8A038' : h.value >= 40 ? '#D9A857' : h.value >= 20 ? '#7DBFA8' : '#5FA88F', width: `${h.value}%`, transition: 'width 0.8s ease' }} />
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: h.value >= 60 ? '#D4504A' : h.value >= 40 ? '#F59E0B' : '#7DBFA8', minWidth: 32, textAlign: 'right' }}>{h.value}%</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: h.value >= 80 ? '#8B5E83' : h.value >= 60 ? '#E8A038' : h.value >= 40 ? '#D9A857' : h.value >= 20 ? '#7DBFA8' : '#5FA88F', minWidth: 32, textAlign: 'right' }}>{h.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -386,15 +386,15 @@ export default function MyPage() {
               {/* 영양소 Top 2 */}
               {topNutrients.length > 0 && (
                 <div>
-                  <div style={{ fontSize: 10, color: '#9A8080', fontWeight: 600, marginBottom: 8, letterSpacing: '0.5px' }}>🔬 영양소 주의 항목</div>
+                  <div style={{ fontSize: 11, color: '#7A6060', fontWeight: 600, marginBottom: 8, letterSpacing: '0.5px' }}>🔬 영양소 주의 항목</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {topNutrients.map(n => (
                       <div key={n.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ fontSize: 12, color: '#5A4A4A', flex: 1 }}>{n.name}</span>
                         <div style={{ flex: 2, height: 5, borderRadius: 3, background: 'rgba(139,94,131,0.12)', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 3, background: n.value >= 60 ? '#D4504A' : n.value >= 40 ? '#F59E0B' : '#7DBFA8', width: `${n.value}%`, transition: 'width 0.8s ease' }} />
+                          <div style={{ height: '100%', borderRadius: 3, background: n.value >= 80 ? '#8B5E83' : n.value >= 60 ? '#E8A038' : n.value >= 40 ? '#D9A857' : n.value >= 20 ? '#7DBFA8' : '#5FA88F', width: `${n.value}%`, transition: 'width 0.8s ease' }} />
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: n.value >= 60 ? '#D4504A' : n.value >= 40 ? '#F59E0B' : '#7DBFA8', minWidth: 32, textAlign: 'right' }}>{n.value}%</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: n.value >= 80 ? '#8B5E83' : n.value >= 60 ? '#E8A038' : n.value >= 40 ? '#D9A857' : n.value >= 20 ? '#7DBFA8' : '#5FA88F', minWidth: 32, textAlign: 'right' }}>{n.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -413,7 +413,7 @@ export default function MyPage() {
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#3D2B2B' }}>{user.displayName || '사용자'}</div>
-                <div style={{ fontSize: 11, color: '#9A8080' }}>{user.email}</div>
+                <div style={{ fontSize: 12, color: '#7A6060' }}>{user.email}</div>
               </div>
             </div>
           </div>
@@ -421,18 +421,18 @@ export default function MyPage() {
           <div style={{ padding: '16px 18px' }}>
             {/* 이름 */}
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, color: '#9A8080', fontWeight: 600, marginBottom: 5, display: 'block' }}>이름 (리포트에 자동 반영)</label>
+              <label style={{ fontSize: 12, color: '#7A6060', fontWeight: 600, marginBottom: 5, display: 'block' }}>이름 (리포트에 자동 반영)</label>
               <input type="text" value={editName} onChange={e => setEditName(e.target.value)} placeholder="이름 입력"
                 style={{ width: '100%', padding: '10px 14px', borderRadius: 12, border: '1px solid rgba(200,149,108,0.25)', fontSize: 13, color: '#3D2B2B', background: 'rgba(253,250,246,0.8)', outline: 'none', boxSizing: 'border-box' }} />
             </div>
 
             {/* 성별 */}
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, color: '#9A8080', fontWeight: 600, marginBottom: 5, display: 'block' }}>성별</label>
+              <label style={{ fontSize: 12, color: '#7A6060', fontWeight: 600, marginBottom: 5, display: 'block' }}>성별</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[{ val: 'female', label: '👩 여성' }, { val: 'male', label: '👨 남성' }].map(g => (
                   <button key={g.val} onClick={() => setEditGender(g.val)}
-                    style={{ padding: '10px', borderRadius: 12, fontSize: 13, fontWeight: 700, border: `2px solid ${editGender === g.val ? (g.val === 'female' ? '#C8956C' : '#8B5E83') : 'rgba(200,149,108,0.2)'}`, background: editGender === g.val ? (g.val === 'female' ? 'rgba(200,149,108,0.1)' : 'rgba(139,94,131,0.1)') : 'rgba(253,250,246,0.8)', color: editGender === g.val ? (g.val === 'female' ? '#C8956C' : '#8B5E83') : '#9A8080', cursor: 'pointer' }}>
+                    style={{ padding: '10px', borderRadius: 12, fontSize: 13, fontWeight: 700, border: `2px solid ${editGender === g.val ? (g.val === 'female' ? '#C8956C' : '#8B5E83') : 'rgba(200,149,108,0.2)'}`, background: editGender === g.val ? (g.val === 'female' ? 'rgba(200,149,108,0.1)' : 'rgba(139,94,131,0.1)') : 'rgba(253,250,246,0.8)', color: editGender === g.val ? (g.val === 'female' ? '#C8956C' : '#8B5E83') : '#7A6060', cursor: 'pointer' }}>
                     {g.label}
                   </button>
                 ))}
@@ -441,14 +441,14 @@ export default function MyPage() {
 
             {/* 나이 */}
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, color: '#9A8080', fontWeight: 600, marginBottom: 5, display: 'block' }}>나이</label>
+              <label style={{ fontSize: 12, color: '#7A6060', fontWeight: 600, marginBottom: 5, display: 'block' }}>나이</label>
               <input type="number" value={editAge} onChange={e => setEditAge(e.target.value)} placeholder="만 나이 입력" min="20" max="80"
                 style={{ width: '100%', padding: '10px 14px', borderRadius: 12, border: '1px solid rgba(200,149,108,0.25)', fontSize: 13, color: '#3D2B2B', background: 'rgba(253,250,246,0.8)', outline: 'none', boxSizing: 'border-box' }} />
             </div>
 
             {/* 거주지 */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, color: '#9A8080', fontWeight: 600, marginBottom: 5, display: 'block' }}>거주지 (리포트에 자동 반영)</label>
+              <label style={{ fontSize: 12, color: '#7A6060', fontWeight: 600, marginBottom: 5, display: 'block' }}>거주지 (리포트에 자동 반영)</label>
               <input type="text" value={editCity} onChange={e => setEditCity(e.target.value)} placeholder="예: 대구시 수성구"
                 style={{ width: '100%', padding: '10px 14px', borderRadius: 12, border: '1px solid rgba(200,149,108,0.25)', fontSize: 13, color: '#3D2B2B', background: 'rgba(253,250,246,0.8)', outline: 'none', boxSizing: 'border-box' }} />
             </div>
@@ -466,13 +466,13 @@ export default function MyPage() {
             <span style={{ fontSize: 13, fontWeight: 700, color: '#3D2B2B' }}>추천코드 등록</span>
           </div>
           <div style={{ padding: '14px 18px' }}>
-            <div style={{ fontSize: 11, color: '#9A8080', marginBottom: 12, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 12, color: '#7A6060', marginBottom: 12, lineHeight: 1.6 }}>
               친구에게 받은 추천코드를 입력하면 혜택이 적용됩니다.
             </div>
             {referredBy ? (
               <div style={{ background: 'rgba(139,94,131,0.08)', borderRadius: 12, padding: '12px 14px', textAlign: 'center', border: '1px solid rgba(139,94,131,0.15)' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#8B5E83' }}>추천코드가 등록되어 있습니다</div>
-                <div style={{ fontSize: 11, color: '#9A8080', marginTop: 3 }}>{referredBy}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#8B5E83' }}>추천코드가 등록되어 있습니다</div>
+                <div style={{ fontSize: 12, color: '#7A6060', marginTop: 3 }}>{referredBy}</div>
               </div>
             ) : (
               <div style={{ display: 'flex', gap: 8 }}>
@@ -493,7 +493,7 @@ export default function MyPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#3D2B2B', marginBottom: 10 }}>내 추천 링크</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ flex: 1, background: 'rgba(253,250,246,0.8)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(200,149,108,0.2)' }}>
-                <div style={{ fontSize: 10, color: '#9A8080', marginBottom: 2 }}>추천코드</div>
+                <div style={{ fontSize: 11, color: '#7A6060', marginBottom: 2 }}>추천코드</div>
                 <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: '2px', color: '#3D2B2B' }}>{myReferralCode}</div>
               </div>
               <button onClick={handleCopyLink}
@@ -510,7 +510,7 @@ export default function MyPage() {
 
         {/* 안내 */}
         <div style={{ margin: '0 20px', padding: '12px 16px', background: 'rgba(255,255,255,0.4)', borderRadius: 14, border: '0.5px solid rgba(200,149,108,0.1)' }}>
-          <p style={{ fontSize: 11, color: '#9A8080', lineHeight: 1.7, margin: 0 }}>
+          <p style={{ fontSize: 12.5, color: '#7A6060', lineHeight: 1.7, margin: 0 }}>
             💡 이름·거주지는 생성된 리포트에 자동으로 반영됩니다.<br />
             본 서비스는 의료 진단을 대체하지 않습니다.
           </p>

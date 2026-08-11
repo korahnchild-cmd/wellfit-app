@@ -10,7 +10,7 @@ const NAV_ITEMS = [
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z"
-          stroke={active ? '#C8956C' : '#B0A0A0'} strokeWidth="1.7" strokeLinejoin="round" fill={active ? 'rgba(200,149,108,0.12)' : 'none'} />
+          stroke={active ? '#C8956C' : '#8A7A7A'} strokeWidth="1.7" strokeLinejoin="round" fill={active ? 'rgba(200,149,108,0.12)' : 'none'} />
       </svg>
     ),
   },
@@ -20,9 +20,9 @@ const NAV_ITEMS = [
     path: '/upload',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke={active ? '#C8956C' : '#B0A0A0'} strokeWidth="1.7" fill={active ? 'rgba(200,149,108,0.12)' : 'none'} />
-        <circle cx="12" cy="12" r="4" stroke={active ? '#C8956C' : '#B0A0A0'} strokeWidth="1.5" fill="none" />
-        <circle cx="12" cy="12" r="1.5" fill={active ? '#C8956C' : '#B0A0A0'} />
+        <circle cx="12" cy="12" r="9" stroke={active ? '#C8956C' : '#8A7A7A'} strokeWidth="1.7" fill={active ? 'rgba(200,149,108,0.12)' : 'none'} />
+        <circle cx="12" cy="12" r="4" stroke={active ? '#C8956C' : '#8A7A7A'} strokeWidth="1.5" fill="none" />
+        <circle cx="12" cy="12" r="1.5" fill={active ? '#C8956C' : '#8A7A7A'} />
       </svg>
     ),
     center: true,
@@ -34,7 +34,7 @@ const NAV_ITEMS = [
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"
-          stroke={active ? '#8B5E83' : '#B0A0A0'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          stroke={active ? '#8B5E83' : '#8A7A7A'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     ),
   },
@@ -44,9 +44,9 @@ const NAV_ITEMS = [
     path: '/mypage',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4" stroke={active ? '#C8956C' : '#B0A0A0'} strokeWidth="1.7" fill={active ? 'rgba(200,149,108,0.12)' : 'none'} />
+        <circle cx="12" cy="8" r="4" stroke={active ? '#C8956C' : '#8A7A7A'} strokeWidth="1.7" fill={active ? 'rgba(200,149,108,0.12)' : 'none'} />
         <path d="M4 20C4 17 7.58 14 12 14C16.42 14 20 17 20 20"
-          stroke={active ? '#C8956C' : '#B0A0A0'} strokeWidth="1.7" strokeLinecap="round" fill="none" />
+          stroke={active ? '#C8956C' : '#8A7A7A'} strokeWidth="1.7" strokeLinecap="round" fill="none" />
       </svg>
     ),
   },
@@ -130,9 +130,9 @@ export default function BottomNav() {
                     {item.icon(isActive)}
                   </div>
                   <span style={{
-                    fontSize: 10,
-                    fontWeight: isActive ? 700 : 500,
-                    color: isActive ? '#C8956C' : '#B0A0A0',
+                    fontSize: 12,
+                    fontWeight: isActive ? 700 : 600,
+                    color: isActive ? '#C8956C' : '#7A6060',
                     letterSpacing: '-0.2px',
                   }}>
                     {item.label}
@@ -175,11 +175,11 @@ export default function BottomNav() {
                 )}
                 {item.icon(isActive)}
                 <span style={{
-                  fontSize: 10,
-                  fontWeight: isActive ? 700 : 500,
+                  fontSize: 12,
+                  fontWeight: isActive ? 700 : 600,
                   color: isActive
                     ? (item.id === 'partner' ? '#8B5E83' : '#C8956C')
-                    : '#B0A0A0',
+                    : '#7A6060',
                   letterSpacing: '-0.2px',
                 }}>
                   {item.label}

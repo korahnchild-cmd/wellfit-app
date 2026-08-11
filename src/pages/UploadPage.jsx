@@ -2,6 +2,7 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useRequireLogin } from '../hooks/useRequireLogin';
 import { Camera, Fingerprint, ChevronRight, ChevronLeft, Check, Upload, Info } from 'lucide-react';
 import faceGuide from '../assets/face_guide.jpg';
 import nailGuide from '../assets/nail_guide.jpg';
@@ -33,7 +34,7 @@ function ImageUploadCard({ id, title, subtitle, icon: Icon, preview, onFile, hin
         </div>
         <div>
           <h3 className="font-bold text-[#3D2B2B]">{title}</h3>
-          <p className="text-xs text-[#9A8080]">{subtitle}</p>
+          <p className="text-xs text-[#7A6060]">{subtitle}</p>
         </div>
         {preview && (
           <div className="ml-auto w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
@@ -139,6 +140,7 @@ function ImageUploadCard({ id, title, subtitle, icon: Icon, preview, onFile, hin
 
 export default function UploadPage() {
   const navigate = useNavigate();
+  useRequireLogin();
   const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender } = useApp();
   const [consentChecked, setConsentChecked] = useState(false);
   const [disclaimerChecked, setDisclaimerChecked] = useState(false);
@@ -176,7 +178,7 @@ export default function UploadPage() {
           </button>
           <div>
             <h2 className="font-bold text-[#3D2B2B]">사진 업로드</h2>
-            <p className="text-xs text-[#9A8080]">Step 1 / 3</p>
+            <p className="text-xs text-[#7A6060]">Step 1 / 3</p>
           </div>
           <div className="ml-auto flex gap-1.5">
             {[1, 2, 3].map((s) => (
@@ -209,7 +211,7 @@ export default function UploadPage() {
             </div>
             <div>
               <h3 className="font-bold text-[#3D2B2B]">기본 정보 입력</h3>
-              <p className="text-xs text-[#9A8080]">건강 나이 비교를 위해 필요합니다</p>
+              <p className="text-xs text-[#7A6060]">건강 나이 비교를 위해 필요합니다</p>
             </div>
           </div>
 
@@ -240,7 +242,7 @@ export default function UploadPage() {
                 className={`py-3 rounded-2xl font-bold text-sm transition-all duration-200 border-2 ${
                   gender === 'female'
                     ? 'bg-rose-gradient text-white border-transparent shadow-rose'
-                    : 'bg-cream-dark text-[#9A8080] border-cream-deeper hover:border-rose-gold'
+                    : 'bg-cream-dark text-[#7A6060] border-cream-deeper hover:border-rose-gold'
                 }`}
               >
                 👩 여성
@@ -250,14 +252,14 @@ export default function UploadPage() {
                 className={`py-3 rounded-2xl font-bold text-sm transition-all duration-200 border-2 ${
                   gender === 'male'
                     ? 'bg-mauve text-white border-transparent shadow-mauve'
-                    : 'bg-cream-dark text-[#9A8080] border-cream-deeper hover:border-mauve'
+                    : 'bg-cream-dark text-[#7A6060] border-cream-deeper hover:border-mauve'
                 }`}
               >
                 👨 남성
               </button>
             </div>
             {!gender && actualAge && (
-              <p className="text-xs text-[#B0A0A0] mt-2 pl-1">성별을 선택해주세요</p>
+              <p className="text-xs text-[#8A7A7A] mt-2 pl-1">성별을 선택해주세요</p>
             )}
           </div>
         </div>
@@ -327,7 +329,7 @@ export default function UploadPage() {
           ]}
         />
 
-        <p className="text-xs text-center text-[#B0A0A0]">
+        <p className="text-xs text-center text-[#8A7A7A]">
           얼굴·손톱 사진 모두 필수입니다
         </p>
       </div>
@@ -344,7 +346,7 @@ export default function UploadPage() {
           <ChevronRight size={18} />
         </button>
         {!canProceed && (
-          <p className="text-xs text-center text-[#B0A0A0] mt-2">
+          <p className="text-xs text-center text-[#8A7A7A] mt-2">
             {getProceedHint()}
           </p>
         )}

@@ -280,8 +280,8 @@ export default function HomePage() {
                       animation:`wf-pulse 2.2s ease-out ${i*0.4}s infinite`,
                     }} />
                   </div>
-                  <div style={{ fontSize:'12px', fontWeight:800, color:'#3D2B2B', marginBottom:'2px', letterSpacing:'-0.2px' }}>{c.label}</div>
-                  <div style={{ fontSize:'10px', color:'#9A8080', fontWeight:500 }}>{c.sub}</div>
+                  <div style={{ fontSize:'13px', fontWeight:800, color:'#3D2B2B', marginBottom:'2px', letterSpacing:'-0.2px' }}>{c.label}</div>
+                  <div style={{ fontSize:'11px', color:'#7A6060', fontWeight:500 }}>{c.sub}</div>
                   {i === 0 && <style>{`@keyframes wf-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.55);opacity:0}}`}</style>}
                 </div>
               ));
@@ -356,9 +356,9 @@ export default function HomePage() {
                 fontSize: '18px',
               }}>💡</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: '#C8956C', letterSpacing: '0.8px', marginBottom: '3px', textTransform: 'uppercase' }}>Today's Tip</div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#3D2B2B', marginBottom: '2px' }}>셀카 한 장이 혈액검사를 대신할 수 있다면?</div>
-                <div style={{ fontSize: '12px', color: '#7A6060', lineHeight: 1.6 }}>특허 기술 기반 AI가 얼굴·손톱에서 호르몬 위험 신호를 읽어냅니다.</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#C8956C', letterSpacing: '0.8px', marginBottom: '3px', textTransform: 'uppercase' }}>Today's Tip</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#3D2B2B', marginBottom: '2px' }}>셀카 한 장이 혈액검사를 대신할 수 있다면?</div>
+                <div style={{ fontSize: '13px', color: '#7A6060', lineHeight: 1.6 }}>특허 기술 기반 AI가 얼굴·손톱에서 호르몬 위험 신호를 읽어냅니다.</div>
               </div>
             </div>
           </div>
@@ -366,7 +366,7 @@ export default function HomePage() {
           {/* 신뢰 칩 4개 — 폰트 11px */}
           <div className="flex items-center justify-center gap-1 flex-wrap mt-4 animate-slide-up" style={{ animationDelay: '0.6s' }}>
             {['약 5분 소요', '무료 체험', '이미지 미저장', '특허 기술'].map((chip, i) => (
-              <span key={chip} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#9A8080' }}>
+              <span key={chip} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '12px', color: '#7A6060' }}>
                 <span style={{ color: '#7DBFA8', fontWeight: 700 }}>✓</span>
                 {chip}
                 {i < 3 && <span style={{ color: '#D0C0C0', margin: '0 2px' }}>·</span>}
@@ -377,19 +377,19 @@ export default function HomePage() {
 
         {/* 하단 안내 — 원본 그대로 */}
         <div className="mt-8 flex items-center gap-2 justify-center animate-fade-in" style={{ animationDelay: '0.7s' }}>
-          <Shield size={12} className="text-cream-deeper" />
-          <p className="text-xs text-[#B0A0A0] text-center">
+          <Shield size={13} className="text-cream-deeper" />
+          <p className="text-sm text-[#7A6060] text-center">
             본 서비스는 의료 진단이 아닌 라이프스타일 코칭 참고 자료입니다
           </p>
         </div>
 
         {/* 푸터 — 원본 그대로 */}
         <div className="mt-4 flex items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-          <Link to="/privacy" className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors underline underline-offset-2">
+          <Link to="/privacy" className="text-xs text-[#8A7A7A] hover:text-rose-gold transition-colors underline underline-offset-2">
             개인정보처리방침
           </Link>
-          <span className="text-xs text-[#D0C0C0]">·</span>
-          <Link to="/terms" className="text-xs text-[#B0A0A0] hover:text-rose-gold transition-colors underline underline-offset-2">
+          <span className="text-xs text-[#B0A0A0]">·</span>
+          <Link to="/terms" className="text-xs text-[#8A7A7A] hover:text-rose-gold transition-colors underline underline-offset-2">
             이용약관
           </Link>
         </div>
@@ -435,13 +435,13 @@ export default function HomePage() {
             </form>
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-cream-deeper" />
-              <span className="text-xs text-[#B0A0A0]">또는</span>
+              <span className="text-xs text-[#8A7A7A]">또는</span>
               <div className="flex-1 h-px bg-cream-deeper" />
             </div>
             <button id="guest-mode-btn" onClick={handleGuestMode} className="btn-secondary w-full text-sm">
               로그인 없이 체험하기
             </button>
-            <p className="text-center text-sm text-[#9A8080] mt-4">
+            <p className="text-center text-sm text-[#7A6060] mt-4">
               {isLogin ? '아직 계정이 없으신가요?' : '이미 계정이 있으신가요?'}{' '}
               <button onClick={() => { setIsLogin((v) => !v); setError(''); }}
                 className="text-rose-gold font-semibold hover:text-rose-gold-dark">

@@ -76,7 +76,7 @@ export default function GeneratedReportPage() {
       <div style={{ minHeight: '100vh', backgroundColor: '#FDFAF6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div className="spinner-rose mx-auto mb-4" />
-          <p style={{ fontSize: '14px', color: '#9A8080' }}>리포트 불러오는 중...</p>
+          <p style={{ fontSize: '14px', color: '#7A6060' }}>리포트 불러오는 중...</p>
         </div>
       </div>
     );

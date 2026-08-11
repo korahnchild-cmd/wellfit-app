@@ -21,7 +21,7 @@ export default function TermsPage() {
 
         <div className="space-y-6 text-[#3D2B2B] pb-12">
           <div>
-            <p className="text-xs text-[#9A8080]">시행일: 2026년 6월 10일</p>
+            <p className="text-xs text-[#7A6060]">시행일: 2026년 6월 10일</p>
           </div>
 
           <p className="text-sm leading-relaxed text-[#5A4040]">
@@ -65,7 +65,7 @@ export default function TermsPage() {
                 <span className="text-sm font-semibold text-[#3D2B2B]">유료 구독</span>
                 <span className="text-sm text-mauve font-bold">월 59,800원</span>
               </div>
-              <p className="text-xs text-[#9A8080]">
+              <p className="text-xs text-[#7A6060]">
                 유료 구독은 언제든지 해지 가능하며, 해지 시 다음 결제일부터 청구되지 않습니다.
               </p>
             </div>
@@ -134,7 +134,7 @@ export default function TermsPage() {
           </section>
 
           <div className="pt-2">
-            <p className="text-xs text-[#B0A0A0] text-center">
+            <p className="text-xs text-[#8A7A7A] text-center">
               본 약관은 2026년 6월 10일부터 시행됩니다.
             </p>
           </div>

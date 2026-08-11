@@ -21,7 +21,7 @@ export default function PrivacyPage() {
 
         <div className="space-y-6 text-[#3D2B2B] pb-12">
           <div>
-            <p className="text-xs text-[#9A8080]">시행일: 2026년 6월 10일</p>
+            <p className="text-xs text-[#7A6060]">시행일: 2026년 6월 10일</p>
           </div>
 
           <p className="text-sm leading-relaxed text-[#5A4040]">
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
           </section>
 
           <div className="pt-2">
-            <p className="text-xs text-[#B0A0A0] text-center">
+            <p className="text-xs text-[#8A7A7A] text-center">
               본 방침은 2026년 6월 10일부터 시행됩니다.
             </p>
           </div>

@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { analyzeHealth } from '../gemini';
 import { storage, db } from '../firebase';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 const STEPS = [
   { text: '이미지 업로드 중...', emoji: '📤', duration: 1500 },
@@ -103,6 +103,24 @@ export default function AnalyzingPage() {
           nailImageUrl: nailUrl,
         };
 
+        // 로그인 사용자는 마이페이지에 저장된 이름/거주지를 리포트에 자동 반영
+        // (2026.7.4 발견: 여태 하드코딩된 빈 문자열이라 매번 "리포트 보기" 모달에서
+        // 재입력해야 했음 — MyPage.jsx 안내문구 "이름·거주지는 생성된 리포트에
+        // 자동으로 반영됩니다"와 실제 동작이 어긋나 있던 부분을 연결)
+        let profileName = '';
+        let profileCity = '';
+        if (user && !user.isGuest) {
+          try {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            if (userSnap.exists()) {
+              profileName = userSnap.data().userName || '';
+              profileCity = userSnap.data().userCity || '';
+            }
+          } catch (e) {
+            console.warn('프로필 이름/거주지 조회 실패:', e.message);
+          }
+        }
+
         // Firestore 저장 (15초 타임아웃, 1회 재시도 — 그래도 실패하면
         // saveFailures 컬렉션에 실패 사실만 기록하고 리포트는 그대로 보여줌)
         let shareId = null;
@@ -113,8 +131,8 @@ export default function AnalyzingPage() {
           surveyAnswers,
           gender: gender || 'female',
           isPublic: true,
-          userName: '',
-          userCity: '',
+          userName: profileName,
+          userCity: profileCity,
           timestamp: serverTimestamp(),
         };
 
@@ -160,7 +178,7 @@ export default function AnalyzingPage() {
           }
         }
 
-        setReport({ ...reportData, shareId });
+        setReport({ ...reportData, shareId, userName: profileName, userCity: profileCity });
 
         // 분석 완료 후 Storage 이미지 삭제 (실패해도 리포트 이동 무관)
         if (faceStorageRef) deleteObject(faceStorageRef).catch(e => console.warn('Face delete failed:', e.message));
@@ -187,7 +205,7 @@ export default function AnalyzingPage() {
         <h2 className="text-xl font-bold text-[#3D2B2B] mb-2">분석 중 오류가 발생했습니다</h2>
         <p className="text-sm text-[#7A6060] mb-6 leading-relaxed">{error}</p>
         <button onClick={() => navigate('/survey')} className="btn-primary">다시 시도</button>
-        <button onClick={() => navigate('/')} className="text-sm text-[#9A8080] mt-3">홈으로 돌아가기</button>
+        <button onClick={() => navigate('/')} className="text-sm text-[#7A6060] mt-3">홈으로 돌아가기</button>
       </div>
     );
   }
@@ -212,7 +230,7 @@ export default function AnalyzingPage() {
         <div className="bg-cream-deeper rounded-full h-3 mb-3 overflow-hidden">
           <div className="h-full bg-rose-gradient rounded-full transition-all duration-700 ease-out" style={{ width: `${progressPct}%` }} />
         </div>
-        <p className="text-xs text-[#B0A0A0] mb-8">{Math.round(progressPct)}% 완료</p>
+        <p className="text-xs text-[#8A7A7A] mb-8">{Math.round(progressPct)}% 완료</p>
         <div className="space-y-2 text-left bg-white/60 backdrop-blur-sm rounded-3xl p-4 border border-white/80">
           {STEPS.slice(0, Math.min(stepIdx + 1, STEPS.length)).map((step, i) => (
             <div key={i} className="flex items-center gap-3 text-xs text-[#7A6060] animate-fade-in">
@@ -223,7 +241,7 @@ export default function AnalyzingPage() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-[#B0A0A0] mt-6">잠시만 기다려 주세요 · 약 30초 소요</p>
+        <p className="text-xs text-[#8A7A7A] mt-6">잠시만 기다려 주세요 · 약 30초 소요</p>
       </div>
     </div>
   );

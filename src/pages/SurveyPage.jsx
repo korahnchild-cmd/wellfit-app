@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp, SURVEY_QUESTIONS } from '../context/AppContext';
+import { useRequireLogin } from '../hooks/useRequireLogin';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
 const CATEGORY_COLORS = {
@@ -16,6 +17,7 @@ const SCORE_LABELS = ['전혀\n아님', '거의\n아님', '가끔\n그러함', '
 
 export default function SurveyPage() {
   const navigate = useNavigate();
+  useRequireLogin();
   const { surveyAnswers, setAnswer } = useApp();
   const [current, setCurrent] = useState(0);
   const [animDir, setAnimDir] = useState('right');
@@ -61,7 +63,7 @@ export default function SurveyPage() {
           <div className="flex-1">
             <div className="flex justify-between items-center mb-1">
               <h2 className="font-bold text-[#3D2B2B] text-sm">건강 설문</h2>
-              <span className="text-xs text-[#9A8080] font-medium">
+              <span className="text-xs text-[#7A6060] font-medium">
                 {current + 1} / {total}
               </span>
             </div>
@@ -83,7 +85,7 @@ export default function SurveyPage() {
               <div
                 key={cat}
                 className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
-                  isCurrent ? `${c.bg} ${c.text} border ${c.border}` : 'text-[#B0A0A0]'
+                  isCurrent ? `${c.bg} ${c.text} border ${c.border}` : 'text-[#8A7A7A]'
                 }`}
               >
                 {cat}
@@ -125,7 +127,7 @@ export default function SurveyPage() {
               <p className="text-xl font-bold text-[#3D2B2B] leading-snug mb-2">
                 {question.text}
               </p>
-              <p className="text-sm text-[#9A8080]">최근 2주 기준으로 답해주세요</p>
+              <p className="text-sm text-[#7A6060]">최근 2주 기준으로 답해주세요</p>
             </div>
           </div>
 
@@ -199,7 +201,7 @@ export default function SurveyPage() {
 
         {/* 완료 상태 */}
         <div className="mt-4 text-center">
-          <p className="text-xs text-[#9A8080]">
+          <p className="text-xs text-[#7A6060]">
             답변 완료:{' '}
             <span className={`font-semibold ${allAnswered ? 'text-green-500' : 'text-rose-gold'}`}>
               {answered}
@@ -228,10 +230,10 @@ export default function SurveyPage() {
             </p>
           </div>
         ) : (
-          <p className="text-xs text-center text-[#B0A0A0] py-2">
+          <p className="text-xs text-center text-[#8A7A7A] py-2">
             답변 완료: <span className="text-rose-gold font-semibold">{answered}</span> / {total}문항
             {answered >= total * 0.8 && (
-              <span className="ml-1 text-[#9A8080]">· 80% 이상 완료 시 분석 가능</span>
+              <span className="ml-1 text-[#7A6060]">· 80% 이상 완료 시 분석 가능</span>
             )}
           </p>
         )}
