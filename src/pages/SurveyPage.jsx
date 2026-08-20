@@ -18,8 +18,9 @@ const SCORE_LABELS = ['전혀\n아님', '거의\n아님', '가끔\n그러함', '
 export default function SurveyPage() {
   const navigate = useNavigate();
   useRequireLogin();
-  const { surveyAnswers, setAnswer } = useApp();
+  const { surveyAnswers, setAnswer, report, setReport } = useApp();
   const [current, setCurrent] = useState(0);
+  const [showReanalyze, setShowReanalyze] = useState(false);
   const [animDir, setAnimDir] = useState('right');
   const [visible, setVisible] = useState(true);
 
@@ -48,6 +49,24 @@ export default function SurveyPage() {
   };
 
   const canFinish = answered >= total * 0.8;
+
+  // 2026.8.20 — 재분석 확인.
+  // /report에서 뒤로가기로 이 화면에 돌아온 뒤 '분석 시작'을 누르면 같은 설문으로
+  // 유료 Gemini 호출이 다시 나가고 리포트가 중복 저장된다(분석 횟수·챌린지 집계도
+  // 함께 왜곡됨). 막지는 않되, 비용이 발생한다는 사실을 반드시 알린다.
+  const startAnalysis = () => {
+    if (report?.shareId) {
+      setShowReanalyze(true);
+      return;
+    }
+    navigate('/analyzing');
+  };
+
+  const confirmReanalyze = () => {
+    setReport(null);
+    setShowReanalyze(false);
+    navigate('/analyzing');
+  };
 
   return (
     <div className="page-container">
@@ -190,7 +209,7 @@ export default function SurveyPage() {
           ) : (
             <button
               id="survey-complete-btn"
-              onClick={() => navigate('/analyzing')}
+              onClick={startAnalysis}
               disabled={!canFinish}
               className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
             >
@@ -219,7 +238,7 @@ export default function SurveyPage() {
           <div className="space-y-2">
             <button
               id="analyze-now-btn"
-              onClick={() => navigate('/analyzing')}
+              onClick={startAnalysis}
               className="btn-primary w-full flex items-center justify-center gap-2 animate-pulse-soft"
             >
               <Sparkles size={18} />
@@ -238,6 +257,42 @@ export default function SurveyPage() {
           </p>
         )}
       </div>
+
+      {/* 재분석 확인 모달 (2026.8.20 — 뒤로가기 후 중복 분석 방지) */}
+      {showReanalyze && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+          onClick={(e) => e.target === e.currentTarget && setShowReanalyze(false)}
+        >
+          <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 animate-slide-up">
+            <h2 className="text-lg font-bold text-[#3D2B2B] mb-2">이미 분석한 결과가 있어요</h2>
+            <p className="text-sm text-[#7A6060] leading-relaxed mb-5">
+              지금 다시 분석하면 <span className="font-semibold text-[#3D2B2B]">분석 횟수가 1회 더 사용되고</span>,
+              새 리포트가 별도로 저장됩니다. 설문을 바꾸지 않으셨다면 기존 리포트를 그대로 보셔도 됩니다.
+            </p>
+            <div className="space-y-2">
+              <button
+                onClick={() => { setShowReanalyze(false); navigate('/report'); }}
+                className="btn-primary w-full"
+              >
+                기존 리포트 보기
+              </button>
+              <button
+                onClick={confirmReanalyze}
+                className="w-full py-3 rounded-2xl font-bold text-sm border border-rose-gold/40 text-rose-gold bg-white active:scale-95 transition-all"
+              >
+                새로 분석하기 (1회 사용)
+              </button>
+              <button
+                onClick={() => setShowReanalyze(false)}
+                className="w-full py-2 text-sm text-[#8A7A7A]"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

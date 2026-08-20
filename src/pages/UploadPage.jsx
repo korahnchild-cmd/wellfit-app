@@ -1,5 +1,5 @@
 // src/pages/UploadPage.jsx
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useRequireLogin } from '../hooks/useRequireLogin';
@@ -141,7 +141,18 @@ function ImageUploadCard({ id, title, subtitle, icon: Icon, preview, onFile, hin
 export default function UploadPage() {
   const navigate = useNavigate();
   useRequireLogin();
-  const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender } = useApp();
+  const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender, setReport } = useApp();
+
+  // 2026.8.20 — 업로드 화면 진입 = 새 분석 흐름의 시작.
+  // 이전 분석 결과를 여기서 비워야 SurveyPage의 '이미 분석함' 판정이 정확해진다.
+  // (홈 → 무료로 시작하기 / 로그인 → 시작하기 경로는 resetAll을 거치지 않아
+  //  컨텍스트에 옛 report가 그대로 남아 있었음)
+  // ReportPage는 컨텍스트가 비어 있으면 localStorage의 lastShareId로 복원하므로
+  // 기존 리포트를 다시 보는 경로에는 영향이 없다.
+  useEffect(() => {
+    setReport(null);
+  }, []);
+
   const [consentChecked, setConsentChecked] = useState(false);
   const [disclaimerChecked, setDisclaimerChecked] = useState(false);
 

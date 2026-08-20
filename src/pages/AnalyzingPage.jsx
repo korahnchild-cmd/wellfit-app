@@ -212,7 +212,11 @@ export default function AnalyzingPage() {
         if (nailStorageRef) deleteObject(nailStorageRef).catch(e => console.warn('Nail delete failed:', e.message));
 
         setStepIdx(STEPS.length - 1);
-        setTimeout(() => navigate('/report'), 1500);
+        // 2026.8.20 — replace로 이동해 /analyzing을 히스토리에서 제거한다.
+        // push로 두면 /report에서 뒤로가기 → /analyzing 진입 → (POP 가드가 다시
+        // /report로 replace) 로 '뒤로가기가 안 먹는' 것처럼 보이고, 두 번 눌러야
+        // /survey에 도달한다. 분석 화면은 지나가는 화면이므로 기록에 남길 이유가 없다.
+        setTimeout(() => navigate('/report', { replace: true }), 1500);
       } catch (err) {
         console.error('Analysis error:', err);
         setError(err.message || '분석 중 오류가 발생했습니다.');
