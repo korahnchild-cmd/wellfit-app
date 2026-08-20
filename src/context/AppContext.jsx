@@ -1,5 +1,5 @@
 // src/context/AppContext.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -42,6 +42,10 @@ function generateReferralCode(user) {
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [myReferralCode, setMyReferralCode] = useState('');
+
+  // 2026.8.20 — 직전 로그인 uid. 앱 최초 로드 시 발생하는 null 이벤트와
+  // '실제 로그아웃'을 구분하기 위해 필요(최초 로드의 null에서 초기화하면 안 됨).
+  const prevUidRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -90,6 +94,7 @@ export function AppProvider({ children }) {
           }
         }
 
+        prevUidRef.current = firebaseUser.uid;
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
@@ -105,6 +110,19 @@ export function AppProvider({ children }) {
           thisMonthEarnings: data.thisMonthEarnings || 0,
         });
       } else {
+        // 2026.8.20 — 로그아웃 시 입력 데이터 초기화.
+        // 기존에는 signOut(MyPage.jsx)이 Firebase 세션만 끊고 AppContext의
+        // faceImage/nailImage/surveyAnswers/actualAge/gender/report를 그대로 뒀다.
+        // → 로그아웃 후 '분석하기'를 누르면 이전 사용자의 얼굴·손톱 사진과 설문이
+        //   그대로 화면에 남아 있고 그 상태로 분석까지 진행됐음(공용 PC에서 개인정보 노출).
+        // localStorage의 lastShareId도 같이 지운다. 남겨두면 ReportPage가
+        // 이전 사용자의 리포트를 Firestore에서 그대로 복원해 보여준다
+        // (현행 firestore.rules는 reports 읽기를 전체 허용 중).
+        if (prevUidRef.current) {
+          resetAll();
+          localStorage.removeItem('lastShareId');
+        }
+        prevUidRef.current = null;
         setUser((prev) => (prev?.isGuest ? prev : null));
         setMyReferralCode('');
       }

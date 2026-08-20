@@ -29,7 +29,7 @@ const withTimeout = (promise, ms, label) => {
 export default function AnalyzingPage() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const { faceImage, nailImage, surveyAnswers, actualAge, gender, user, report, setReport } = useApp();
+  const { faceImage, nailImage, surveyAnswers, actualAge, gender, user, report, setReport, isAnalyzing, setIsAnalyzing } = useApp();
   const [stepIdx, setStepIdx] = useState(0);
   const [dots, setDots] = useState('');
   const [error, setError] = useState('');
@@ -76,6 +76,10 @@ export default function AnalyzingPage() {
     }
 
     analysisStarted.current = true;
+    // 2026.8.20 — 전역 in-flight 락. 이 화면을 벗어나도 doAnalysis는 계속 돌기 때문에,
+    // 그 사이 /survey에서 '분석 시작'을 다시 누르면 유료 호출이 동시에 2건 나가고
+    // 거의 같은 리포트가 2개 저장됐다(analysisStarted는 인스턴스 ref라 못 막음).
+    setIsAnalyzing(true);
 
     const doAnalysis = async () => {
       console.log('분석 시작!');
@@ -220,6 +224,8 @@ export default function AnalyzingPage() {
       } catch (err) {
         console.error('Analysis error:', err);
         setError(err.message || '분석 중 오류가 발생했습니다.');
+      } finally {
+        setIsAnalyzing(false);
       }
     };
 

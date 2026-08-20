@@ -18,9 +18,9 @@ const SCORE_LABELS = ['전혀\n아님', '거의\n아님', '가끔\n그러함', '
 export default function SurveyPage() {
   const navigate = useNavigate();
   useRequireLogin();
-  const { surveyAnswers, setAnswer, report, setReport } = useApp();
+  const { surveyAnswers, setAnswer, report, setReport, isAnalyzing } = useApp();
   const [current, setCurrent] = useState(0);
-  const [showReanalyze, setShowReanalyze] = useState(false);
+  const [showReanalyze, setShowReanalyze] = useState(null); // null | 'done' | 'running'
   const [animDir, setAnimDir] = useState('right');
   const [visible, setVisible] = useState(true);
 
@@ -55,8 +55,13 @@ export default function SurveyPage() {
   // 유료 Gemini 호출이 다시 나가고 리포트가 중복 저장된다(분석 횟수·챌린지 집계도
   // 함께 왜곡됨). 막지는 않되, 비용이 발생한다는 사실을 반드시 알린다.
   const startAnalysis = () => {
+    // 진행 중인 분석이 있으면 새로 시작하지 않는다(유료 호출 동시 2건 방지).
+    if (isAnalyzing) {
+      setShowReanalyze('running');
+      return;
+    }
     if (report?.shareId) {
-      setShowReanalyze(true);
+      setShowReanalyze('done');
       return;
     }
     navigate('/analyzing');
@@ -64,7 +69,7 @@ export default function SurveyPage() {
 
   const confirmReanalyze = () => {
     setReport(null);
-    setShowReanalyze(false);
+    setShowReanalyze(null);
     navigate('/analyzing');
   };
 
@@ -262,34 +267,53 @@ export default function SurveyPage() {
       {showReanalyze && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
-          onClick={(e) => e.target === e.currentTarget && setShowReanalyze(false)}
+          onClick={(e) => e.target === e.currentTarget && setShowReanalyze(null)}
         >
           <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 animate-slide-up">
-            <h2 className="text-lg font-bold text-[#3D2B2B] mb-2">이미 분석한 결과가 있어요</h2>
-            <p className="text-sm text-[#7A6060] leading-relaxed mb-5">
-              지금 다시 분석하면 <span className="font-semibold text-[#3D2B2B]">분석 횟수가 1회 더 사용되고</span>,
-              새 리포트가 별도로 저장됩니다. 설문을 바꾸지 않으셨다면 기존 리포트를 그대로 보셔도 됩니다.
-            </p>
-            <div className="space-y-2">
-              <button
-                onClick={() => { setShowReanalyze(false); navigate('/report'); }}
-                className="btn-primary w-full"
-              >
-                기존 리포트 보기
-              </button>
-              <button
-                onClick={confirmReanalyze}
-                className="w-full py-3 rounded-2xl font-bold text-sm border border-rose-gold/40 text-rose-gold bg-white active:scale-95 transition-all"
-              >
-                새로 분석하기 (1회 사용)
-              </button>
-              <button
-                onClick={() => setShowReanalyze(false)}
-                className="w-full py-2 text-sm text-[#8A7A7A]"
-              >
-                닫기
-              </button>
-            </div>
+            {showReanalyze === 'running' ? (
+              <>
+                <h2 className="text-lg font-bold text-[#3D2B2B] mb-2">분석이 진행 중이에요</h2>
+                <p className="text-sm text-[#7A6060] leading-relaxed mb-5">
+                  앞서 시작한 분석이 아직 끝나지 않았습니다. 완료되면 리포트 화면으로 자동으로 이동합니다.
+                  지금 다시 시작하면 <span className="font-semibold text-[#3D2B2B]">같은 분석이 두 번 실행</span>되어
+                  분석 횟수가 2회 사용됩니다.
+                </p>
+                <button
+                  onClick={() => setShowReanalyze(null)}
+                  className="btn-primary w-full"
+                >
+                  기다리기
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold text-[#3D2B2B] mb-2">이미 분석한 결과가 있어요</h2>
+                <p className="text-sm text-[#7A6060] leading-relaxed mb-5">
+                  지금 다시 분석하면 <span className="font-semibold text-[#3D2B2B]">분석 횟수가 1회 더 사용되고</span>,
+                  새 리포트가 별도로 저장됩니다. 설문을 바꾸지 않으셨다면 기존 리포트를 그대로 보셔도 됩니다.
+                </p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => { setShowReanalyze(null); navigate('/report'); }}
+                    className="btn-primary w-full"
+                  >
+                    기존 리포트 보기
+                  </button>
+                  <button
+                    onClick={confirmReanalyze}
+                    className="w-full py-3 rounded-2xl font-bold text-sm border border-rose-gold/40 text-rose-gold bg-white active:scale-95 transition-all"
+                  >
+                    새로 분석하기 (1회 사용)
+                  </button>
+                  <button
+                    onClick={() => setShowReanalyze(null)}
+                    className="w-full py-2 text-sm text-[#8A7A7A]"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

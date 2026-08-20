@@ -1,6 +1,6 @@
 // src/pages/UploadPage.jsx
 import { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useNavigationType } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useRequireLogin } from '../hooks/useRequireLogin';
 import { Camera, Fingerprint, ChevronRight, ChevronLeft, Check, Upload, Info } from 'lucide-react';
@@ -140,6 +140,7 @@ function ImageUploadCard({ id, title, subtitle, icon: Icon, preview, onFile, hin
 
 export default function UploadPage() {
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   useRequireLogin();
   const { faceImage, setFaceImage, nailImage, setNailImage, actualAge, setActualAge, gender, setGender, setReport } = useApp();
 
@@ -149,8 +150,13 @@ export default function UploadPage() {
   //  컨텍스트에 옛 report가 그대로 남아 있었음)
   // ReportPage는 컨텍스트가 비어 있으면 localStorage의 lastShareId로 복원하므로
   // 기존 리포트를 다시 보는 경로에는 영향이 없다.
+  // 2026.8.20 (2차 수정) — POP으로 들어왔을 땐 지우지 않는다.
+  // 1차 버전은 무조건 지웠는데, /report → 뒤로 → /survey → 뒤로 → /upload →
+  // 앞으로 → /survey 경로에서 이 초기화가 SurveyPage 재분석 확인 모달의 유일한
+  // 근거(report.shareId)를 지워버려, 아무 경고 없이 유료 재분석이 나갔다.
+  // 새 흐름 시작(홈·로그인에서 PUSH 진입)에서만 초기화한다.
   useEffect(() => {
-    setReport(null);
+    if (navigationType !== 'POP') setReport(null);
   }, []);
 
   const [consentChecked, setConsentChecked] = useState(false);
