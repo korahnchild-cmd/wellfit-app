@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage';
 import MyPage from './pages/MyPage';
 import PartnerDashboard from './pages/PartnerDashboard';
 import BottomNav from './components/BottomNav';
+import ErrorBoundary from './components/ErrorBoundary';
 import PrivacyPage from './pages/PrivacyPage';
 import KakaoCallbackPage from './pages/KakaoCallbackPage';
 import NaverCallbackPage from './pages/NaverCallbackPage';
@@ -21,6 +22,8 @@ export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
+        {/* 2026.8.12 — 렌더 예외가 앱 전체 흰 화면으로 번지지 않도록 감쌈 */}
+        <ErrorBoundary>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -39,6 +42,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNav />
+        </ErrorBoundary>
       </BrowserRouter>
     </AppProvider>
   );

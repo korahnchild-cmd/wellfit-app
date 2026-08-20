@@ -1,6 +1,6 @@
 // src/pages/AnalyzingPage.jsx
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useNavigationType } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { analyzeHealth } from '../gemini';
 import { storage, db } from '../firebase';
@@ -28,7 +28,8 @@ const withTimeout = (promise, ms, label) => {
 
 export default function AnalyzingPage() {
   const navigate = useNavigate();
-  const { faceImage, nailImage, surveyAnswers, actualAge, gender, user, setReport } = useApp();
+  const navigationType = useNavigationType();
+  const { faceImage, nailImage, surveyAnswers, actualAge, gender, user, report, setReport } = useApp();
   const [stepIdx, setStepIdx] = useState(0);
   const [dots, setDots] = useState('');
   const [error, setError] = useState('');
@@ -48,6 +49,32 @@ export default function AnalyzingPage() {
 
   useEffect(() => {
     if (analysisStarted.current) return;
+
+    // 2026.8.20 추가 — 뒤로가기 재분석 차단.
+    // /report에서 브라우저 뒤로가기를 누르면 이 페이지가 새로 마운트되면서
+    // analysisStarted ref가 false로 초기화되는데, AppContext에는 나이·설문·이미지가
+    // 그대로 남아 있어 아래 가드를 통과해 버린다 → 유료 Gemini 호출이 한 번 더 나가고
+    // 같은 내용의 리포트가 reports 컬렉션에 중복 저장됨.
+    // 정상 진입(SurveyPage의 '분석 시작')은 항상 PUSH이므로, POP(뒤로/앞으로/새로고침)
+    // 으로 들어온 경우에만 막는다. report 존재 여부만으로 판단하면
+    // '홈 → 무료로 시작하기 → 새 분석' 흐름(resetAll을 거치지 않음)이 옛 리포트로
+    // 튕기는 회귀가 생기므로 navigationType을 기준으로 삼는다.
+    if (navigationType === 'POP') {
+      navigate(report?.shareId ? '/report' : '/upload', { replace: true });
+      return;
+    }
+
+    // 2026.8.12 — 진입 가드. 이 페이지에서 새로고침하거나 /analyzing으로 직접
+    // 들어오면 AppContext가 초기화된 상태(actualAge='', 설문 전부 0)에서도 분석이
+    // 그대로 실행돼, "실제 나이: NaN세" 프롬프트로 유료 Gemini 호출이 나가고
+    // healthAge가 NaN인 쓰레기 문서가 reports 컬렉션에 저장됐음.
+    // 설문 응답이 하나도 없으면 정상 흐름을 타지 않은 것으로 보고 업로드로 되돌린다.
+    const answeredCount = Object.values(surveyAnswers || {}).filter(v => Number(v) > 0).length;
+    if (!actualAge || answeredCount === 0) {
+      navigate('/upload', { replace: true });
+      return;
+    }
+
     analysisStarted.current = true;
 
     const doAnalysis = async () => {

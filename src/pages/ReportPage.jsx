@@ -6,6 +6,18 @@ import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, X } from 'lu
 import { db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
+// 2026.8.12 — 베타 기간 수동 결제 안내 정보.
+// 기존에는 '유료 구독하기' 버튼이 존재하지 않는 /subscribe 라우트로 이동해
+// catch-all에 걸려 홈으로 튕겼음(결제 의사를 밝힌 고객을 그대로 잃는 경로).
+// 포트원 결제 붙이기 전까지는 계좌이체 안내 모달로 대체한다.
+// 실제 입금 계좌 (2026.8.20 입력 완료 — 포트원 결제 전환 시 이 상수와 모달을 함께 제거).
+const BETA_PAYMENT = {
+  bank: '카카오뱅크',
+  account: '3333-01-7246882',
+  holder: '김성훈',
+  amount: 59800,
+};
+
 // 게이지 색상/등급 톤 조정 (2026.7.4) — 3단계(양호/주의/관리필요)는 '주의' 구간이
 // 30~59%로 너무 넓어 대부분의 값이 한 등급에 몰리는 문제가 있어 5단계로 세분화.
 // 색도 임상 검사지 느낌(초록/노랑/빨강) 대신 브랜드 팔레트 그러데이션으로 변경.
@@ -85,6 +97,7 @@ export default function ReportPage() {
   const [pastReports, setPastReports] = useState([]);
   const [analysisCount, setAnalysisCount] = useState(0);
   const [showCertModal, setShowCertModal] = useState(false);
+  const [showPayModal, setShowPayModal] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [activeTab, setActiveTab] = useState('paid');
@@ -230,7 +243,9 @@ export default function ReportPage() {
   // 공유하기
   const handleShare = async () => {
     if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
-    const shareUrl = `https://korahnchild-cmd.github.io/wellfit-app/report-view/${report.shareId}`;
+    // 2026.8.12 — 구 GitHub Pages 도메인이 하드코딩돼 있어 공유받은 사람이
+    // 옛 배포본/404를 보게 됐음. 209행(리포트 보기)과 동일하게 origin 기준으로 통일.
+    const shareUrl = `${window.location.origin}/report-view/${report.shareId}`;
     setShareLoading(true);
     try {
       if (report.shareId) {
@@ -266,9 +281,11 @@ export default function ReportPage() {
 
   // 챌린지 인증서 공유
   const handleCertShare = async () => {
-    const text = `🏆 웰핏+ CHECK-UP 건강나이 챌린지 달성!\n\n${actualAge}세 실제 나이, AI 건강나이 ${challengeImprovement}세 젊어졌어요 ✨\n3개월 꾸준한 관리로 건강나이 챌린지 달성!\n\n나도 분석 받아보기 👇\nhttps://korahnchild-cmd.github.io/wellfit-app/`;
+    // 2026.8.12 — 구 GitHub Pages 도메인 → 현재 접속 호스트 기준으로 통일
+    const siteUrl = `${window.location.origin}/`;
+    const text = `🏆 웰핏+ CHECK-UP 건강나이 챌린지 달성!\n\n${actualAge}세 실제 나이, AI 건강나이 ${challengeImprovement}세 젊어졌어요 ✨\n3개월 꾸준한 관리로 건강나이 챌린지 달성!\n\n나도 분석 받아보기 👇\n${siteUrl}`;
     if (navigator.share) {
-      try { await navigator.share({ title: '웰핏+ 건강나이 챌린지 달성!', text, url: 'https://korahnchild-cmd.github.io/wellfit-app/' }); }
+      try { await navigator.share({ title: '웰핏+ 건강나이 챌린지 달성!', text, url: siteUrl }); }
       catch {}
     } else {
       await copyToClipboard(text);
@@ -739,7 +756,7 @@ export default function ReportPage() {
                 </>
               ) : (
                 <button
-                  onClick={() => navigate('/subscribe')}
+                  onClick={() => setShowPayModal(true)}
                   className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-rose transition-all active:scale-95"
                   style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)' }}
                 >
@@ -826,6 +843,59 @@ export default function ReportPage() {
       {toastMsg && (
         <div className="fixed bottom-36 left-1/2 -translate-x-1/2 z-50 bg-[#3D2B2B]/90 text-white text-sm px-5 py-2.5 rounded-full shadow-lg whitespace-nowrap">
           {toastMsg}
+        </div>
+      )}
+
+      {/* 베타 결제 안내 모달 (2026.8.12 — 죽은 /subscribe 라우트 대체) */}
+      {showPayModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setShowPayModal(false)}>
+          <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
+            <div style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)', padding: '24px', color: 'white', position: 'relative' }}>
+              <button onClick={() => setShowPayModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: 28, height: 28, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={16} />
+              </button>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', opacity: 0.85, marginBottom: 6 }}>SUBSCRIPTION</div>
+              <div style={{ fontSize: 19, fontWeight: 900, marginBottom: 4 }}>유료 구독 신청</div>
+              <div style={{ fontSize: 12.5, opacity: 0.9 }}>월 {BETA_PAYMENT.amount.toLocaleString()}원 · 월 4회 분석</div>
+            </div>
+
+            <div style={{ padding: '22px 24px', background: '#FDFAF6' }}>
+              <p style={{ fontSize: 13, color: '#5A4040', lineHeight: 1.7, marginBottom: 16 }}>
+                현재는 담당자가 직접 구독을 처리해 드리고 있습니다.
+                아래 계좌로 입금해 주시면 확인 후 구독이 활성화됩니다.
+              </p>
+
+              <div style={{ background: '#fff', borderRadius: 16, padding: '16px 18px', border: '1px solid rgba(200,149,108,0.25)', marginBottom: 14 }}>
+                {[
+                  { label: '입금 은행', value: BETA_PAYMENT.bank },
+                  { label: '계좌번호', value: BETA_PAYMENT.account },
+                  { label: '예금주', value: BETA_PAYMENT.holder },
+                  { label: '입금 금액', value: `${BETA_PAYMENT.amount.toLocaleString()}원` },
+                ].map(row => (
+                  <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0' }}>
+                    <span style={{ fontSize: 12.5, color: '#7A6060' }}>{row.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#3D2B2B', letterSpacing: '-0.2px' }}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={async () => {
+                  await copyToClipboard(`${BETA_PAYMENT.bank} ${BETA_PAYMENT.account} ${BETA_PAYMENT.holder}`);
+                  showToast('계좌 정보가 복사되었습니다');
+                }}
+                className="w-full py-3 rounded-2xl font-bold text-sm transition-all active:scale-95"
+                style={{ background: 'rgba(200,149,108,0.12)', color: '#C8956C', border: '1px solid rgba(200,149,108,0.3)' }}
+              >
+                계좌 정보 복사하기
+              </button>
+
+              <p style={{ fontSize: 11.5, color: '#8A7A7A', lineHeight: 1.7, marginTop: 14, textAlign: 'center' }}>
+                입금자명은 가입하신 이름으로 부탁드립니다.<br />
+                확인까지 영업일 기준 1일 정도 소요될 수 있습니다.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

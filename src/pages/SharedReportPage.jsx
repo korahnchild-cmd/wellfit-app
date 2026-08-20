@@ -202,13 +202,53 @@ export default function SharedReportPage() {
               {report.faceAnalysis && (
                 <div className="flex gap-3 p-3 bg-cream-dark rounded-2xl">
                   <span className="text-2xl">🤳</span>
-                  <div><p className="text-xs font-bold text-mauve mb-1">얼굴 피부 분석</p><p className="text-xs text-[#5A4A4A] leading-relaxed">{report.faceAnalysis}</p></div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-mauve mb-1">얼굴 피부 분석</p>
+                    {/* 2026.8.12 — v4 리포트는 faceAnalysis가 객체({moisture,tone,...})라
+                        문자열로 가정하고 그대로 렌더하면 React가 크래시(공유 링크 흰 화면)남.
+                        ReportPage.jsx와 동일한 typeof 분기를 적용해 공유 경로를 복구. */}
+                    {typeof report.faceAnalysis === 'object' ? (
+                      <div className="space-y-1">
+                        {[
+                          { icon: '💧', label: '수분도', key: 'moisture' },
+                          { icon: '✨', label: '피부 톤 균일도', key: 'tone' },
+                          { icon: '👁️', label: '다크서클', key: 'darkCircle' },
+                          { icon: '🔬', label: '모공 상태', key: 'pore' },
+                          { icon: '📊', label: '주름 분포', key: 'wrinkle' },
+                        ].filter(f => report.faceAnalysis[f.key]).map(f => (
+                          <p key={f.key} className="text-xs text-[#5A4A4A] leading-relaxed">
+                            <span className="mr-1">{f.icon}</span><span className="font-semibold">{f.label}:</span> {report.faceAnalysis[f.key]}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#5A4A4A] leading-relaxed">{report.faceAnalysis}</p>
+                    )}
+                  </div>
                 </div>
               )}
               {report.nailAnalysis && (
                 <div className="flex gap-3 p-3 bg-cream-dark rounded-2xl">
                   <span className="text-2xl">💅</span>
-                  <div><p className="text-xs font-bold text-mauve mb-1">손톱 상태 분석</p><p className="text-xs text-[#5A4A4A] leading-relaxed">{report.nailAnalysis}</p></div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-mauve mb-1">손톱 상태 분석</p>
+                    {typeof report.nailAnalysis === 'object' ? (
+                      <div className="space-y-1">
+                        {[
+                          { icon: '🎨', label: '색상/강도', key: 'color' },
+                          { icon: '🌿', label: '큐티클 상태', key: 'cuticle' },
+                          { icon: '〰️', label: '세로줄', key: 'ridge' },
+                          { icon: '🌙', label: '반달(루눌라)', key: 'lunula' },
+                        ].filter(f => report.nailAnalysis[f.key]).map(f => (
+                          <p key={f.key} className="text-xs text-[#5A4A4A] leading-relaxed">
+                            <span className="mr-1">{f.icon}</span><span className="font-semibold">{f.label}:</span> {report.nailAnalysis[f.key]}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#5A4A4A] leading-relaxed">{report.nailAnalysis}</p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

@@ -239,22 +239,32 @@ ${nailImage ? '【 손톱 이미지 분석 포함 】' : ''}
         body: JSON.stringify(requestBody),
       });
 
-      result = await response.json();
+      // 2026.8.12 — 상태코드 확인 전에 response.json()을 호출하고 있었음.
+      // Cloud Functions 인프라 레벨의 503/504는 본문이 JSON이 아니라 HTML이라
+      // 여기서 SyntaxError가 나면서 아래 503 재시도 분기까지 도달하지 못했음
+      // (재시도 3회 설계가 실제로는 동작하지 않던 상태). 파싱을 방어적으로 감싼다.
       console.log(`attempt ${attempt} status:`, response.status);
+      result = null;
+      try {
+        result = await response.json();
+      } catch {
+        console.warn(`attempt ${attempt}: 응답이 JSON이 아님 (status ${response.status})`);
+      }
 
-      if (response.ok && result.success) break;
+      if (response.ok && result?.success) break;
 
-      if (response.status === 503 && attempt < 3) {
-        console.log(`503 재시도 ${attempt}/3... 5초 대기`);
+      // 5xx는 일시적 오류로 보고 재시도 (503뿐 아니라 500/502/504도 포함)
+      if (response.status >= 500 && attempt < 3) {
+        console.log(`${response.status} 재시도 ${attempt}/3... 5초 대기`);
         await new Promise(r => setTimeout(r, 5000));
         continue;
       }
 
-      throw new Error(result.error || `서버 오류 (status ${response.status})`);
+      throw new Error(result?.error || `서버 오류 (status ${response.status})`);
     }
 
-    if (!result.success) {
-      throw new Error(result.error || '분석 실패');
+    if (!result?.success) {
+      throw new Error(result?.error || '분석 실패');
     }
 
     const parsed = result.data;
