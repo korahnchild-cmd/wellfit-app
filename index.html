@@ -1,6 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="v1">
   <head>
+    <!-- 2026.8.21 — 테마 무깜빡임 적용.
+         번들이 로드되기 전에 <html data-theme>를 확정해야 v1 색으로 한 번 그렸다가
+         v2로 바뀌는 깜빡임이 없다. 실패해도 기본값 v1이라 안전하다. -->
+    <script>
+      (function () {
+        try {
+          var t = new URLSearchParams(location.search).get('theme');
+          if (t !== 'v1' && t !== 'v2') t = localStorage.getItem('wf_theme');
+          if (t === 'v1' || t === 'v2') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { /* 기본값 v1 유지 */ }
+      })();
+    </script>
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4KGRYTSL6"></script>
 <script>

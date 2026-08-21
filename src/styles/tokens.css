@@ -1,0 +1,111 @@
+/* src/styles/tokens.css
+ *
+ * 2026.8.21 — 디자인 토큰 + 테마 스위치 (v1 ↔ v2)
+ *
+ * 목적: 구조 개편(v2) 디자인을 스위치 하나로 되돌릴 수 있게 한다.
+ * 규칙:
+ *   1) 색은 반드시 "R G B" 채널 3개로 정의한다. Tailwind의 투명도 수식어
+ *      (bg-rose-gold/10 같은 것, 현재 코드에 40곳 이상 있음)를 살리려면
+ *      rgb(var(--c-x) / <alpha-value>) 형태여야 하기 때문이다. HEX로 넣으면
+ *      /10 수식어가 전부 깨진다.
+ *   2) v1 값은 2026.8.21 시점의 실제 색과 100% 동일하다. 즉 data-theme="v1"
+ *      에서는 화면이 지금과 조금도 달라지지 않는다.
+ *   3) v2 값만 P3 디자인 작업에서 수정한다. v1은 건드리지 않는다.
+ */
+
+/* ── 기본값: v1. data-theme 속성이 없거나 잘못된 값이어도 v1으로 동작 ── */
+:root,
+:root[data-theme='v1'] {
+  /* 색 (R G B) */
+  --c-accent: 200 149 108;         /* rose-gold      #C8956C */
+  --c-accent-light: 232 184 154;   /* rose-gold-light #E8B89A */
+  --c-accent-dark: 166 116 80;     /* rose-gold-dark  #A67450 */
+  --c-secondary: 139 94 131;       /* mauve          #8B5E83 */
+  --c-secondary-light: 176 138 170;/* mauve-light    #B08AAA */
+  --c-secondary-dark: 107 68 100;  /* mauve-dark     #6B4464 */
+  --c-bg: 253 250 246;             /* cream          #FDFAF6 */
+  --c-bg-dark: 245 239 230;        /* cream-dark     #F5EFE6 */
+  --c-bg-deeper: 237 227 216;      /* cream-deeper   #EDE3D8 */
+  --c-ink: 61 43 43;               /* 본문 텍스트     #3D2B2B */
+  --c-ink-muted: 122 96 96;        /* 보조 텍스트     #7A6060 */
+  --c-ink-faint: 154 128 128;      /* 캡션           #9A8080 */
+  --c-surface: 255 255 255;        /* 카드 배경 */
+  --c-border: 237 227 216;         /* 카드 테두리 */
+
+  /* 위험도 구간색 — v1은 기존 5단계 팔레트 */
+  --c-risk-1: 95 168 143;          /* 매우 양호 #5FA88F */
+  --c-risk-2: 125 191 168;         /* 양호     #7DBFA8 */
+  --c-risk-3: 217 168 87;          /* 안정적   #D9A857 */
+  --c-risk-4: 232 160 56;          /* 관찰 필요 #E8A038 */
+  --c-risk-5: 139 94 131;          /* 관리 필요 #8B5E83 */
+
+  /* 그러데이션 */
+  --g-brand: linear-gradient(135deg, rgb(var(--c-accent)) 0%, rgb(var(--c-secondary)) 100%);
+  --g-bg: linear-gradient(180deg, rgb(var(--c-bg)) 0%, rgb(var(--c-bg-dark)) 100%);
+
+  /* 타이포 */
+  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', sans-serif;
+  --font-display: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', sans-serif;
+  --fs-body: 15px;
+  --lh-body: 1.5;
+
+  /* 형태 */
+  --r-card: 24px;                  /* rounded-3xl */
+  --r-btn: 16px;                   /* rounded-2xl */
+  --border-card: 1px;
+  --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-accent: 0 4px 20px rgb(var(--c-accent) / 0.3);
+
+  /* 간격 */
+  --sp-page-x: 16px;
+  --sp-section: 16px;
+
+  /* 접근성 */
+  --touch-min: 44px;
+}
+
+/* ── v2: 구조 개편판 ──────────────────────────────────────────────
+ * "이모지 앱"이 아니라 "잘 만든 검진 결과지".
+ * 아래 값은 브리프 §4-4의 토큰 초안을 그대로 옮긴 것으로, P3에서 확정한다.
+ * 지금은 스위치가 실제로 동작하는지 확인할 수 있을 정도만 채워 둔다.
+ */
+:root[data-theme='v2'] {
+  --c-accent: 184 137 90;          /* 브론즈 #B8895A — 기존보다 한 톤 낮춤 */
+  --c-accent-light: 214 178 140;
+  --c-accent-dark: 148 107 66;
+  --c-secondary: 107 122 140;      /* 회청 #6B7A8C */
+  --c-secondary-light: 146 158 173;
+  --c-secondary-dark: 82 95 110;
+  --c-bg: 247 244 238;             /* 종이 #F7F4EE */
+  --c-bg-dark: 240 236 228;
+  --c-bg-deeper: 233 228 218;      /* #E9E4DA */
+  --c-ink: 28 42 58;               /* 네이비 #1C2A3A */
+  --c-ink-muted: 92 106 122;
+  --c-ink-faint: 134 146 160;
+  --c-surface: 252 251 248;
+  --c-border: 226 220 208;         /* #E2DCD0 */
+
+  /* 채도 낮춘 3단계. 색만으로 구분하지 말고 라벨·위치를 함께 쓸 것(색약 대응) */
+  --c-risk-1: 79 122 90;           /* 낮음 #4F7A5A */
+  --c-risk-2: 79 122 90;
+  --c-risk-3: 184 137 58;          /* 주의 #B8893A */
+  --c-risk-4: 184 137 58;
+  --c-risk-5: 168 80 63;           /* 높음 #A8503F */
+
+  --g-brand: linear-gradient(135deg, rgb(var(--c-accent)) 0%, rgb(var(--c-accent-dark)) 100%);
+  --g-bg: linear-gradient(180deg, rgb(var(--c-bg)) 0%, rgb(var(--c-bg)) 100%);
+
+  --font-display: 'Noto Serif KR', 'Pretendard', serif;
+  --fs-body: 17px;
+  --lh-body: 1.65;
+
+  --r-card: 12px;
+  --r-btn: 12px;
+  --shadow-card: none;             /* 종이 위 종이 — 그림자 대신 테두리 */
+  --shadow-accent: none;
+
+  --sp-page-x: 20px;
+  --sp-section: 32px;
+
+  --touch-min: 48px;
+}

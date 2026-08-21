@@ -11,15 +11,19 @@
   }
 
   html {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', sans-serif;
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #FDFAF6;
+    background-color: rgb(var(--c-bg));
   }
 
   body {
-    background-color: #FDFAF6;
-    color: #3D2B2B;
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-ink));
+    /* html이 아니라 body에 건다. html에 font-size를 주면 rem 기준이 바뀌어
+       Tailwind의 간격·글자 크기가 전부 함께 스케일된다(예측 불가). */
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
     overflow-x: hidden;
     min-height: 100vh;
   }
@@ -28,10 +32,10 @@
     width: 4px;
   }
   ::-webkit-scrollbar-track {
-    background: #F5EFE6;
+    background: rgb(var(--c-bg-dark));
   }
   ::-webkit-scrollbar-thumb {
-    background: #C8956C;
+    background: rgb(var(--c-accent));
     border-radius: 2px;
   }
 }
@@ -66,7 +70,7 @@
 
   .page-container {
     @apply min-h-screen bg-cream-gradient max-w-md mx-auto relative overflow-y-auto;
-    background-color: #FDFAF6;
+    background-color: rgb(var(--c-bg));
     -webkit-overflow-scrolling: touch;
   }
 
@@ -83,22 +87,22 @@
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #C8956C 0%, #8B5E83 100%);
+    background: var(--g-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .bg-rose-gradient {
-    background: linear-gradient(135deg, #C8956C 0%, #8B5E83 100%);
+    background: var(--g-brand);
   }
 
   .shadow-rose {
-    box-shadow: 0 4px 20px rgba(200, 149, 108, 0.3);
+    box-shadow: var(--shadow-accent, 0 4px 20px rgb(var(--c-accent) / 0.3));
   }
 
   .shadow-mauve {
-    box-shadow: 0 4px 20px rgba(139, 94, 131, 0.3);
+    box-shadow: var(--shadow-accent, 0 4px 20px rgb(var(--c-secondary) / 0.3));
   }
 
   .animate-fade-in {
@@ -118,8 +122,8 @@
 .spinner-rose {
   width: 56px;
   height: 56px;
-  border: 4px solid rgba(200, 149, 108, 0.2);
-  border-top-color: #C8956C;
+  border: 4px solid rgb(var(--c-accent) / 0.2);
+  border-top-color: rgb(var(--c-accent));
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -127,9 +131,9 @@
 .spinner-large {
   width: 80px;
   height: 80px;
-  border: 5px solid rgba(200, 149, 108, 0.2);
-  border-top-color: #C8956C;
-  border-right-color: #8B5E83;
+  border: 5px solid rgb(var(--c-accent) / 0.2);
+  border-top-color: rgb(var(--c-accent));
+  border-right-color: rgb(var(--c-secondary));
   border-radius: 50%;
   animation: spin 1.2s linear infinite;
 }
@@ -159,7 +163,7 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg, #F5EFE6 25%, #EDE3D8 50%, #F5EFE6 75%);
+  background: linear-gradient(90deg, rgb(var(--c-bg-dark)) 25%, rgb(var(--c-bg-deeper)) 50%, rgb(var(--c-bg-dark)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -184,15 +188,15 @@
 
 /* Upload zone */
 .upload-zone {
-  border: 2px dashed #C8956C;
+  border: 2px dashed rgb(var(--c-accent));
   border-radius: 24px;
   transition: all 0.3s ease;
 }
 
 .upload-zone:hover,
 .upload-zone.drag-over {
-  border-color: #8B5E83;
-  background: rgba(200, 149, 108, 0.05);
+  border-color: rgb(var(--c-secondary));
+  background: rgb(var(--c-accent) / 0.05);
 }
 
 /* Radio / score buttons */
