@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { track, EV } from '../lib/track';
 import { RefreshCw, ChevronDown, ChevronUp, Shield, Star, FileText, X } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
@@ -209,6 +210,7 @@ export default function ReportPage() {
 
   // 리포트 보기
   const handleViewReport = async () => {
+    track(EV.REPORT_VIEW_CLICK);
     if (!userName.trim()) { alert('이름을 입력해주세요'); return; }
     if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     try {
@@ -242,6 +244,7 @@ export default function ReportPage() {
 
   // 공유하기
   const handleShare = async () => {
+    track(EV.REPORT_SHARE_CLICK, { method: navigator.share ? 'native' : 'clipboard' });
     if (!report.shareId) { alert('리포트 저장 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     // 2026.8.12 — 구 GitHub Pages 도메인이 하드코딩돼 있어 공유받은 사람이
     // 옛 배포본/404를 보게 됐음. 209행(리포트 보기)과 동일하게 origin 기준으로 통일.
@@ -756,7 +759,7 @@ export default function ReportPage() {
                 </>
               ) : (
                 <button
-                  onClick={() => setShowPayModal(true)}
+                  onClick={() => { track(EV.SUBSCRIBE_MODAL_OPEN); setShowPayModal(true); }}
                   className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-rose transition-all active:scale-95"
                   style={{ background: 'linear-gradient(135deg, #C9956B 0%, #B8829A 100%)' }}
                 >

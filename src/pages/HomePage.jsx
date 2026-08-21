@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useApp } from '../context/AppContext';
+import { track, EV } from '../lib/track';
 import { Link } from 'react-router-dom';
 import { X, Mail, Lock, Eye, EyeOff, Sparkles, Shield } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export default function HomePage() {
   }, []);
 
   const handleStart = () => {
+    track(EV.START_CLICK, { logged_in: Boolean(user) });
     if (user) {
       navigate('/upload');
     } else {

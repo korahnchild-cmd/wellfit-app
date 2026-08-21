@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { track, EV } from '../lib/track';
 import { Shield, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 // 게이지 색상/등급 톤 조정 (2026.7.4) — ReportPage.jsx와 동일하게 5단계로 세분화.
@@ -346,7 +347,7 @@ export default function SharedReportPage() {
         <div className="card bg-rose-gradient text-white text-center p-6">
           <p className="font-bold text-lg mb-2">나도 AI 건강 분석 받아보기</p>
           <p className="text-sm opacity-80 mb-4">셀카 한 장으로 나만의 건강 리포트를 받아보세요</p>
-          <button onClick={() => navigate('/')} className="bg-white text-rose-gold font-bold px-6 py-3 rounded-full text-sm">
+          <button onClick={() => { track(EV.SHARED_CTA_CLICK); navigate('/'); }} className="bg-white text-rose-gold font-bold px-6 py-3 rounded-full text-sm">
             무료로 시작하기 →
           </button>
         </div>

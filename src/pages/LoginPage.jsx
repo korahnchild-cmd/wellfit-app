@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup, signInWithCustomToken } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import { track, EV } from '../lib/track';
 import { Shield } from 'lucide-react';
 
 // 만료 검사 포함 읽기
@@ -94,6 +95,7 @@ export default function LoginPage() {
         await updateDoc(userRef, updateData);
       }
 
+      track(EV.LOGIN_SUCCESS, { provider: 'google', is_new: !snap.exists() });
       navigate('/');
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user') {

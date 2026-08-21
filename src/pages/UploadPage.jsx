@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate, useNavigationType } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { track, EV } from '../lib/track';
 import { useRequireLogin } from '../hooks/useRequireLogin';
 import { Camera, Fingerprint, ChevronRight, ChevronLeft, Check, Upload, Info } from 'lucide-react';
 import faceGuide from '../assets/face_guide.jpg';
@@ -355,7 +356,7 @@ export default function UploadPage() {
       <div className="px-4 pb-4 pt-4 bg-cream-gradient border-t border-cream-deeper" style={{ marginBottom: 80 }}>
         <button
           id="upload-next-btn"
-          onClick={() => navigate('/survey')}
+          onClick={() => { track(EV.UPLOAD_NEXT, { gender: gender || 'unknown' }); navigate('/survey'); }}
           disabled={!canProceed}
           className="btn-primary w-full flex items-center justify-center gap-2"
         >

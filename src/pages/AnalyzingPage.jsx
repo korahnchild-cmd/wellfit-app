@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useNavigationType } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { track, EV } from '../lib/track';
 import { analyzeHealth } from '../gemini';
 import { storage, db } from '../firebase';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -220,9 +221,14 @@ export default function AnalyzingPage() {
         // push로 두면 /report에서 뒤로가기 → /analyzing 진입 → (POP 가드가 다시
         // /report로 replace) 로 '뒤로가기가 안 먹는' 것처럼 보이고, 두 번 눌러야
         // /survey에 도달한다. 분석 화면은 지나가는 화면이므로 기록에 남길 이유가 없다.
+        track(EV.ANALYSIS_SUCCESS, {
+          saved: Boolean(shareId),          // false면 Firestore 저장에 최종 실패한 것
+          logged_in: Boolean(user && !user.isGuest),
+        });
         setTimeout(() => navigate('/report', { replace: true }), 1500);
       } catch (err) {
         console.error('Analysis error:', err);
+        track(EV.ANALYSIS_FAIL, { reason: String(err?.message || 'unknown').slice(0, 100) });
         setError(err.message || '분석 중 오류가 발생했습니다.');
       } finally {
         setIsAnalyzing(false);

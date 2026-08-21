@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp, SURVEY_QUESTIONS } from '../context/AppContext';
+import { track, EV } from '../lib/track';
 import { useRequireLogin } from '../hooks/useRequireLogin';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
@@ -64,10 +65,12 @@ export default function SurveyPage() {
       setShowReanalyze('done');
       return;
     }
+    track(EV.ANALYSIS_START, { mode: 'new', answered });
     navigate('/analyzing');
   };
 
   const confirmReanalyze = () => {
+    track(EV.ANALYSIS_START, { mode: 'reanalyze', answered });
     setReport(null);
     setShowReanalyze(null);
     navigate('/analyzing');
